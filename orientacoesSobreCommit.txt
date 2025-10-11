@@ -1,0 +1,7 @@
+Proposta para commit:
+
+Nome:localAlteração-mensagemCurta
+
+exemplo:
+
+Wendell:classe Usuario-adição atributo String CPF

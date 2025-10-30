@@ -9,6 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -18,9 +20,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Activities {
+
     @Id
     @GeneratedValue
     private UUID idAtividade;
+
     private String nome;
     private String descricao;
     private String tipoExercicio;
@@ -35,7 +39,12 @@ public class Activities {
     @JoinColumn(name = "professional_numCouncil")
     private Professional professional;
 
+    // CORRIGIDO: ManyToMany com JoinTable + coleção de Report
     @ManyToMany
-    @JoinColumn(name = "report_id")
-    private Report report;
+    @JoinTable(
+            name = "activity_report",
+            joinColumns = @JoinColumn(name = "activity_id"),
+            inverseJoinColumns = @JoinColumn(name = "report_id")
+    )
+    private Set<Report> reports = new HashSet<>();
 }

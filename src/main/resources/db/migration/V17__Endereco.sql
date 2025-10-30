@@ -1,4 +1,4 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto"
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 CREATE TABLE address(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

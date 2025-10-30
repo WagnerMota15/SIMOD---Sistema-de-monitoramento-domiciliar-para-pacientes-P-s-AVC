@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -16,14 +18,21 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address {
+
     @Id
     @GeneratedValue
     private UUID id;
+
     private String cep;
     private String numero;
+    private String complemento;
     private String descricao;
 
     @ManyToMany
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
+    @JoinTable(
+            name = "patient_address",
+            joinColumns = @JoinColumn(name = "address_id"),
+            inverseJoinColumns = @JoinColumn(name = "patient_id")
+    )
+    private Set<Patient> patients = new HashSet<>();
 }

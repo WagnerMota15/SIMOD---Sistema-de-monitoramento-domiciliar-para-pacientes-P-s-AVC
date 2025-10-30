@@ -9,6 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -22,9 +25,9 @@ public class Medicines {
     @GeneratedValue
     private UUID id;
     private String nome;
-    private float dosagem;
+    private BigDecimal dosagem;
     private String unidade;
-    private int frenquencia;
+    private int frequencia;
     private String descricao;
 
     @ManyToOne
@@ -36,6 +39,10 @@ public class Medicines {
     private Professional professional;
 
     @ManyToMany
-    @JoinColumn(name = "report_id")
-    private Report report;
+    @JoinTable(
+            name = "medicine_report",
+            joinColumns = @JoinColumn(name = "medicine_id"),
+            inverseJoinColumns = @JoinColumn(name = "report_id")
+    )
+    private Set<Report> reports = new HashSet<>();
 }

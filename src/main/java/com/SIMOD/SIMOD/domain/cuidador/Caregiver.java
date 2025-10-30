@@ -1,15 +1,15 @@
 package com.SIMOD.SIMOD.domain.cuidador;
 
 import com.SIMOD.SIMOD.domain.paciente.Patient;
-import com.SIMOD.SIMOD.domain.relatorio.Report;
 import com.SIMOD.SIMOD.domain.usuario.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -18,17 +18,20 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Caregiver extends User {
+public class Caregiver{
     @Id
     @GeneratedValue
     private UUID idCuidador;
-    private Boolean vinculadoPatient;
-
-    @ManyToMany
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
 
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToMany
+    @JoinTable(
+            name = "caregiver_patient",
+            joinColumns = @JoinColumn(name = "caregiver_id"),
+            inverseJoinColumns = @JoinColumn(name = "patient_id")
+    )
+    private Set<Patient> patients = new HashSet<>();
 }

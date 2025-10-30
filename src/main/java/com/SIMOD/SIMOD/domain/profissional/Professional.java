@@ -8,7 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.UUID;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "professional")
@@ -17,13 +18,18 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Professional {
+    @Id
     private String numCouncil;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
     @ManyToMany
-    @JoinColumn(name = "patient_id")
-    private Patient patient;
+    @JoinTable(
+            name = "patient_professional",
+            joinColumns = @JoinColumn(name = "professional_num_council"),
+            inverseJoinColumns = @JoinColumn(name = "patient_id")
+    )
+    private Set<Patient> patients = new HashSet<>();
 }

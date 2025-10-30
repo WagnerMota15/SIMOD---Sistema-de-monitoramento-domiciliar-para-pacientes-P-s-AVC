@@ -16,6 +16,9 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Family {
+    @Id
+    @GeneratedValue
+    private UUID id;
     private String nome;
     private String contato;
     private String parentesco;

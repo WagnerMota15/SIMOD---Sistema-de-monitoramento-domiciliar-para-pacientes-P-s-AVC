@@ -9,10 +9,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "Diet")
+@Table(name = "diet")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -21,7 +23,7 @@ public class Diet {
     @Id
     @GeneratedValue
     private UUID id;
-    private int frenqRefeicoes;
+    private int freqRefeicoes;
     private String horarios;
     private String descricao;
 
@@ -34,6 +36,10 @@ public class Diet {
     private Professional professional;
 
     @ManyToMany
-    @JoinColumn(name = "report_id")
-    private Report report;
+    @JoinTable(
+            name = "diet_report",
+            joinColumns = @JoinColumn(name = "diet_id"),
+            inverseJoinColumns = @JoinColumn(name = "report_id")
+    )
+    private Set<Report> reports = new HashSet<>();
 }

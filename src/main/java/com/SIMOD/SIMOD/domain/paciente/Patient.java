@@ -1,13 +1,19 @@
 package com.SIMOD.SIMOD.domain.paciente;
 
+import com.SIMOD.SIMOD.domain.atividades.Activities;
+import com.SIMOD.SIMOD.domain.cuidador.Caregiver;
+import com.SIMOD.SIMOD.domain.dieta.Diet;
+import com.SIMOD.SIMOD.domain.endereço.Address;
+import com.SIMOD.SIMOD.domain.familiares.Family;
+import com.SIMOD.SIMOD.domain.historicoMedico.Historical;
+import com.SIMOD.SIMOD.domain.medicamentos.Medicines;
 import com.SIMOD.SIMOD.domain.profissional.Professional;
 import com.SIMOD.SIMOD.domain.usuario.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -21,14 +27,37 @@ public class Patient {
     @GeneratedValue
     private UUID id;
     private String tipoAVC;
-    private Boolean vinculoProfessional;
-    private Boolean vinculoCaregiver;
 
     @OneToOne
     @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToMany
-    @JoinColumn(name = "professional_numCouncil")
-    private Professional professional;
+    @JoinTable(
+            name = "patient_professional",
+            joinColumns = @JoinColumn(name = "patient_id"),
+            inverseJoinColumns = @JoinColumn(name = "professional_num_council")
+    )
+    private Set<Professional> professionals = new HashSet<>();
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Activities> activities = new HashSet<>();
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Diet> diets = new HashSet<>();
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Medicines> medicines = new HashSet<>();
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Family> familyMembers = new HashSet<>();
+
+    @OneToMany(mappedBy = "patient")
+    private Set<Historical> medicalHistory = new HashSet<>();
+
+    @ManyToMany(mappedBy = "patients")
+    private Set<Address> addresses = new HashSet<>();
+
+    @ManyToMany(mappedBy = "patients")
+    private Set<Caregiver> caregivers = new HashSet<>();
 }

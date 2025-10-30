@@ -1,6 +1,0 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto"
-
-CREATE TABLE professional(
-    numCouncil VARCHAR(20) UNIQUE PRIMARY KEY,
-    FOREIGN KEY (user_id) REFERENCES user(id) ON DELETE CASCADE
-);

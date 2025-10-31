@@ -1,9 +1,7 @@
-CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
 CREATE TABLE professionalHasPatient(
-    professional_id UUID NOT NULL,,
-    patient_id UUID NOT NULL,,
-    PRIMARY KEY (professional_id, patient_id),
-    FOREIGN KEY (professional_id) REFERENCES professional(id) ON DELETE CASCADE,
-    FOREIGN KEY (patient_id) REFERENCES patient(id) ON DELETE CASCADE,
+    professional_numCouncil VARCHAR(20) UNIQUE NOT NULL,
+    patient_id UUID NOT NULL,
+    PRIMARY KEY (professional_numCouncil, patient_id),
+    FOREIGN KEY (professional_numCouncil) REFERENCES professional(numCouncil) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patient(id) ON DELETE CASCADE
 );

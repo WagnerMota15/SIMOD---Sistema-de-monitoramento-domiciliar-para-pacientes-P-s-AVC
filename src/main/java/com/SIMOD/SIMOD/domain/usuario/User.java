@@ -11,7 +11,7 @@ import lombok.Setter;
 import java.util.UUID;
 
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -20,9 +20,10 @@ public class User {
     @Id
     @GeneratedValue
     private UUID id;
-    private String cpf;
-    private String nome;
+
+    private String CPF;
+    private String nomeComplete;
     private String email;
-    private String senha;
-    private String telefone;
+    private String password;
+    private String telephone;
 }

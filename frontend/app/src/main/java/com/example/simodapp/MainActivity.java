@@ -1,10 +1,13 @@
 package com.example.simodapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -20,6 +23,7 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private EditText nomeCompleto,cpf,email,senha,telefone;
+    private ImageButton btnBack;
     private Button botaoCadastro;
     private APIService apiService;
 
@@ -41,6 +45,13 @@ public class MainActivity extends AppCompatActivity {
         senha = findViewById(R.id.editTextText5);
         botaoCadastro = findViewById(R.id.button);
 
+        btnBack = findViewById(R.id.btn_back);
+        btnBack.setOnClickListener(v -> {
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+            finish(); // opcional: impede voltar com o botão físico do celular
+        });
+
         apiService = APIBackend.getClient().create(APIService.class);
 
         botaoCadastro.setOnClickListener(new View.OnClickListener() {
@@ -49,9 +60,6 @@ public class MainActivity extends AppCompatActivity {
                 fazerCadastro();
             }
         });
-
-
-
     }
 
     private void fazerCadastro() {
@@ -73,8 +81,8 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     User usuarioCriado = response.body();
                     Toast.makeText(MainActivity.this, "Usuário criado com ID: " + usuarioCriado.getId(), Toast.LENGTH_LONG).show();
-
-
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    finish();
 
                 } else {
                     // Falha (ex: CPF já existe, erro de servidor)

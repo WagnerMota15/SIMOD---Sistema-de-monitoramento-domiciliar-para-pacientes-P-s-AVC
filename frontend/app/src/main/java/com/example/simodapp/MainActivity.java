@@ -46,10 +46,10 @@ public class MainActivity extends AppCompatActivity {
         botaoCadastro = findViewById(R.id.button);
 
         btnBack = findViewById(R.id.btn_back);
-        btnBack.setOnClickListener(v -> {
+        btnBack.setOnClickListener(v -> { // botão para voltar para a tela de login
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-            finish(); // opcional: impede voltar com o botão físico do celular
+            finish();
         });
 
         apiService = APIBackend.getClient().create(APIService.class);

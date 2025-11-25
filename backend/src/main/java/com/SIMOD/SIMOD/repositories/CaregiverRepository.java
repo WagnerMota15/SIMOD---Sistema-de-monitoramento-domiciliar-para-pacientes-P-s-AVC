@@ -1,4 +1,4 @@
-package repositories;
+package com.SIMOD.SIMOD.repositories;
 
 import com.SIMOD.SIMOD.domain.cuidador.Caregiver;
 import org.springframework.data.jpa.repository.JpaRepository;

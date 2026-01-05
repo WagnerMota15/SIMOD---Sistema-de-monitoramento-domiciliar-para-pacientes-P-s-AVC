@@ -18,14 +18,7 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Caregiver{
-    @Id
-    @GeneratedValue
-    private UUID idCuidador;
-
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+public class Caregiver extends User{
 
     @ManyToMany
     @JoinTable(

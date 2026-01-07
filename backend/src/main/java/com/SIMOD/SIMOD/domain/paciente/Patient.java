@@ -23,7 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Patient extends User{
-    
+
     private String tipoAVC;
 
     @ManyToMany

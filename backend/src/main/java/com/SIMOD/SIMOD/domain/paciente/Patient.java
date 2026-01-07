@@ -22,21 +22,15 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Patient {
-    @Id
-    @GeneratedValue
-    private UUID id;
-    private String tipoAVC;
+public class Patient extends User{
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+    private String tipoAVC;
 
     @ManyToMany
     @JoinTable(
             name = "patient_professional",
             joinColumns = @JoinColumn(name = "patient_id"),
-            inverseJoinColumns = @JoinColumn(name = "professional_num_council")
+            inverseJoinColumns = @JoinColumn(name = "professional_id")
     )
     private Set<Professional> professionals = new HashSet<>();
 

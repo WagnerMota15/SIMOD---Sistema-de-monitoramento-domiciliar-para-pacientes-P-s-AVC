@@ -1,8 +1,9 @@
 package com.SIMOD.SIMOD.controller;
 
+import com.SIMOD.SIMOD.domain.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.usuario.User;
-import com.SIMOD.SIMOD.domain.usuario.UserRequest;
-import com.SIMOD.SIMOD.services.UserService;
+import com.SIMOD.SIMOD.dto.CaregiverRequest;
+import com.SIMOD.SIMOD.services.CaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,18 +12,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/dto")
 
-
-public class UserController {
-
+public class CuidadorController {
     @Autowired
-    private UserService userService;
+    private CaregiverService caregiverService;
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody UserRequest body){
-        User usuario = this.userService.criarUsuario(body);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<Caregiver> create(@RequestBody CaregiverRequest body){
+        Caregiver cuidador = this.caregiverService.criarCuidador(body);
+        return ResponseEntity.ok(cuidador);
 
     }
 }

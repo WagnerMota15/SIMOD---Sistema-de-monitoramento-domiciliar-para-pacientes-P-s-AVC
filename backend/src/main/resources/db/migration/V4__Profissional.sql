@@ -1,5 +1,5 @@
 CREATE TABLE professional(
-    numCouncil VARCHAR(20) UNIQUE PRIMARY KEY,
-    user_id UUID NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    id UUID PRIMARY KEY,
+    num_council VARCHAR(20) NOT NULL UNIQUE,
+    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
 );

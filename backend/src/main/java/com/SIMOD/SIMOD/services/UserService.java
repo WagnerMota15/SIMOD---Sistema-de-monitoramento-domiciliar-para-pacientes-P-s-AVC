@@ -17,7 +17,7 @@ public class UserService {
         //criação do usuário com seus dados
         User novoUsuario = new User();
         novoUsuario.setCPF(dado.CPF());
-        novoUsuario.setNomeComplete(dado.nomeComplete());
+        novoUsuario.setNomeCompleto(dado.nomeComplete());
         novoUsuario.setEmail(dado.email());
         novoUsuario.setPassword(dado.password());
         novoUsuario.setTelephone(dado.telephone());

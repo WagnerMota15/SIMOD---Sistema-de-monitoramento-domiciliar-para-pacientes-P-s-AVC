@@ -1,9 +1,6 @@
 package com.SIMOD.SIMOD.domain.usuario;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +13,19 @@ import java.util.UUID;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+@Inheritance(strategy = InheritanceType.JOINED)
+
+//coluna no bd que separa os tipos de usuários(paciente,cuidador,profissional)
+@DiscriminatorColumn(name = "tipo_usuario")
+
+public abstract class User {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String CPF;
-    private String nomeComplete;
+    private String nomeCompleto;
     private String email;
     private String password;
     private String telephone;

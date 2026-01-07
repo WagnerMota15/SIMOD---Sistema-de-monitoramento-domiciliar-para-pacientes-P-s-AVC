@@ -1,12 +1,18 @@
 package com.example.simodapp;
 
+<<<<<<< HEAD
 import android.content.Intent;
+=======
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+<<<<<<< HEAD
 import android.widget.ImageButton;
+=======
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -15,8 +21,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+<<<<<<< HEAD
 import com.example.simodapp.login.LoginActivity;
 
+=======
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,7 +33,10 @@ import retrofit2.Response;
 public class MainActivity extends AppCompatActivity {
 
     private EditText nomeCompleto,cpf,email,senha,telefone;
+<<<<<<< HEAD
     private ImageButton btnBack;
+=======
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
     private Button botaoCadastro;
     private APIService apiService;
 
@@ -46,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         senha = findViewById(R.id.editTextText5);
         botaoCadastro = findViewById(R.id.button);
 
+<<<<<<< HEAD
         btnBack = findViewById(R.id.btn_back);
         btnBack.setOnClickListener(v -> { // botão para voltar para a tela de login
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
@@ -53,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
             finish();
         });
 
+=======
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
         apiService = APIBackend.getClient().create(APIService.class);
 
         botaoCadastro.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
                 fazerCadastro();
             }
         });
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
     }
 
     private void fazerCadastro() {
@@ -82,8 +103,13 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     User usuarioCriado = response.body();
                     Toast.makeText(MainActivity.this, "Usuário criado com ID: " + usuarioCriado.getId(), Toast.LENGTH_LONG).show();
+<<<<<<< HEAD
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     finish();
+=======
+
+
+>>>>>>> b41d5a546f4588b9e6935e6343a4affe68e7555c
 
                 } else {
                     // Falha (ex: CPF já existe, erro de servidor)

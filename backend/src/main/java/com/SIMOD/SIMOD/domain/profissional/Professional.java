@@ -17,18 +17,14 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Professional {
-    @Id
-    private String numCouncil;
+public abstract class Professional extends User{
 
-    @OneToOne
-    @JoinColumn(name = "user_id", unique = true)
-    private User user;
+    private String numCouncil;
 
     @ManyToMany
     @JoinTable(
             name = "patient_professional",
-            joinColumns = @JoinColumn(name = "professional_num_council"),
+            joinColumns = @JoinColumn(name = "professional_id"),
             inverseJoinColumns = @JoinColumn(name = "patient_id")
     )
     private Set<Patient> patients = new HashSet<>();

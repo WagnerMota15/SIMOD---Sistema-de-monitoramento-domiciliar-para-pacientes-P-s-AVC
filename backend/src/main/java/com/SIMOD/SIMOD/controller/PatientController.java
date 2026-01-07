@@ -1,8 +1,10 @@
 package com.SIMOD.SIMOD.controller;
 
+import com.SIMOD.SIMOD.domain.paciente.Patient;
 import com.SIMOD.SIMOD.domain.usuario.User;
 import com.SIMOD.SIMOD.domain.usuario.UserRequest;
-import com.SIMOD.SIMOD.services.UserService;
+import com.SIMOD.SIMOD.dto.PatientRequest;
+import com.SIMOD.SIMOD.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,18 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/usuario")
+@RequestMapping("/dto")
 
 
-public class UserController {
+public class PatientController {
 
     @Autowired
-    private UserService userService;
+    PatientService patientService;
+
 
     @PostMapping
-    public ResponseEntity<User> create(@RequestBody UserRequest body){
-        User usuario = this.userService.criarUsuario(body);
-        return ResponseEntity.ok(usuario);
-
+    public ResponseEntity<Patient> create(@RequestBody PatientRequest body){
+        Patient paciente = this.patientService.criarPaciente(body);
+        return ResponseEntity.ok(paciente);
     }
 }

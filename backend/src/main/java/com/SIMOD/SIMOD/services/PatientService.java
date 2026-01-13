@@ -13,7 +13,7 @@ public class PatientService {
     public Patient criarPaciente(PatientRequest dado){
 
         Patient novoPaciente = new Patient();
-        novoPaciente.setNomeComplete(dado.nomeComplete());
+        novoPaciente.setNameComplete(dado.nomeComplete());
         novoPaciente.setEmail(dado.email());
         novoPaciente.setCPF(dado.CPF());
         novoPaciente.setPassword(dado.password());

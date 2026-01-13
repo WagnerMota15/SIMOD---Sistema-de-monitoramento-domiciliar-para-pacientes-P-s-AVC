@@ -1,7 +1,6 @@
 package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.domain.cuidador.Caregiver;
-import com.SIMOD.SIMOD.domain.usuario.User;
 import com.SIMOD.SIMOD.dto.CaregiverRequest;
 import com.SIMOD.SIMOD.services.CaregiverService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/dto")
 
-public class CuidadorController {
+public class CaregiverController {
     @Autowired
     private CaregiverService caregiverService;
 

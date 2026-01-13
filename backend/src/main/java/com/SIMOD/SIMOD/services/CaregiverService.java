@@ -1,7 +1,7 @@
 package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.domain.cuidador.Caregiver;
-import com.SIMOD.SIMOD.dto.CaregiverRequest;
+import com.SIMOD.SIMOD.dto.RegisterCaregiverRequest;
 import com.SIMOD.SIMOD.repositories.CaregiverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,7 +11,7 @@ public class CaregiverService {
     @Autowired
     public CaregiverRepository caregiverRepository;
 
-    public Caregiver criarCuidador(CaregiverRequest dado){
+    public Caregiver criarCuidador(RegisterCaregiverRequest dado){
 
         Caregiver novoCuidador = new Caregiver();
         novoCuidador.setCPF(dado.CPF());

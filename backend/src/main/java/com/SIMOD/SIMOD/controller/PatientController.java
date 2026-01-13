@@ -1,9 +1,7 @@
 package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.domain.paciente.Patient;
-import com.SIMOD.SIMOD.domain.usuario.User;
-import com.SIMOD.SIMOD.domain.usuario.UserRequest;
-import com.SIMOD.SIMOD.dto.PatientRequest;
+import com.SIMOD.SIMOD.dto.RegisterPatientRequest;
 import com.SIMOD.SIMOD.services.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +21,7 @@ public class PatientController {
 
 
     @PostMapping
-    public ResponseEntity<Patient> create(@RequestBody PatientRequest body){
+    public ResponseEntity<Patient> create(@RequestBody RegisterPatientRequest body){
         Patient paciente = this.patientService.criarPaciente(body);
         return ResponseEntity.ok(paciente);
     }

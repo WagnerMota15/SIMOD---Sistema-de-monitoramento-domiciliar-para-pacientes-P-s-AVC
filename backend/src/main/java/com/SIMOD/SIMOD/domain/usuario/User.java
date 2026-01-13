@@ -25,7 +25,7 @@ public abstract class User {
     private UUID id;
 
     private String CPF;
-    private String nomeComplete;
+    private String nameComplete;
     private String email;
     private String password;
     private String telephone;

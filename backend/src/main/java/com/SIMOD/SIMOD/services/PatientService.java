@@ -20,7 +20,7 @@ public class PatientService {
         novoPaciente.setCPF(dado.CPF());
         novoPaciente.setPassword(dado.password());
         novoPaciente.setTelephone(dado.telephone());
-        novoPaciente.setTipoAVC(dado.tipoAVC());
+//        novoPaciente.setTipoAVC(dado.tipoAVC());
         return patientRepository.save(novoPaciente);
 
     }

@@ -1,6 +1,6 @@
 package com.SIMOD.SIMOD.repositories;
 
-import com.SIMOD.SIMOD.domain.paciente.Patient;
+import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

@@ -1,5 +1,4 @@
 CREATE TABLE patient (
     id UUID PRIMARY KEY,
-    typeAVC VARCHAR(45) NOT NULL,
     FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
 );

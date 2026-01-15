@@ -1,6 +1,6 @@
 package com.SIMOD.SIMOD.repositories;
 
-import com.SIMOD.SIMOD.domain.historicoMedico.Historical;
+import com.SIMOD.SIMOD.domain.model.historicoMedico.Historical;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

@@ -1,9 +1,14 @@
 package com.SIMOD.SIMOD.services;
 
-import com.SIMOD.SIMOD.domain.profissional.Professional;
+import org.springframework.stereotype.Service;
 
-public abstract class ProfessionalService<T extends Professional> {
-    
+@Service
+public class ProfessionalService {
+    //regras comuns de todos os profissionais da saúde
+
+    public static void session(){}
+    public static void linkPatient(){}
+    public static void unlinkPatient(){}
 
 
 }

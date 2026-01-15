@@ -1,6 +1,6 @@
 package com.SIMOD.SIMOD.repositories;
 
-import com.SIMOD.SIMOD.domain.relatorio.Report;
+import com.SIMOD.SIMOD.domain.model.relatorio.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.UUID;

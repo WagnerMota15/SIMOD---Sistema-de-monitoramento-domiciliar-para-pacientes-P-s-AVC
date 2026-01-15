@@ -1,7 +1,7 @@
 package com.SIMOD.SIMOD.services;
 
-import com.SIMOD.SIMOD.domain.cuidador.Caregiver;
-import com.SIMOD.SIMOD.dto.RegisterCaregiverRequest;
+import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
+import com.SIMOD.SIMOD.dto.auth.RegisterCaregiverRequest;
 import com.SIMOD.SIMOD.repositories.CaregiverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,9 @@
 package com.SIMOD.SIMOD.services;
 
-import com.SIMOD.SIMOD.domain.medical.Medico;
+import org.springframework.stereotype.Service;
 
-public class MedicalService extends ProfessionalService<Medico>{
+@Service
+public class MedicalService{
 
 
 

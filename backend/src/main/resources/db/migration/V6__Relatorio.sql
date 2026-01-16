@@ -2,7 +2,7 @@ CREATE TABLE report(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     expedience TIMESTAMP NOT NULL,
     assessment VARCHAR(200) NOT NULL,
-    feedbackPatient VARCHAR(45),
+    feedback_patient VARCHAR(45),
     patient_id UUID NOT NULL,
     professional_id UUID NOT NULL,
     FOREIGN KEY (patient_id) REFERENCES patient(id) ON DELETE CASCADE,

@@ -1,4 +1,4 @@
 CREATE TABLE caregiver(
     id UUID PRIMARY KEY,
-    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+    FOREIGN KEY (id) REFERENCES users(id_user) ON DELETE CASCADE
 );

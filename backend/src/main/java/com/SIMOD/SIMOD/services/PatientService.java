@@ -17,7 +17,7 @@ public class PatientService {
         Patient novoPaciente = new Patient();
         novoPaciente.setNameComplete(dado.nomeComplete());
         novoPaciente.setEmail(dado.email());
-        novoPaciente.setCPF(dado.CPF());
+        novoPaciente.setCpf(dado.CPF());
         novoPaciente.setPassword(dado.password());
         novoPaciente.setTelephone(dado.telephone());
 //        novoPaciente.setTipoAVC(dado.tipoAVC());

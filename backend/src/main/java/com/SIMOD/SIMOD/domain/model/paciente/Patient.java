@@ -19,6 +19,7 @@ import java.util.Set;
 @Entity
 @Table(name = "patient")
 @DiscriminatorValue("PATIENT")
+@PrimaryKeyJoinColumn(name = "id")
 @Setter
 @Getter
 @NoArgsConstructor
@@ -31,7 +32,7 @@ public class Patient extends User{
 
     @ManyToMany
     @JoinTable(
-            name = "patient_professional",
+            name = "professional_has_patient",
             joinColumns = @JoinColumn(name = "patient_id"),
             inverseJoinColumns = @JoinColumn(name = "professional_id")
     )

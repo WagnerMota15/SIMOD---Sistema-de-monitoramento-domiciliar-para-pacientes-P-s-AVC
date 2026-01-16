@@ -18,10 +18,10 @@ import java.util.UUID;
 public class Family {
     @Id
     @GeneratedValue
-    private UUID id;
-    private String nome;
-    private String contato;
-    private String parentesco;
+    private UUID idFamily;
+    private String name;
+    private String telephone;
+    private String kinship;
 
     @ManyToOne
     @JoinColumn(name = "patient_id")

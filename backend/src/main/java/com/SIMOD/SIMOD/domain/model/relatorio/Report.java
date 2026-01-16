@@ -27,18 +27,16 @@ public class Report {
     @Id
     @GeneratedValue
     private UUID id;
-    @Column(name = "data_expedicao", nullable = false)
-    private LocalDateTime dataExpedicao;
-    private String avaliacao;
-    @Column(name = "patient_feedback")
-    private String patientFeedback;
+    private LocalDateTime expedience;
+    private String assessment;
+    private String feedbackPatient;
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "professional_num_council", nullable = false)
+    @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
     @ManyToMany(mappedBy = "reports")

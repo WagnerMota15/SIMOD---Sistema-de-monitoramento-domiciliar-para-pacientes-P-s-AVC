@@ -23,12 +23,12 @@ public class Activities {
 
     @Id
     @GeneratedValue
-    private UUID idAtividade;
+    private UUID id;
 
-    private String nome;
-    private String descricao;
-    private String tipoExercicio;
-    private int freqRecomendada;
+    private String name;
+    private String description;
+    private String typeExercise;
+    private int freqRecommended;
     private String videoUrl;
 
     @ManyToOne
@@ -36,14 +36,13 @@ public class Activities {
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "professional_numCouncil")
+    @JoinColumn(name = "professional_id")
     private Professional professional;
 
-    // CORRIGIDO: ManyToMany com JoinTable + coleção de Report
     @ManyToMany
     @JoinTable(
-            name = "activity_report",
-            joinColumns = @JoinColumn(name = "activity_id"),
+            name = "activities_has_report",
+            joinColumns = @JoinColumn(name = "activities_id"),
             inverseJoinColumns = @JoinColumn(name = "report_id")
     )
     private Set<Report> reports = new HashSet<>();

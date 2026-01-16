@@ -24,13 +24,12 @@ public class Address {
     private UUID id;
 
     private String cep;
-    private String numero;
-    private String complemento;
-    private String descricao;
+    private String number;
+    private String description;
 
     @ManyToMany
     @JoinTable(
-            name = "patient_address",
+            name = "address_has_patient",
             joinColumns = @JoinColumn(name = "address_id"),
             inverseJoinColumns = @JoinColumn(name = "patient_id")
     )

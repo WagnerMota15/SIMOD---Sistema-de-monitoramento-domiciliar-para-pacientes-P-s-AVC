@@ -1,9 +1,13 @@
 package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
-import com.SIMOD.SIMOD.domain.model.medical.Medico;
+import com.SIMOD.SIMOD.domain.model.fisioterapeuta.Physiotherapist;
+import com.SIMOD.SIMOD.domain.model.fonoaudiologo.SpeechTherapist;
+import com.SIMOD.SIMOD.domain.model.medico.Medical;
+import com.SIMOD.SIMOD.domain.model.nutricionista.Nutritionist;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
+import com.SIMOD.SIMOD.domain.model.psicologo.Psychologist;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
 
@@ -39,15 +43,24 @@ public class UserFactory {
 
     private static Professional createProfessional(RegisterRequest data){
         Professional professional = switch (data.role()){
-            case MEDICO -> new Medico();
-            //demais cases/instâncias das demais profissões
+            case MEDICO -> new Medical();
+            case PSICOLOGO -> new Psychologist();
+            case FISIOTERAPEUTA -> new Physiotherapist();
+            case NUTRICIONISTA -> new Nutritionist();
+            case FONOAUDIOLOGO -> new SpeechTherapist();
 
             default -> throw new IllegalStateException();
         };
 
-        fillBase(professional,data);
-        return professional;
+        professional.setNameComplete(data.nameComplete());
+        professional.setCpf(data.cpf());
+        professional.setEmail(data.email());
+        professional.setPassword(data.password());
+        professional.setTelephone(data.telephone());
+        professional.setRole(data.role());
+        professional.setNumCouncil(data.numCouncil());
 
+        return professional;
     }
 
 
@@ -62,6 +75,4 @@ public class UserFactory {
         user.setRole(request.role());
 
     }
-
-
 }

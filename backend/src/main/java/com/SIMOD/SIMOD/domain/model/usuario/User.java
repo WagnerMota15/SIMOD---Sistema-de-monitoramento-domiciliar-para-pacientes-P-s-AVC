@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.br.CPF;
+
 import java.util.UUID;
 
 @Entity
@@ -24,6 +26,7 @@ public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idUser;
+    @CPF(message = "CPF inválido")
     private String cpf;
     private String nameComplete;
     private String email;

@@ -1,6 +1,6 @@
 CREATE TABLE diet(
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    freqMeal INTEGER NOT NULL,
+    id_diet UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    freq_meal INTEGER NOT NULL,
     schedules VARCHAR(45) NOT NULL,
     description VARCHAR(100) NOT NULL,
     patient_id UUID NOT NULL,

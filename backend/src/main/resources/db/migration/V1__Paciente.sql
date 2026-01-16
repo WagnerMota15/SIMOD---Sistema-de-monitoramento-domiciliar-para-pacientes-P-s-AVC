@@ -1,4 +1,5 @@
 CREATE TABLE patient (
     id UUID PRIMARY KEY,
-    FOREIGN KEY (id) REFERENCES users(id) ON DELETE CASCADE
+    stroke_type VARCHAR(50),
+    FOREIGN KEY (id) REFERENCES users(id_user) ON DELETE CASCADE
 );

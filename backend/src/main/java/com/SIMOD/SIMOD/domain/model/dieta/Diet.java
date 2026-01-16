@@ -22,22 +22,22 @@ import java.util.UUID;
 public class Diet {
     @Id
     @GeneratedValue
-    private UUID id;
-    private int freqRefeicoes;
-    private String horarios;
-    private String descricao;
+    private UUID idDiet;
+    private int freqMeal;
+    private String schedules;
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "professional_numCouncil")
+    @JoinColumn(name = "professional_id")
     private Professional professional;
 
     @ManyToMany
     @JoinTable(
-            name = "diet_report",
+            name = "diet_has_report",
             joinColumns = @JoinColumn(name = "diet_id"),
             inverseJoinColumns = @JoinColumn(name = "report_id")
     )

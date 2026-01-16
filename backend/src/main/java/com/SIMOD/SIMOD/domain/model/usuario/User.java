@@ -17,15 +17,14 @@ import java.util.UUID;
 @Inheritance(strategy = InheritanceType.JOINED)
 
 //coluna no bd que separa os tipos de usuários(paciente,cuidador,profissional)
-@DiscriminatorColumn(name = "tipo_usuario")
+@DiscriminatorColumn(name = "user_type")
 
 public abstract class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    private String CPF;
+    private UUID idUser;
+    private String cpf;
     private String nameComplete;
     private String email;
     private String password;

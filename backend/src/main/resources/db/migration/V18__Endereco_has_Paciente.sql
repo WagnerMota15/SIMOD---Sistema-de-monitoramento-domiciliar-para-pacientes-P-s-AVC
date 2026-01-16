@@ -1,4 +1,4 @@
-CREATE TABLE addressHasPatient(
+CREATE TABLE address_has_patient(
     address_id UUID NOT NULL,
     patient_id UUID NOT NULL,
     PRIMARY KEY (address_id, patient_id),

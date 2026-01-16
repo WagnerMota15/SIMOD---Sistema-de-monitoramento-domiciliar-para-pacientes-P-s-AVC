@@ -53,6 +53,7 @@ public class UserFactory {
 
     //função para evitar repetições de atrbuições de requisições
     public static void fillBase(User user,RegisterRequest request){
+
         user.setNameComplete(request.nameComplete());
         user.setCpf(request.cpf());
         user.setTelephone(request.telephone());

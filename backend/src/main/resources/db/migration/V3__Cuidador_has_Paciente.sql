@@ -1,4 +1,4 @@
-CREATE TABLE caregiverHasPatient(
+CREATE TABLE caregiver_has_patient(
     caregiver_id UUID NOT NULL,
     patient_id UUID NOT NULL,
     PRIMARY KEY (caregiver_id, patient_id),

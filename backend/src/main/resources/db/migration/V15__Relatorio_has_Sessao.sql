@@ -1,4 +1,4 @@
-CREATE TABLE sessionsHasReport(
+CREATE TABLE sessions_has_report(
     sessions_id UUID NOT NULL,
     report_id UUID NOT NULL,
     PRIMARY KEY (sessions_id, report_id),

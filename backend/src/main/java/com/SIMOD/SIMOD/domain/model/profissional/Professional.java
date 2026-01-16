@@ -13,17 +13,18 @@ import java.util.Set;
 
 @Entity
 @Table(name = "professional")
+@PrimaryKeyJoinColumn(name = "id")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 public abstract class Professional extends User{
-
+    @Column(name = "num_council")
     private String numCouncil;
 
     @ManyToMany
     @JoinTable(
-            name = "patient_professional",
+            name = "professional_has_patient",
             joinColumns = @JoinColumn(name = "professional_id"),
             inverseJoinColumns = @JoinColumn(name = "patient_id")
     )

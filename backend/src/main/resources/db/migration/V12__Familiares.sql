@@ -1,5 +1,5 @@
 CREATE TABLE family(
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    id_family UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(80) NOT NULL,
     telephone VARCHAR(20) NOT NULL,
     kinship VARCHAR(20) NOT NULL,

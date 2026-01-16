@@ -1,6 +1,6 @@
 CREATE TABLE sessions(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    dateTime TIMESTAMP NOT NULL,
+    date_time TIMESTAMP NOT NULL,
     remote BOOLEAN NOT NULL,
     place VARCHAR(80),
     patient_id UUID NOT NULL,

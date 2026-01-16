@@ -23,24 +23,24 @@ import java.util.UUID;
 public class Medicines {
     @Id
     @GeneratedValue
-    private UUID id;
-    private String nome;
-    private BigDecimal dosagem;
-    private String unidade;
-    private int frequencia;
-    private String descricao;
+    private UUID idMedicine;
+    private String name;
+    private BigDecimal dosage;
+    private String unity;
+    private int frequency;
+    private String description;
 
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "professional_numCouncil")
+    @JoinColumn(name = "professional_id")
     private Professional professional;
 
     @ManyToMany
     @JoinTable(
-            name = "medicine_report",
+            name = "medicines_has_report",
             joinColumns = @JoinColumn(name = "medicine_id"),
             inverseJoinColumns = @JoinColumn(name = "report_id")
     )

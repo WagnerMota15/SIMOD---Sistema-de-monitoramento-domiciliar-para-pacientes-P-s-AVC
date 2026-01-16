@@ -18,8 +18,8 @@ import java.util.UUID;
 public class Historical {
     @Id
     @GeneratedValue
-    private UUID id;
-    private String historico;
+    private UUID idHistorical;
+    private String historical;
 
     @ManyToOne
     @JoinColumn(name = "patient_id")

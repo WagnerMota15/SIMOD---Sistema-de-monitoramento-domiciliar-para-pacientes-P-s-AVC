@@ -14,7 +14,7 @@ public class CaregiverService {
     public Caregiver criarCuidador(RegisterCaregiverRequest dado){
 
         Caregiver novoCuidador = new Caregiver();
-        novoCuidador.setCPF(dado.CPF());
+        novoCuidador.setCpf(dado.CPF());
         novoCuidador.setNameComplete(dado.nomeComplete());
         novoCuidador.setEmail(dado.email());
         novoCuidador.setPassword(dado.password());

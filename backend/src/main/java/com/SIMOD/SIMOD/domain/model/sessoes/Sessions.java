@@ -26,22 +26,22 @@ public class Sessions {
     @GeneratedValue
     private UUID id;
     @Column(nullable = false)
-    private LocalDateTime data;
-    private Boolean remoto;
-    private String local;
+    private LocalDateTime dateTime;
+    private Boolean remote;
+    private String place;
 
     @ManyToOne
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
     @ManyToOne
-    @JoinColumn(name = "professional_num_council", nullable = false)
+    @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
     @ManyToMany
     @JoinTable(
-            name = "session_report",
-            joinColumns = @JoinColumn(name = "session_id"),
+            name = "sessions_has_report",
+            joinColumns = @JoinColumn(name = "sessions_id"),
             inverseJoinColumns = @JoinColumn(name = "report_id")
     )
     private Set<Report> reports = new HashSet<>();

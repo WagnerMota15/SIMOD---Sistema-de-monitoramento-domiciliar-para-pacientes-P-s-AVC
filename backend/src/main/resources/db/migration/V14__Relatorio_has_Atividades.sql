@@ -1,4 +1,4 @@
-CREATE TABLE activitiesHasReport(
+CREATE TABLE activities_has_report(
     activities_id UUID NOT NULL,
     report_id UUID NOT NULL,
     PRIMARY KEY (activities_id, report_id),

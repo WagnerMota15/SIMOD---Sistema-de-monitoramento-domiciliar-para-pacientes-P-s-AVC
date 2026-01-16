@@ -1,5 +1,5 @@
-CREATE TABLE medicine(
-    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+CREATE TABLE medicines(
+    id_medicine UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(45) NOT NULL,
     dosage DECIMAL(5,2) NOT NULL,
     unity VARCHAR(10) NOT NULL,

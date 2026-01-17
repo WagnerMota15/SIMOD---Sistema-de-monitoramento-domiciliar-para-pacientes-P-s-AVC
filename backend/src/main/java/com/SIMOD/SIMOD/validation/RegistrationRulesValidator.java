@@ -10,7 +10,6 @@ public class RegistrationRulesValidator
 
     @Override
     public boolean isValid(RegisterRequest request, ConstraintValidatorContext context) {
-        System.out.println("Validador chamado - role: " + request.role() + ", numCouncil: " + request.numCouncil());
         if (request == null) return true;
 
         Role role = request.role();

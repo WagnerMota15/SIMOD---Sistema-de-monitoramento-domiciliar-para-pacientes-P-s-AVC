@@ -1,7 +1,7 @@
 package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
-import com.SIMOD.SIMOD.dto.auth.RegisterPatientRequest;
+import com.SIMOD.SIMOD.dto.patient.PatientRequest;
 import com.SIMOD.SIMOD.repositories.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,7 +12,7 @@ public class PatientService {
     @Autowired
     public PatientRepository patientRepository;
 
-    public Patient criarPaciente(RegisterPatientRequest dado){
+    public Patient criarPaciente(PatientRequest dado){
 
         Patient novoPaciente = new Patient();
         novoPaciente.setNameComplete(dado.nomeComplete());

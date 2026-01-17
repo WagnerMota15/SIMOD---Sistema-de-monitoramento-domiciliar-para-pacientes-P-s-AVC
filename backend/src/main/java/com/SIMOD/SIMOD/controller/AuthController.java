@@ -3,7 +3,6 @@ package com.SIMOD.SIMOD.controller;
 import com.SIMOD.SIMOD.config.JwtUtil;
 import com.SIMOD.SIMOD.dto.auth.LoginRequest;
 import com.SIMOD.SIMOD.dto.auth.LoginResponse;
-import com.SIMOD.SIMOD.dto.auth.RegisterPatientRequest;
 import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
 import com.SIMOD.SIMOD.services.AuthService;
 import jakarta.validation.Valid;

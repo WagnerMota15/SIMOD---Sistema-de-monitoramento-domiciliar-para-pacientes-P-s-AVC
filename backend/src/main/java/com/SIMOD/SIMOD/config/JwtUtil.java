@@ -21,6 +21,7 @@ public class JwtUtil {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return Jwts.builder()
                 .subject(userDetails.getUsername())
+                .claim("role", userDetails.getAuthorities())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expirationMs))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)))

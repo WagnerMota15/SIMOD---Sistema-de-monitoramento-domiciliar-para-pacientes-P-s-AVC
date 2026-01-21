@@ -1,5 +1,6 @@
 package com.SIMOD.SIMOD.domain.model.familiares;
 
+import com.SIMOD.SIMOD.domain.enums.Kinship;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,7 +22,9 @@ public class Family {
     private UUID idFamily;
     private String name;
     private String telephone;
-    private String kinship;
+
+    @Enumerated(EnumType.STRING)
+    private Kinship kinship;
 
     @ManyToOne
     @JoinColumn(name = "patient_id")

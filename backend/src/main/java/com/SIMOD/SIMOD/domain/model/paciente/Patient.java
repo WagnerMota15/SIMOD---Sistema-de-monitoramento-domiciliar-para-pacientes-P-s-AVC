@@ -8,6 +8,7 @@ import com.SIMOD.SIMOD.domain.model.endereço.Address;
 import com.SIMOD.SIMOD.domain.model.familiares.Family;
 import com.SIMOD.SIMOD.domain.model.historicoMedico.Historical;
 import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
+import com.SIMOD.SIMOD.domain.model.pacienteEndereco.PatientAddress;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import jakarta.persistence.*;
@@ -53,8 +54,12 @@ public class Patient extends User{
     @OneToMany(mappedBy = "patient")
     private Set<Historical> medicalHistory = new HashSet<>();
 
-    @ManyToMany(mappedBy = "patients")
-    private Set<Address> addresses = new HashSet<>();
+    @OneToMany(
+            mappedBy = "patient",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<PatientAddress> addresses = new HashSet<>();
 
     @ManyToMany(mappedBy = "patients")
     private Set<Caregiver> caregivers = new HashSet<>();

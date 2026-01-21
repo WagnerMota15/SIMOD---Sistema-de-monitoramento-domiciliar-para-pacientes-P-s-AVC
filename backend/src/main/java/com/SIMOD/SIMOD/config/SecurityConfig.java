@@ -11,13 +11,17 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
-    public SecurityConfig(UserDetailsService userDetailsService) {
+    private final JwtAuthFilter jwtAuthFilter;
+
+    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
         this.userDetailsService = userDetailsService;
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
@@ -43,14 +47,16 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // libera cadastro e login
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/patients/**").hasRole("PACIENTE")
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // ideal para JWT
-                );
-        // .formLogin(form -> form.disable())
-        // .httpBasic(basic -> basic.disable());
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 }

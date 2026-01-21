@@ -17,6 +17,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Family {
+
+    public Family(String name, String telephone, Kinship kinship) {
+        this.name = name;
+        this.telephone = telephone;
+        this.kinship = kinship;
+    }
+
     @Id
     @GeneratedValue
     private UUID idFamily;
@@ -29,4 +36,6 @@ public class Family {
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
+
+
 }

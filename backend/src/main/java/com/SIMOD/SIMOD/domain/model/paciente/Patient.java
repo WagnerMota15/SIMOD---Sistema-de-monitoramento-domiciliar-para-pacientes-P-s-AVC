@@ -15,6 +15,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -63,4 +64,11 @@ public class Patient extends User{
 
     @ManyToMany(mappedBy = "patients")
     private Set<Caregiver> caregivers = new HashSet<>();
+
+    public void addFamilyMemmber(Family family){
+        familyMembers.add(family);
+        family.setPatient(this);
+    }
+
+
 }

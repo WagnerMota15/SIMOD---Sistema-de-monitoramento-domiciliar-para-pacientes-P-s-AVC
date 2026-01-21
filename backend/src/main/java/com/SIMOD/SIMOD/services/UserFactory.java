@@ -30,6 +30,7 @@ public class UserFactory {
     private static Patient createPaciente(RegisterRequest data){
         Patient patient = new Patient();
         fillBase(patient,data);
+        patient.setStrokeTypes(data.strokeTypes());
         return patient;
 
     }

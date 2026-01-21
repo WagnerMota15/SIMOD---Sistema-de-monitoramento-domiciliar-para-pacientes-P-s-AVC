@@ -1,6 +1,6 @@
 package com.SIMOD.SIMOD.domain.model.endereço;
 
-import com.SIMOD.SIMOD.domain.model.paciente.Patient;
+import com.SIMOD.SIMOD.domain.model.pacienteEndereco.PatientAddress;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,11 +27,6 @@ public class Address {
     private String number;
     private String description;
 
-    @ManyToMany
-    @JoinTable(
-            name = "address_has_patient",
-            joinColumns = @JoinColumn(name = "address_id"),
-            inverseJoinColumns = @JoinColumn(name = "patient_id")
-    )
-    private Set<Patient> patients = new HashSet<>();
+    @OneToMany(mappedBy = "address")
+    private Set<PatientAddress> patients = new HashSet<>();
 }

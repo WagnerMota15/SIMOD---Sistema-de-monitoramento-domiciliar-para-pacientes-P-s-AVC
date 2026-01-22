@@ -1,4 +1,4 @@
-package com.example.simodapp.login;
+package com.example.simodapp.ui.auth;
 
 import android.content.Context;
 import android.content.SharedPreferences;

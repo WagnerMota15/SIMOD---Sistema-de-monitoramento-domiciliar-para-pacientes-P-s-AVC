@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/imageView8"
+        android:id="@+id/imgLogoSIMOD"
         android:layout_width="334dp"
         android:layout_height="256dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -18,14 +18,14 @@
         app:srcCompat="@drawable/simodpngsemfundo" />
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/etCampoLogin"
         android:layout_width="275dp"
         android:layout_height="65dp"
         android:layout_marginStart="32dp"
         android:layout_marginEnd="32dp"
         android:background="@drawable/caixa_texto"
         android:ems="10"
-        android:hint="CPF"
+        android:hint="CPF ou Email"
         android:inputType="text"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,7 +35,7 @@
         app:layout_constraintVertical_bias="0.445" />
 
     <EditText
-        android:id="@+id/editTextText5"
+        android:id="@+id/etCampoSenha"
         android:layout_width="275dp"
         android:layout_height="65dp"
         android:layout_marginStart="32dp"
@@ -52,7 +52,7 @@
         app:layout_constraintVertical_bias="0.618" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/btnLogin"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_marginStart="40dp"
@@ -72,15 +72,18 @@
         tools:ignore="MissingConstraints" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/txtEsqueceuSenha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="68dp"
         android:text="Esqueceu a senha?"
         android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText5" />
+        app:layout_constraintHorizontal_bias="0.751"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.693" />
 
     <TextView
         android:id="@+id/txtCadastreSe"

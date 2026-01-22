@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".ui.main.RegisterActivity">
 
     <ImageView
         android:id="@+id/imageView"
@@ -18,7 +18,7 @@
          />
 
     <ImageButton
-        android:id="@+id/btn_back"
+        android:id="@+id/btnVoltar"
         android:layout_width="40dp"
         android:layout_height="39dp"
         android:layout_margin="2dp"
@@ -42,7 +42,7 @@
         app:srcCompat="@drawable/simodpngsemfundo" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/button"
+        android:id="@+id/btnCadastro"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_marginStart="40dp"
@@ -58,7 +58,7 @@
         app:layout_constraintVertical_bias="0.944"
         tools:ignore="MissingConstraints" />
     <androidx.appcompat.widget.AppCompatEditText
-        android:id="@+id/editTextText"
+        android:id="@+id/etCampoNome"
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:layout_marginStart="90dp"
@@ -76,7 +76,7 @@
         app:layout_constraintVertical_bias="0.264" />
 
     <EditText
-        android:id="@+id/editTextText2"
+        android:id="@+id/etCampoCpf"
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:layout_marginStart="90dp"
@@ -94,7 +94,7 @@
         app:layout_constraintVertical_bias="0.402" />
 
     <EditText
-        android:id="@+id/editTextText3"
+        android:id="@+id/etCampoEmail"
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:layout_marginStart="90dp"
@@ -112,7 +112,7 @@
         app:layout_constraintVertical_bias="0.529" />
 
     <EditText
-        android:id="@+id/editTextText4"
+        android:id="@+id/etCampoTelefone"
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:layout_marginStart="90dp"
@@ -130,7 +130,7 @@
         app:layout_constraintVertical_bias="0.667" />
 
     <EditText
-        android:id="@+id/editTextText5"
+        android:id="@+id/etCampoCriarSenha"
         android:layout_width="0dp"
         android:layout_height="70dp"
         android:layout_marginStart="90dp"

@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class AuthService {
 
@@ -22,13 +24,14 @@ public class AuthService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public void register(RegisterRequest request){
+    public UUID register(RegisterRequest request){
 
         User user = UserFactory.create(request);
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
+        return user.getIdUser();
 
     }
 }

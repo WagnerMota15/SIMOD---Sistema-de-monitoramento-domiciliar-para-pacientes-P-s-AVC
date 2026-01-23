@@ -11,12 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.simodapp.R;
-import com.example.simodapp.data.api.AuthApi;
-import com.example.simodapp.data.api.RetrofitClient;
-import com.example.simodapp.ui.main.RegisterActivity;
 import com.example.simodapp.viewmodel.LoginViewModel;
-
-import retrofit2.Retrofit;
 
 public class LoginActivity extends AppCompatActivity {
 

@@ -1,5 +1,6 @@
 package com.SIMOD.SIMOD.services;
 
+import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
 import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
@@ -10,10 +11,11 @@ import com.SIMOD.SIMOD.dto.patient.PatientRequest;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.*;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -27,6 +29,7 @@ public class PatientService {
     private final ProfessionalRepository professionalRepository;
     private final CaregiverPatientRepository caregiverPatientRepository;
     private final PatientProfessionalRepository patientProfessionalRepository;
+    private final UserRepository userRepository;
 
     public Patient criarPaciente(PatientRequest dado) {
         Patient novoPaciente = new Patient();
@@ -43,8 +46,7 @@ public class PatientService {
     public void solicitarVinculoCuidador(UUID patientId, SolicitarVinculoRequest request) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
-
-        String cpf = request.cpf().replaceAll("[^0-9]", "");
+        String cpf = request.cpf();
 
         Caregiver caregiver = caregiverRepository.findByCpf(cpf)
                 .orElseThrow(() -> new EntityNotFoundException("Não encontramos cuidador com o CPF informado"));
@@ -60,7 +62,9 @@ public class PatientService {
                 .caregiver(caregiver)
                 .patient(patient)
                 .status(VinculoStatus.PENDENTE)
+                .dataSolicitacao(LocalDateTime.now())
                 .observacao(request.observacao())
+                .remetente(RemetenteVinculo.PACIENTE)
                 .build();
 
         caregiverPatientRepository.save(vinculo);
@@ -71,7 +75,7 @@ public class PatientService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
 
-        String cpf = request.cpf().replaceAll("[^0-9]", "");
+        String cpf = request.cpf();
 
         Professional professional = professionalRepository.findByCpf(cpf)
                 .orElseThrow(() -> new EntityNotFoundException("Não encontramos profissional de saúde com o CPF informado"));
@@ -87,21 +91,23 @@ public class PatientService {
                 .patient(patient)
                 .professional(professional)
                 .status(VinculoStatus.PENDENTE)
+                .dataSolicitacao(LocalDateTime.now())
                 .observacao(request.observacao())
+                .remetente(RemetenteVinculo.PACIENTE)
                 .build();
 
         patientProfessionalRepository.save(vinculo);
     }
 
     // Listar cuidadores ativos
+    @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarCuidadoresAtivos(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
-
         return caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO)
                 .stream()
                 .map(v -> new SolicitarVinculoRequest.VinculoResponse(
-                        v.getCaregiver().getCpf(),  // ou getIdUser() se for o método correto
+                        v.getCaregiver().getCpf(),
                         v.getCaregiver().getNameComplete(),
                         v.getCaregiver().getEmail(),
                         v.getCaregiver().getTelephone(),
@@ -112,6 +118,7 @@ public class PatientService {
     }
 
     // Listar profissionais ativos
+    @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarProfissionaisAtivos(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
@@ -130,6 +137,7 @@ public class PatientService {
     }
 
     // Listar solicitações pendentes de cuidadores
+    @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesCuidadores(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
@@ -148,6 +156,7 @@ public class PatientService {
     }
 
     // Listar solicitações pendentes de profissionais
+    @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesProfissionais(UUID patientId) {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
@@ -175,6 +184,12 @@ public class PatientService {
 
         CaregiverPatient vinculo = caregiverPatientRepository.findByCaregiverAndPatient(caregiver, patient)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada"));
+
+        if (vinculo.getRemetente() == RemetenteVinculo.PACIENTE) {
+            throw new IllegalStateException(
+                    "Apenas o cuidador pode aceitar solicitações enviadas pelo paciente"
+            );
+        }
 
         if (vinculo.getStatus() != VinculoStatus.PENDENTE) {
             throw new IllegalStateException("Esta solicitação não está mais pendente");
@@ -214,6 +229,12 @@ public class PatientService {
         PatientProfessional vinculo = patientProfessionalRepository.findByPatientAndProfessional(patient, professional)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada"));
 
+        if (vinculo.getRemetente() == RemetenteVinculo.PACIENTE) {
+            throw new IllegalStateException(
+                    "Apenas o profissional pode aceitar solicitações enviadas pelo paciente"
+            );
+        }
+
         if (vinculo.getStatus() != VinculoStatus.PENDENTE) {
             throw new IllegalStateException("Esta solicitação não está mais pendente");
         }
@@ -240,4 +261,45 @@ public class PatientService {
         vinculo.rejeitar(motivo);
         patientProfessionalRepository.save(vinculo);
     }
+
+    @Transactional
+    public void desfazerVinculoCuidador(UUID patientId, UUID caregiverId) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+
+        Caregiver caregiver = caregiverRepository.findById(caregiverId)
+                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+
+        CaregiverPatient vinculo = caregiverPatientRepository
+                .findByCaregiverAndPatient(caregiver, patient)
+                .orElseThrow(() -> new EntityNotFoundException("Vínculo não encontrado"));
+
+        if (vinculo.getStatus() != VinculoStatus.ACEITO) {
+            throw new IllegalStateException("Só é possível desfazer vínculos ativos");
+        }
+
+        caregiverPatientRepository.save(vinculo);
+    }
+
+    @Transactional
+    public void desfazerVinculoProfissional(UUID patientId, UUID professionalId) {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
+
+        PatientProfessional vinculo = patientProfessionalRepository
+                .findByPatientAndProfessional(patient, professional)
+                .orElseThrow(() -> new EntityNotFoundException("Vínculo não encontrado"));
+
+        if (vinculo.getStatus() != VinculoStatus.ACEITO) {
+            throw new IllegalStateException("Só é possível desfazer vínculos ativos");
+        }
+
+        vinculo.cancelar();
+        patientProfessionalRepository.save(vinculo);
+    }
+
+
 }

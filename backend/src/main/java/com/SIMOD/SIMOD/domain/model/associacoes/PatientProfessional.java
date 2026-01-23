@@ -1,5 +1,6 @@
 package com.SIMOD.SIMOD.domain.model.associacoes;
 
+import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
 import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
@@ -33,6 +34,10 @@ public class PatientProfessional {
     @Column(nullable = false)
     private VinculoStatus status = VinculoStatus.PENDENTE;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private RemetenteVinculo remetente;
+
     @Column(name = "data_solicitacao", nullable = false)
     private LocalDateTime dataSolicitacao = LocalDateTime.now();
 
@@ -42,6 +47,18 @@ public class PatientProfessional {
     @Column(length = 500)
     private String observacao;
 
-    public void aceitar() { /* igual acima */ }
-    public void rejeitar(String motivo) { /* igual acima */ }
+    public void aceitar() {
+        this.status = VinculoStatus.ACEITO;
+        this.dataResposta = LocalDateTime.now();
+    }
+
+    public void rejeitar(String motivo) {
+        this.status = VinculoStatus.REJEITADO;
+        this.dataResposta = LocalDateTime.now();
+        this.observacao = motivo;
+    }
+
+    public void cancelar() {
+        this.status = VinculoStatus.CANCELADO;
+    }
 }

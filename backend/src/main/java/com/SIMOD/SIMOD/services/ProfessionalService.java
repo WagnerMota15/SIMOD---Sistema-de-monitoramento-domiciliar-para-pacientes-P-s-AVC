@@ -1,7 +1,10 @@
 package com.SIMOD.SIMOD.services;
 
+import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
 import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
+import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
+import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
@@ -9,10 +12,11 @@ import com.SIMOD.SIMOD.repositories.PatientProfessionalRepository;
 import com.SIMOD.SIMOD.repositories.PatientRepository;
 import com.SIMOD.SIMOD.repositories.ProfessionalRepository;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,7 +39,7 @@ public class ProfessionalService {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
 
-        String cpf = request.cpf().replaceAll("[^0-9]", "");
+        String cpf = request.cpf();
 
         Patient patient = patientRepository.findByCpf(cpf)
                 .orElseThrow(() -> new EntityNotFoundException("Não encontramos paciente com o CPF informado"));
@@ -50,13 +54,16 @@ public class ProfessionalService {
         PatientProfessional vinculo = PatientProfessional.builder()
                 .patient(patient)
                 .professional(professional)
+                .dataSolicitacao(LocalDateTime.now())
                 .status(VinculoStatus.PENDENTE)
                 .observacao(request.observacao())
+                .remetente(RemetenteVinculo.PROFISSIONAL)
                 .build();
 
         patientProfessionalRepository.save(vinculo);
     }
 
+    @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarPacientesAtivos(UUID professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
@@ -74,6 +81,7 @@ public class ProfessionalService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesPacientes(UUID professionalId) {
         Professional professional = professionalRepository.findById(professionalId)
                 .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
@@ -102,6 +110,12 @@ public class ProfessionalService {
         PatientProfessional vinculo = patientProfessionalRepository.findByPatientAndProfessional(patient, professional)
                 .orElseThrow(() -> new EntityNotFoundException("Solicitação não encontrada"));
 
+        if (vinculo.getRemetente() == RemetenteVinculo.PROFISSIONAL) {
+            throw new IllegalStateException(
+                    "Apenas o paciente pode aceitar solicitações enviadas pelo profissional"
+            );
+        }
+
         if (vinculo.getStatus() != VinculoStatus.PENDENTE) {
             throw new IllegalStateException("Solicitação não está pendente");
         }
@@ -128,4 +142,25 @@ public class ProfessionalService {
         vinculo.rejeitar(motivo);
         patientProfessionalRepository.save(vinculo);
     }
+
+    @Transactional
+    public void desfazerVinculoPaciente(UUID professionalId, UUID patientId) {
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
+
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+
+        PatientProfessional vinculo = patientProfessionalRepository
+                .findByPatientAndProfessional(patient, professional)
+                .orElseThrow(() -> new EntityNotFoundException("Vínculo não encontrado"));
+
+        if (vinculo.getStatus() != VinculoStatus.ACEITO) {
+            throw new IllegalStateException("Só é possível desfazer vínculos ativos");
+        }
+
+        vinculo.cancelar();
+        patientProfessionalRepository.save(vinculo);
+    }
+
 }

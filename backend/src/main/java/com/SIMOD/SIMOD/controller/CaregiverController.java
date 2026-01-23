@@ -13,13 +13,12 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/cuidadores")
+@RequestMapping("/cuidadores")
 @RequiredArgsConstructor
 public class CaregiverController {
 
     private final CaregiverService caregiverService;
 
-    // Cuidador solicita vínculo com paciente (por CPF)
     @PostMapping("/{caregiverId}/solicitar-paciente")
     public ResponseEntity<Void> solicitarPaciente(
             @PathVariable UUID caregiverId,
@@ -28,7 +27,6 @@ public class CaregiverController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // Cuidador aceita solicitação de paciente
     @PostMapping("/{caregiverId}/aceitar-paciente/{patientId}")
     public ResponseEntity<Void> aceitarPaciente(
             @PathVariable UUID caregiverId,
@@ -37,7 +35,6 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
-    // Cuidador rejeita solicitação de paciente
     @PostMapping("/{caregiverId}/rejeitar-paciente/{patientId}")
     public ResponseEntity<Void> rejeitarPaciente(
             @PathVariable UUID caregiverId,
@@ -48,15 +45,22 @@ public class CaregiverController {
         return ResponseEntity.ok().build();
     }
 
-    // Lista pacientes ativos vinculados ao cuidador
     @GetMapping("/{caregiverId}/pacientes-ativos")
     public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarPacientesAtivos(@PathVariable UUID caregiverId) {
         return ResponseEntity.ok(caregiverService.listarPacientesAtivos(caregiverId));
     }
 
-    // Lista solicitações pendentes de pacientes para este cuidador
     @GetMapping("/{caregiverId}/solicitacoes-pendentes")
     public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarSolicitacoesPendentes(@PathVariable UUID caregiverId) {
         return ResponseEntity.ok(caregiverService.listarSolicitacoesPendentesPacientes(caregiverId));
+    }
+
+    @DeleteMapping("/{caregiverId}/desvincular/{patientId}")
+    public ResponseEntity<Void> desfazerVinculo(
+            @PathVariable UUID caregiverId,
+            @PathVariable UUID patientId
+    ) {
+        caregiverService.desfazerVinculoPaciente(caregiverId, patientId);
+        return ResponseEntity.noContent().build();
     }
 }

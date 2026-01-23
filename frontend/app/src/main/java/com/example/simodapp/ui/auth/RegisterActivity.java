@@ -1,4 +1,4 @@
-package com.example.simodapp.ui.main;
+package com.example.simodapp.ui.auth;
 
 import android.os.Bundle;
 import android.widget.Button;

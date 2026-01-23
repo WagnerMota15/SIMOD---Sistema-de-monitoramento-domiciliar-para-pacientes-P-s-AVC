@@ -13,13 +13,12 @@ import java.util.Map;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/profissionais")
+@RequestMapping("/profissionais")
 @RequiredArgsConstructor
 public class ProfissionalSaudeController {
 
     private final ProfessionalService professionalService;
 
-    // Profissional solicita vínculo com paciente (por CPF)
     @PostMapping("/{professionalId}/solicitar-paciente")
     public ResponseEntity<Void> solicitarPaciente(
             @PathVariable UUID professionalId,
@@ -28,7 +27,6 @@ public class ProfissionalSaudeController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    // Profissional aceita solicitação de paciente
     @PostMapping("/{professionalId}/aceitar-paciente/{patientId}")
     public ResponseEntity<Void> aceitarPaciente(
             @PathVariable UUID professionalId,
@@ -37,7 +35,6 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().build();
     }
 
-    // Profissional rejeita solicitação de paciente
     @PostMapping("/{professionalId}/rejeitar-paciente/{patientId}")
     public ResponseEntity<Void> rejeitarPaciente(
             @PathVariable UUID professionalId,
@@ -48,15 +45,22 @@ public class ProfissionalSaudeController {
         return ResponseEntity.ok().build();
     }
 
-    // Lista pacientes ativos vinculados ao profissional
     @GetMapping("/{professionalId}/pacientes-ativos")
     public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarPacientesAtivos(@PathVariable UUID professionalId) {
         return ResponseEntity.ok(professionalService.listarPacientesAtivos(professionalId));
     }
 
-    // Lista solicitações pendentes de pacientes para este profissional
     @GetMapping("/{professionalId}/solicitacoes-pendentes")
     public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarSolicitacoesPendentes(@PathVariable UUID professionalId) {
         return ResponseEntity.ok(professionalService.listarSolicitacoesPendentesPacientes(professionalId));
+    }
+
+    @DeleteMapping("/{professionalId}/desvincular/{patientId}")
+    public ResponseEntity<Void> desfazerVinculo(
+            @PathVariable UUID professionalId,
+            @PathVariable UUID patientId
+    ) {
+        professionalService.desfazerVinculoPaciente(professionalId, patientId);
+        return ResponseEntity.noContent().build();
     }
 }

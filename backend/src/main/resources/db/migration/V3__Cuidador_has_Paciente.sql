@@ -2,6 +2,7 @@ CREATE TABLE caregiver_has_patient(
     caregiver_id UUID NOT NULL,
     patient_id UUID NOT NULL,
     status VARCHAR(20) NOT NULL DEFAULT 'PENDENTE',
+    remetente VARCHAR(20) NOT NULL,
     data_solicitacao TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_resposta TIMESTAMP WITH TIME ZONE,
     observacao TEXT,

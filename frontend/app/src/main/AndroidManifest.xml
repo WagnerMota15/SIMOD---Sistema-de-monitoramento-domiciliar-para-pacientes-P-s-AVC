@@ -17,6 +17,12 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".bind"
+            android:exported="false" />
+        <activity
+            android:name=".Links_Menu"
+            android:exported="false" />
+        <activity
             android:name=".User_Types"
             android:exported="false" />
         <activity

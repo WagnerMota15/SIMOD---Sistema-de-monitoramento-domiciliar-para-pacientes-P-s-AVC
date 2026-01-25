@@ -35,16 +35,16 @@ public class PatientProfessional {
     private VinculoStatus status = VinculoStatus.PENDENTE;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "sender",nullable = false)
     private RemetenteVinculo remetente;
 
-    @Column(name = "data_solicitacao", nullable = false)
+    @Column(name = "request_date", nullable = false)
     private LocalDateTime dataSolicitacao = LocalDateTime.now();
 
-    @Column(name = "data_resposta")
+    @Column(name = "response_date")
     private LocalDateTime dataResposta;
 
-    @Column(length = 500)
+    @Column(name = "notes", length = 500)
     private String observacao;
 
     public void aceitar() {

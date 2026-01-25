@@ -1,5 +1,6 @@
 package com.SIMOD.SIMOD.services;
 
+import com.SIMOD.SIMOD.config.UserDetailsImpl;
 import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
 import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
@@ -7,12 +8,14 @@ import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
 import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
+import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.caregiver.CaregiverRequest;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.CaregiverPatientRepository;
 import com.SIMOD.SIMOD.repositories.CaregiverRepository;
 import com.SIMOD.SIMOD.repositories.PatientRepository;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,13 +45,10 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void solicitarVinculoPaciente(UUID caregiverId, SolicitarVinculoRequest request) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+    public void solicitarVinculoPaciente(Authentication authentication, SolicitarVinculoRequest request) {
+        Caregiver caregiver = getCaregiverLogado(authentication);
 
-        String cpf = request.cpf();
-
-        Patient patient = patientRepository.findByCpf(cpf)
+        Patient patient = patientRepository.findByCpf(request.cpf())
                 .orElseThrow(() -> new EntityNotFoundException("Não encontramos paciente com o CPF informado"));
 
         if (caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(caregiver, patient, VinculoStatus.ACEITO)) {
@@ -71,9 +71,8 @@ public class CaregiverService {
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitarVinculoRequest.VinculoResponse> listarPacientesAtivos(UUID caregiverId) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+    public List<SolicitarVinculoRequest.VinculoResponse> listarPacientesAtivos(Authentication authentication) {
+        Caregiver caregiver = getCaregiverLogado(authentication);
 
         return caregiverPatientRepository.findByCaregiverAndStatus(caregiver, VinculoStatus.ACEITO)
                 .stream()
@@ -89,9 +88,8 @@ public class CaregiverService {
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesPacientes(UUID caregiverId) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+    public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesPacientes(Authentication authentication) {
+        Caregiver caregiver = getCaregiverLogado(authentication);
 
         return caregiverPatientRepository.findByCaregiverAndStatus(caregiver, VinculoStatus.PENDENTE)
                 .stream()
@@ -107,9 +105,8 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void aceitarSolicitacaoPaciente(UUID caregiverId, UUID patientId) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+    public void aceitarSolicitacaoPaciente(Authentication authentication, UUID patientId) {
+        Caregiver caregiver = getCaregiverLogado(authentication);
 
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
@@ -132,9 +129,8 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void rejeitarSolicitacaoPaciente(UUID caregiverId, UUID patientId, String motivo) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+    public void rejeitarSolicitacaoPaciente(Authentication authentication, UUID patientId, String motivo) {
+        Caregiver caregiver = getCaregiverLogado(authentication);
 
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
@@ -151,9 +147,8 @@ public class CaregiverService {
     }
 
     @Transactional
-    public void desfazerVinculoPaciente(UUID caregiverId, UUID patientId) {
-        Caregiver caregiver = caregiverRepository.findById(caregiverId)
-                .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
+    public void desfazerVinculoPaciente(Authentication authentication, UUID patientId) {
+        Caregiver caregiver = getCaregiverLogado(authentication);
 
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
@@ -168,5 +163,15 @@ public class CaregiverService {
 
         vinculo.cancelar();
         caregiverPatientRepository.save(vinculo);
+    }
+
+    private Caregiver getCaregiverLogado(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        User usuario = userDetails.getUser();
+
+        return (Caregiver) caregiverRepository.findByIdUser(usuario.getIdUser())
+                .orElseThrow(() ->
+                        new EntityNotFoundException("Cuidador não encontrado para o usuário autenticado")
+                );
     }
 }

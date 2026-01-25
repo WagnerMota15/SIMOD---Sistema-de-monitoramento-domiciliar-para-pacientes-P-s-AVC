@@ -18,7 +18,7 @@
         <ImageView
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:src="@drawable/vinculo_ativo"
+            android:src="@drawable/vinculo_pendente"
             tools:layout_editor_absoluteX="74dp"
             tools:layout_editor_absoluteY="57dp" />
 

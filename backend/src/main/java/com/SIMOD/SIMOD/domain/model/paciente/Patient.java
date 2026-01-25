@@ -16,6 +16,7 @@ import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @Table(name = "patient")
@@ -63,5 +64,9 @@ public class Patient extends User {
     public void adicionarVinculoProfissional(PatientProfessional vinculo) {
         this.professionalVinculos.add(vinculo);
         vinculo.setPatient(this);
+    }
+
+    public UUID getPatientId() {
+        return this.getIdUser();
     }
 }

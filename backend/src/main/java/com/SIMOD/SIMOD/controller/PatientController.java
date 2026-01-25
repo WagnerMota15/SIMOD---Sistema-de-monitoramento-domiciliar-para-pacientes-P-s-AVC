@@ -1,11 +1,14 @@
 package com.SIMOD.SIMOD.controller;
 
+import com.SIMOD.SIMOD.config.UserDetailsImpl;
+import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.services.PatientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -20,101 +23,119 @@ public class PatientController {
 
     private final PatientService patientService;
 
-    @PostMapping("/{patientId}/solicitar-cuidador")
+    @PostMapping("/solicitar-cuidador")
     public ResponseEntity<Void> solicitarCuidador(
-            @PathVariable UUID patientId,
-            @RequestBody @Valid SolicitarVinculoRequest request) {
-        patientService.solicitarVinculoCuidador(patientId, request);
+            Authentication authentication,
+            @RequestBody @Valid SolicitarVinculoRequest request
+    ) {
+        patientService.solicitarVinculoCuidador(authentication, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/{patientId}/solicitar-profissional")
+    @PostMapping("/solicitar-profissional")
     public ResponseEntity<Void> solicitarProfissional(
-            @PathVariable UUID patientId,
-            @RequestBody @Valid SolicitarVinculoRequest request) {
-        patientService.solicitarVinculoProfissional(patientId, request);
+            Authentication authentication,
+            @RequestBody @Valid SolicitarVinculoRequest request
+    ) {
+        patientService.solicitarVinculoProfissional(authentication, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/{patientId}/aceitar-cuidador/{caregiverId}")
+    @PostMapping("/aceitar-cuidador/{caregiverId}")
     public ResponseEntity<Void> aceitarCuidador(
-            @PathVariable UUID patientId,
-            @PathVariable UUID caregiverId) {
-        patientService.aceitarSolicitacaoCuidador(patientId, caregiverId);
+            Authentication authentication,
+            @PathVariable UUID caregiverId
+    ) {
+        patientService.aceitarSolicitacaoCuidador(authentication, caregiverId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{patientId}/rejeitar-cuidador/{caregiverId}")
+    @PostMapping("/rejeitar-cuidador/{caregiverId}")
     public ResponseEntity<Void> rejeitarCuidador(
-            @PathVariable UUID patientId,
+            Authentication authentication,
             @PathVariable UUID caregiverId,
-            @RequestBody Map<String, String> body) {  // motivo é opcional
-        String motivo = body.getOrDefault("motivo", null);
-        patientService.rejeitarSolicitacaoCuidador(patientId, caregiverId, motivo);
+            @RequestBody(required = false) Map<String, String> body
+    ) {
+        String motivo = body != null ? body.get("motivo") : null;
+        patientService.rejeitarSolicitacaoCuidador(authentication, caregiverId, motivo);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{patientId}/aceitar-profissional/{professionalId}")
+    @PostMapping("/aceitar-profissional/{professionalId}")
     public ResponseEntity<Void> aceitarProfissional(
-            @PathVariable UUID patientId,
-            @PathVariable UUID professionalId) {
-        patientService.aceitarSolicitacaoProfissional(patientId, professionalId);
+            Authentication authentication,
+            @PathVariable UUID professionalId
+    ) {
+        patientService.aceitarSolicitacaoProfissional(authentication, professionalId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{patientId}/rejeitar-profissional/{professionalId}")
+    @PostMapping("/rejeitar-profissional/{professionalId}")
     public ResponseEntity<Void> rejeitarProfissional(
-            @PathVariable UUID patientId,
+            Authentication authentication,
             @PathVariable UUID professionalId,
-            @RequestBody Map<String, String> body) {  // motivo é opcional
-        String motivo = body.getOrDefault("motivo", null);
-        patientService.rejeitarSolicitacaoProfissional(patientId, professionalId, motivo);
+            @RequestBody(required = false) Map<String, String> body
+    ) {
+        String motivo = body != null ? body.get("motivo") : null;
+        patientService.rejeitarSolicitacaoProfissional(authentication, professionalId, motivo);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{patientId}/cuidadores-ativos")
-    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarCuidadoresAtivos(@PathVariable UUID patientId) {
-        return ResponseEntity.ok(patientService.listarCuidadoresAtivos(patientId));
+    @GetMapping("/cuidadores-ativos")
+    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarCuidadoresAtivos(
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                patientService.listarCuidadoresAtivos(authentication)
+        );
     }
 
-    @GetMapping("/{patientId}/profissionais-ativos")
-    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarProfissionaisAtivos(@PathVariable UUID patientId) {
-        return ResponseEntity.ok(patientService.listarProfissionaisAtivos(patientId));
+    @GetMapping("/profissionais-ativos")
+    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarProfissionaisAtivos(
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(
+                patientService.listarProfissionaisAtivos(authentication)
+        );
     }
 
-    @GetMapping("/{patientId}/solicitacoes-pendentes-cuidadores")
-    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarSolicitacoesPendentesCuidadores(@PathVariable UUID patientId) {
-        return ResponseEntity.ok(patientService.listarSolicitacoesPendentesCuidadores(patientId));
-    }
-
-    @GetMapping("/{patientId}/solicitacoes-pendentes-profissionais")
-    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarSolicitacoesPendentesProfissionais(@PathVariable UUID patientId) {
-        return ResponseEntity.ok(patientService.listarSolicitacoesPendentesProfissionais(patientId));
-    }
-
-    @GetMapping("/{patientId}/solicitacoes-pendentes")
-    public ResponseEntity<Map<String, List<SolicitarVinculoRequest.VinculoResponse>>> listarTodasSolicitacoesPendentes(@PathVariable UUID patientId) {
+    @GetMapping("/solicitacoes-pendentes")
+    public ResponseEntity<Map<String, List<SolicitarVinculoRequest.VinculoResponse>>> listarSolicitacoesPendentes(
+            Authentication authentication
+    ) {
         Map<String, List<SolicitarVinculoRequest.VinculoResponse>> response = new HashMap<>();
-        response.put("cuidadores", patientService.listarSolicitacoesPendentesCuidadores(patientId));
-        response.put("profissionais", patientService.listarSolicitacoesPendentesProfissionais(patientId));
+        response.put(
+                "cuidadores",
+                patientService.listarSolicitacoesPendentesCuidadores(authentication)
+        );
+        response.put(
+                "profissionais",
+                patientService.listarSolicitacoesPendentesProfissionais(authentication)
+        );
+
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{patientId}/desvincular-profissionais/{professionalId}")
-    public ResponseEntity<Void> desfazerVinculoProfissional(
-            @PathVariable UUID patientId,
-            @PathVariable UUID professionalId
+    @DeleteMapping("/desvincular-cuidador/{caregiverId}")
+    public ResponseEntity<Void> desfazerVinculoCuidador(
+            Authentication authentication,
+            @PathVariable UUID caregiverId
     ) {
-        patientService.desfazerVinculoProfissional(patientId, professionalId);
+        patientService.desfazerVinculoCuidador(authentication, caregiverId);
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/{patientId}/desvincular-cuidador/{cuidadorId}")
-    public ResponseEntity<Void> desfazerVinculoCuidador(
-            @PathVariable UUID patientId,
-            @PathVariable UUID caregiverId
-            ) {
-        patientService.desfazerVinculoCuidador(patientId, caregiverId);
+    @DeleteMapping("/desvincular-profissional/{professionalId}")
+    public ResponseEntity<Void> desfazerVinculoProfissional(
+            Authentication authentication,
+            @PathVariable UUID professionalId
+    ) {
+        patientService.desfazerVinculoProfissional(authentication, professionalId);
         return ResponseEntity.noContent().build();
+    }
+
+    private UUID getPatientId(Authentication authentication) {
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return userDetails.getUser().getIdUser();
     }
 }

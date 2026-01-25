@@ -8,9 +8,9 @@ import java.util.List;
 import java.util.UUID;
 
 public interface RemindersRepository extends JpaRepository<Reminders, UUID> {
-    List<Reminders> findByPatientId(UUID patientId);
+    List<Reminders> findByPatientIdUser(UUID patientId);
     // Buscar lembretes ativos
-    List<Reminders> findByPatientIdAndActiveTrue(UUID patientId);
+    List<Reminders> findByPatientIdUserAndActiveTrue(UUID patientId);
     // Buscar lembretes que devem disparar agora
-    List<Reminders> findByActiveTrueAndDateTimeLessThanEqual(LocalDateTime now);
+    List<Reminders> findByActiveTrueAndScheduledAtLessThanEqual(LocalDateTime dateTime);
 }

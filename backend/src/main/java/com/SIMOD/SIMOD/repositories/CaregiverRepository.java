@@ -8,4 +8,5 @@ import java.util.UUID;
 
 public interface CaregiverRepository extends JpaRepository<Caregiver, UUID> {
     Optional<Caregiver> findByCpf(String cpf);
+    Optional<Caregiver> findByIdUser(UUID idUser);
 }

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,48 +20,59 @@ public class ProfissionalSaudeController {
 
     private final ProfessionalService professionalService;
 
-    @PostMapping("/{professionalId}/solicitar-paciente")
+    @PostMapping("/solicitar-paciente")
     public ResponseEntity<Void> solicitarPaciente(
-            @PathVariable UUID professionalId,
+            Authentication authentication,
             @RequestBody @Valid SolicitarVinculoRequest request) {
-        professionalService.solicitarVinculoPaciente(professionalId, request);
+
+        professionalService.solicitarVinculoPaciente(authentication, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/{professionalId}/aceitar-paciente/{patientId}")
+    @PostMapping("/aceitar-paciente/{patientId}")
     public ResponseEntity<Void> aceitarPaciente(
-            @PathVariable UUID professionalId,
-            @PathVariable UUID patientId) {
-        professionalService.aceitarSolicitacaoPaciente(professionalId, patientId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/{professionalId}/rejeitar-paciente/{patientId}")
-    public ResponseEntity<Void> rejeitarPaciente(
-            @PathVariable UUID professionalId,
             @PathVariable UUID patientId,
-            @RequestBody Map<String, String> body) {
-        String motivo = body.getOrDefault("motivo", null);
-        professionalService.rejeitarSolicitacaoPaciente(professionalId, patientId, motivo);
+            Authentication authentication) {
+
+        professionalService.aceitarSolicitacaoPaciente(authentication, patientId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{professionalId}/pacientes-ativos")
-    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarPacientesAtivos(@PathVariable UUID professionalId) {
-        return ResponseEntity.ok(professionalService.listarPacientesAtivos(professionalId));
+    @PostMapping("/rejeitar-paciente/{patientId}")
+    public ResponseEntity<Void> rejeitarPaciente(
+            @PathVariable UUID patientId,
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
+
+        String motivo = body.getOrDefault("motivo", null);
+        professionalService.rejeitarSolicitacaoPaciente(authentication, patientId, motivo);
+        return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{professionalId}/solicitacoes-pendentes")
-    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarSolicitacoesPendentes(@PathVariable UUID professionalId) {
-        return ResponseEntity.ok(professionalService.listarSolicitacoesPendentesPacientes(professionalId));
+    @GetMapping("/pacientes-ativos")
+    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarPacientesAtivos(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                professionalService.listarPacientesAtivos(authentication)
+        );
     }
 
-    @DeleteMapping("/{professionalId}/desvincular/{patientId}")
+    @GetMapping("/solicitacoes-pendentes")
+    public ResponseEntity<List<SolicitarVinculoRequest.VinculoResponse>> listarSolicitacoesPendentes(
+            Authentication authentication) {
+
+        return ResponseEntity.ok(
+                professionalService.listarSolicitacoesPendentesPacientes(authentication)
+        );
+    }
+
+    @DeleteMapping("/desvincular/{patientId}")
     public ResponseEntity<Void> desfazerVinculo(
-            @PathVariable UUID professionalId,
-            @PathVariable UUID patientId
-    ) {
-        professionalService.desfazerVinculoPaciente(professionalId, patientId);
+            @PathVariable UUID patientId,
+            Authentication authentication) {
+
+        professionalService.desfazerVinculoPaciente(authentication, patientId);
         return ResponseEntity.noContent().build();
     }
 }

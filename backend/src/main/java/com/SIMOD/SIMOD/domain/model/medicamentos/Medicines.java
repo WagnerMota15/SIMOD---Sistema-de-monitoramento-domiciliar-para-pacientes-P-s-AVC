@@ -4,10 +4,7 @@ import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.relatorio.Report;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.util.HashSet;
@@ -16,26 +13,39 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "medicines")
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Medicines {
+
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id_medicine")
     private UUID idMedicine;
+
+    @Column(nullable = false, length = 45)
     private String name;
+
+    @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal dosage;
+
+    @Column(nullable = false, length = 10)
     private String unity;
+
+    @Column(nullable = false)
     private int frequency;
+
+    @Column(length = 100)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "patient_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
 
-    @ManyToOne
-    @JoinColumn(name = "professional_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "professional_id", nullable = false)
     private Professional professional;
 
     @ManyToMany

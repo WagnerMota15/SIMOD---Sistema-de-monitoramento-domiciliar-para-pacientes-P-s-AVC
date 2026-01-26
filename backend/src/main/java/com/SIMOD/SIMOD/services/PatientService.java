@@ -2,23 +2,30 @@ package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
 import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
+import com.SIMOD.SIMOD.domain.enums.SessionsStatus;
 import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
 import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
+import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.patient.PatientRequest;
+import com.SIMOD.SIMOD.dto.plansTreatment.SessionsRequest;
+import com.SIMOD.SIMOD.dto.plansTreatment.SessionsResponse;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.*;
+import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,6 +42,7 @@ public class PatientService {
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final UserRepository userRepository;
     private final NotificationsService notificationsService;
+    private final SessionsRepository sessionsRepository;
 
     public Patient criarPaciente(PatientRequest dado) {
         Patient novoPaciente = new Patient();
@@ -47,6 +55,225 @@ public class PatientService {
         return patientRepository.save(novoPaciente);
     }
 
+
+    // ----- SISTEMA DE SESSÃO -----
+
+    @Transactional
+    public Sessions marcarSessaoParaPaciente(Authentication authentication, UUID professionalId, SessionsRequest request) {
+        Patient patient = getPatientLogado(authentication);
+
+        Professional professional = professionalRepository.findById(professionalId)
+                .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
+
+        if (!patientProfessionalRepository.existsByPatientAndProfessionalAndStatus(
+                patient, professional, VinculoStatus.ACEITO)) {
+            throw new IllegalStateException("Não há vínculo ativo com este paciente.");
+        }
+
+        Sessions session = Sessions.builder()
+                .dateTime(request.dateTime())
+                .remote(request.remote())
+                .status(SessionsStatus.AGENDADA)
+                .place(request.place())
+                .patient(patient)
+                .professional(professional)
+                .build();
+
+        Sessions saved = sessionsRepository.save(session);
+
+        NotificationsRequest notifProfissional = new NotificationsRequest(
+                "Nova sessão marcada pelo paciente",
+                "O paciente " + patient.getNameComplete() + " deseja marcar uma sessão com você" +
+                        patient.getNameComplete() + " em " + request.dateTime() + ". Verifique e confirme.",
+                "SESSAO_AGENDADA_POR_PACIENTE"
+        );
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+
+        return saved;
+    }
+
+    @Transactional
+    public void desmarcarSessao(Authentication authentication, UUID sessaoId) {
+        Patient patient = getPatientLogado(authentication);
+
+        Sessions session = sessionsRepository.findById(sessaoId)
+                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+
+        if (!session.getPatient().getIdUser().equals(patient.getIdUser())) {
+            throw new IllegalStateException("Você não tem permissão para desmarcar esta sessão.");
+        }
+
+        if (session.getDateTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Não é possível desmarcar sessões que já ocorreram.");
+        }
+
+        if (session.getStatus() == SessionsStatus.CANCELADA) {
+            throw new IllegalStateException("Esta sessão já foi cancelada.");
+        }
+
+        session.setStatus(SessionsStatus.CANCELADA);
+        sessionsRepository.save(session);
+
+        NotificationsRequest notification = new NotificationsRequest(
+                "Sessão desmarcada",
+                "O paciente " + patient.getNameComplete() +
+                        " desmarcou a sessão agendada para " + session.getDateTime() + ".",
+                "SESSAO_DESMARCADA"
+        );
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notification);
+    }
+
+    @Transactional
+    public Sessions confirmarSessao(Authentication authentication, UUID sessaoId) {
+        Patient patient = getPatientLogado(authentication);
+
+        Sessions session = sessionsRepository.findById(sessaoId)
+                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+
+        if (!session.getPatient().getIdUser().equals(patient.getIdUser())) {
+            throw new IllegalStateException("Você não tem permissão para confirmar esta sessão.");
+        }
+
+        if (session.getStatus() != SessionsStatus.AGENDADA) {
+            throw new IllegalStateException("Sessão já foi " + session.getStatus().name().toLowerCase() + ".");
+        }
+
+        session.setStatus(SessionsStatus.CONFIRMADA);
+        sessionsRepository.save(session);
+
+        NotificationsRequest notification = new NotificationsRequest("Sessão confirmada",
+                "O paciente " + patient.getNameComplete() + " confirmou sua sessão em " + session.getDateTime() + ".",
+                "SESSAO_CONFIRMADA");
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notification);
+        notificationsService.criarNotificacao(session.getCaregiver().getIdUser(), notification);
+
+        return session;
+    }
+
+    @Transactional
+    public Sessions rejeitarSessao(Authentication authentication, UUID sessaoId, String motivo) {
+        Patient patient = getPatientLogado(authentication);
+
+        Sessions session = sessionsRepository.findById(sessaoId)
+                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+
+        if (!session.getPatient().getIdUser().equals(patient.getIdUser())) {
+            throw new IllegalStateException("Você não tem permissão para confirmar esta sessão.");
+        }
+
+        if (session.getStatus() != SessionsStatus.AGENDADA) {
+            throw new IllegalStateException("Sessão já foi " + session.getStatus().name().toLowerCase() + ".");
+        }
+
+        session.setStatus(SessionsStatus.REJEITADA);
+        session.setReasonChange(motivo);
+        sessionsRepository.save(session);
+
+        NotificationsRequest notification = new NotificationsRequest( "Sessão rejeitada",
+                "O paciente rejeitou a sessão marcada para " + session.getDateTime() + ". Motivo: " + motivo,
+                "SESSAO_REJEITADA");
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notification);
+        notificationsService.criarNotificacao(session.getCaregiver().getIdUser(), notification);
+
+        return session;
+    }
+
+    @Transactional
+    public Sessions cancelarSessao(Authentication authentication, UUID sessaoId, String motivo) {
+        Patient patient = getPatientLogado(authentication);
+
+        Sessions session = sessionsRepository.findById(sessaoId)
+                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+
+        if (!session.getPatient().getIdUser().equals(patient.getIdUser())) {
+            throw new IllegalStateException("Você não tem permissão para confirmar esta sessão.");
+        }
+
+        if (session.getStatus() == SessionsStatus.CANCELADA) {
+            throw new IllegalStateException("Sessão já foi cancelada.");
+        }
+
+        session.setStatus(SessionsStatus.CANCELADA);
+        session.setReasonChange(motivo);
+        sessionsRepository.save(session);
+
+        NotificationsRequest notification = new NotificationsRequest( "Sessão cancelada",
+                "O paciente " + patient.getNameComplete() + " cancelou a sessão de " + session.getDateTime() + ". Motivo: " + motivo,
+                "SESSAO_CANCELADA");
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notification);
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notification);
+
+        return session;
+    }
+
+    @Transactional
+    public Sessions reagendarSessao(Authentication authentication, UUID sessaoId, LocalDateTime novaDataHora, SessionsRequest request) {
+        Patient patient = getPatientLogado(authentication);
+
+        Sessions session = sessionsRepository.findById(sessaoId)
+                .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+
+        if (!session.getPatient().getIdUser().equals(patient.getIdUser())) {
+            throw new IllegalStateException("Você não tem permissão para confirmar esta sessão.");
+        }
+
+        if (session.getStatus() == SessionsStatus.CANCELADA) {
+            throw new IllegalStateException("Sessão não pode ser reagendada.");
+        }
+
+        session.setDateTime(novaDataHora);
+        session.setRemote(request.remote());
+        session.setPlace(request.place());
+        session.setStatus(SessionsStatus.REAGENDADA);
+        sessionsRepository.save(session);
+
+        NotificationsRequest notification = new NotificationsRequest("Sessão reagendada",
+                "O paciente reagendou sua sessão para " + novaDataHora + ".",
+                "SESSAO_REAGENDADA");
+        notificationsService.criarNotificacao(session.getCaregiver().getIdUser(), notification);
+        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notification);
+
+        return session;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<SessionsResponse> listarTodasMinhasSessoes(
+            Authentication authentication,
+            @Nullable SessionsStatus status,
+            Pageable pageable) {
+
+        Patient patient = getPatientLogado(authentication);
+
+        Page<Sessions> page = sessionsRepository.findByPatientId(patient.getIdUser(), pageable);
+
+        if (status != null) {
+            page = page.map(s -> s.getStatus().equals(status) ? s : null);
+        }
+
+        return page.map(this::mapearParaResponse);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<SessionsResponse> listarSessoesAnteriores(Authentication authentication, Pageable pageable) {
+
+        Patient patient = getPatientLogado(authentication);
+
+        LocalDateTime agora = LocalDateTime.now();
+
+        Page<Sessions> page = sessionsRepository.findByPatientId(patient.getIdUser(), pageable);
+
+        List<Sessions> anteriores = page.getContent().stream()
+                .filter(s -> s.getDateTime().isBefore(agora))
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(anteriores.stream().map(this::mapearParaResponse).toList(), pageable, page.getTotalElements());
+    }
+
+
+
+
+    // ----- SISTEMA DE VÍNCULO -----
     @Transactional
     public void solicitarVinculoCuidador(Authentication authentication, SolicitarVinculoRequest request) {
         Patient patient = getPatientLogado(authentication);
@@ -358,6 +585,7 @@ public class PatientService {
         notificationsService.criarNotificacao(professionalId, notificationRequest);
     }
 
+    // Auxiliares
     private Patient getPatientLogado(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         User usuario = userDetails.getUser();
@@ -366,5 +594,22 @@ public class PatientService {
                 .orElseThrow(() ->
                         new EntityNotFoundException("Paciente não encontrado para o usuário autenticado")
                 );
+    }
+
+    private SessionsResponse mapearParaResponse(Sessions s) {
+        return new SessionsResponse(
+                s.getId(),
+                s.getDateTime(),
+                s.getRemote(),
+                s.getPlace(),
+                s.getPatient().getNameComplete(),
+                s.getPatient().getIdUser(),
+                s.getPatient().getNameComplete(),
+                s.getProfessional().getNameComplete(),
+                s.getProfessional().getIdUser(),
+                s.getStatus(),
+                s.getReasonChange(),
+                s.getCaregiver() != null ? s.getCaregiver().getIdUser() : null
+        );
     }
 }

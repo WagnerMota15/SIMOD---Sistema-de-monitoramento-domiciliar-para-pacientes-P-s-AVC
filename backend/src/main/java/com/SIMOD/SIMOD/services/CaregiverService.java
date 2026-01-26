@@ -9,6 +9,7 @@ import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
+import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.caregiver.CaregiverRequest;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.CaregiverPatientRepository;
@@ -32,6 +33,7 @@ public class CaregiverService {
     private final CaregiverRepository caregiverRepository;
     private final PatientRepository patientRepository;
     private final CaregiverPatientRepository caregiverPatientRepository;
+    private final NotificationsService notificationsService;
 
     public Caregiver criarCuidador(CaregiverRequest dado) {
         Caregiver novoCuidador = new Caregiver();
@@ -68,6 +70,14 @@ public class CaregiverService {
                 .build();
 
         caregiverPatientRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Nova solicitação de vínculo",
+                "O cuidador " + caregiver.getNameComplete() + " gostaria de cuidar de você.",
+                "VINCULO_SOLICITADO"
+        );
+
+        notificationsService.criarNotificacao(patient.getIdUser(), notificationRequest);
     }
 
     @Transactional(readOnly = true)
@@ -126,6 +136,14 @@ public class CaregiverService {
 
         vinculo.aceitar();
         caregiverPatientRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Aceitação de vínculo",
+                "O cuidador " + caregiver.getNameComplete() + " aceitou sua solicitação",
+                "VINCULO_ACEITADO"
+        );
+
+        notificationsService.criarNotificacao(patientId, notificationRequest);
     }
 
     @Transactional
@@ -144,6 +162,14 @@ public class CaregiverService {
 
         vinculo.rejeitar(motivo);
         caregiverPatientRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Rejeitação de vínculo",
+                "O cuidador " + caregiver.getNameComplete() + " rejeitou sua solicitação",
+                "VINCULO_REJEITADO"
+        );
+
+        notificationsService.criarNotificacao(patientId, notificationRequest);
     }
 
     @Transactional
@@ -163,6 +189,14 @@ public class CaregiverService {
 
         vinculo.cancelar();
         caregiverPatientRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Desfez o vínculo",
+                "O cuidador " + caregiver.getNameComplete() + " desfez o vínculo com você",
+                "VINCULO_DESFEITO"
+        );
+
+        notificationsService.criarNotificacao(patientId, notificationRequest);
     }
 
     private Caregiver getCaregiverLogado(Authentication authentication) {

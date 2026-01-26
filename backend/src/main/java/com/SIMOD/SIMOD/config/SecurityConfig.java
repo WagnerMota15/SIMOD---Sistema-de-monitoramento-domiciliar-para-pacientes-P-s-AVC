@@ -49,6 +49,10 @@ public class SecurityConfig {
                         .requestMatchers("/profissionais/**").hasAnyRole("MEDICO",
                                 "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
                         .requestMatchers("/mensagens/**").authenticated()
+                        .requestMatchers("/sessoes/profissionais/**").hasAnyRole("MEDICO",
+                                "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
+                        .requestMatchers("/sessoes/cuidaores/**").hasRole("CUIDADOR")
+                        .requestMatchers("sessoes/pacientes/**").hasRole("PACIENTE")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

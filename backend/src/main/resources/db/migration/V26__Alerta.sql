@@ -1,5 +1,5 @@
 CREATE TABLE alert(
-    id UUID PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     patient_id UUID NOT NULL,
     type VARCHAR(50) NOT NULL,
     title VARCHAR(50),

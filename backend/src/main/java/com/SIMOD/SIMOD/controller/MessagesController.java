@@ -4,6 +4,7 @@ import com.SIMOD.SIMOD.config.UserDetailsImpl;
 import com.SIMOD.SIMOD.domain.model.mensagens.Alert;
 import com.SIMOD.SIMOD.domain.model.mensagens.Reminders;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
+import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsResponse;
 import com.SIMOD.SIMOD.dto.Messages.ReminderRequest;
 import com.SIMOD.SIMOD.dto.Messages.ReminderResponse;
@@ -68,10 +69,8 @@ public class MessagesController {
 
 
     // ----- Notifications ------
-    @GetMapping("/notificacoes")
-    public ResponseEntity<Page<NotificationsResponse>> listarNotificacoes(
-            Pageable pageable
-    ) {
+    @GetMapping("/notificacoes/listar-notificacoes")
+    public ResponseEntity<Page<NotificationsResponse>> listarNotificacoes(Pageable pageable) {
         return ResponseEntity.ok(
                 notificationsService.listarNotificacoes(pageable)
         );
@@ -89,6 +88,11 @@ public class MessagesController {
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/notificacoes/nao-lidas")
+    public ResponseEntity<Page<NotificationsResponse>> listarNaoLidas(Pageable pageable) {
+        return ResponseEntity.ok(notificationsService.listarNaoLidas(pageable));
+    }
+
     @GetMapping("/notificacoes/nao-lidas/contador")
     public ResponseEntity<Long> contadorNaoLidas() {
         return ResponseEntity.ok(
@@ -96,7 +100,7 @@ public class MessagesController {
         );
     }
 
-    @DeleteMapping("/notificacoes/{id}")
+    @DeleteMapping("/notificacoes/apagar/{id}")
     public ResponseEntity<Void> apagarNotificacao(@PathVariable UUID id) {
         notificationsService.apagarNotificacao(id);
         return ResponseEntity.noContent().build();

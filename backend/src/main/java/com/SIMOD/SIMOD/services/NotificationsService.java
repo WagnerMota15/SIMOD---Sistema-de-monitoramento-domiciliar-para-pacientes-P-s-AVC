@@ -1,5 +1,6 @@
 package com.SIMOD.SIMOD.services;
 
+import com.SIMOD.SIMOD.domain.enums.TipoNotificacao;
 import com.SIMOD.SIMOD.domain.model.mensagens.Notifications;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
@@ -24,14 +25,12 @@ public class NotificationsService {
     private final NotificationsRepository notificationRepository;
 
     @Transactional
-    public void criarNotificacao(NotificationsRequest request) {
-        UUID usuarioLogadoId = getUsuarioLogadoId();
-
+    public void criarNotificacao(UUID userDestination, NotificationsRequest request) {
         Notifications notificacao = Notifications.builder()
-                .userId(usuarioLogadoId)
+                .userId(userDestination)
                 .title(request.titulo())
                 .message(request.mensagem())
-                .type(request.tipo())
+                .type(TipoNotificacao.valueOf(request.tipo()))
                 .read(false)
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -45,6 +44,15 @@ public class NotificationsService {
 
         return notificationRepository
                 .findByUserIdOrderByCreatedAtDesc(usuarioLogadoId, pageable)
+                .map(this::toResponse);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<NotificationsResponse> listarNaoLidas(Pageable pageable) {
+        UUID usuarioLogadoId = getUsuarioLogadoId();
+
+        return notificationRepository
+                .findByUserIdAndReadFalseOrderByCreatedAtDesc(usuarioLogadoId, pageable)
                 .map(this::toResponse);
     }
 

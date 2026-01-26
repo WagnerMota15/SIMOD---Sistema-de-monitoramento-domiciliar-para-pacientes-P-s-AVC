@@ -7,6 +7,7 @@ import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
+import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.professional.ProfessionalRequest;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.PatientProfessionalRepository;
@@ -30,6 +31,7 @@ public class ProfessionalService {
     private final ProfessionalRepository professionalRepository;
     private final PatientRepository patientRepository;
     private final PatientProfessionalRepository patientProfessionalRepository;
+    private final NotificationsService notificationsService;
 
     public static void session() {}
     public static void linkPatient() {}
@@ -68,6 +70,14 @@ public class ProfessionalService {
                 .build();
 
         patientProfessionalRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Nova solicitação de vínculo",
+                "O profissional " + professional.getNameComplete() + " gostaria de se vincular a você.",
+                "VINCULO_SOLICITADO"
+        );
+
+        notificationsService.criarNotificacao(patient.getIdUser(), notificationRequest);
     }
 
     @Transactional(readOnly = true)
@@ -134,6 +144,14 @@ public class ProfessionalService {
 
         vinculo.aceitar();
         patientProfessionalRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Aceitação de vínculo",
+                "O profissional " + professional.getNameComplete() + " aceitou sua solicitação",
+                "VINCULO_ACEITADO"
+        );
+
+        notificationsService.criarNotificacao(patientId, notificationRequest);
     }
 
     @Transactional
@@ -157,6 +175,14 @@ public class ProfessionalService {
 
         vinculo.rejeitar(motivo);
         patientProfessionalRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Rejeitação de vínculo",
+                "O profissional " + professional.getNameComplete() + " rejeitou sua solicitação",
+                "VINCULO_REJEITADO"
+        );
+
+        notificationsService.criarNotificacao(patientId, notificationRequest);
     }
 
     @Transactional
@@ -180,6 +206,14 @@ public class ProfessionalService {
 
         vinculo.cancelar();
         patientProfessionalRepository.save(vinculo);
+
+        NotificationsRequest notificationRequest = new NotificationsRequest(
+                "Desfez o vínculo",
+                "O profissional " + professional.getNameComplete() + " desfez o vínculo com você",
+                "VINCULO_DESFEITO"
+        );
+
+        notificationsService.criarNotificacao(patientId, notificationRequest);
     }
 
     private Professional getProfessionalLogado(Authentication authentication) {

@@ -7,5 +7,5 @@ import java.util.UUID;
 public record NotificationsRequest(
         String titulo,
         String mensagem,
-        TipoNotificacao tipo
+        String tipo
 ) {}

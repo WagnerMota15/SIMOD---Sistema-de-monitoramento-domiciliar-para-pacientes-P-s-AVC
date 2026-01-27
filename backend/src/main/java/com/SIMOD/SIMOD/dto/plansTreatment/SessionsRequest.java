@@ -13,5 +13,6 @@ public record SessionsRequest(
         @NotNull(message = "Informe se a sessão é remota ou presencial")
         Boolean remote,
         @NotBlank(message = "O local da sessão é obrigatório")
-        String place
+        String place,
+        String reasonChange
 ) {}

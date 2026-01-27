@@ -28,16 +28,19 @@ public class SessionsController {
 
     // ========== Profissionais ==========
     @PostMapping("/profissionais/marcar-sessao/{patientId}")
-    public ResponseEntity<Sessions> marcarSessaoProfissional(
+    public ResponseEntity<SessionsResponse> marcarSessaoProfissional(
             Authentication authentication,
             @PathVariable UUID patientId,
             @Valid @RequestBody SessionsRequest request) {
 
         Sessions session = professionalService.marcarSessao(authentication, patientId, request);
-        return ResponseEntity.ok(session);
+
+        SessionsResponse response = mapearParaResponse(session);
+
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/profissionais/{sessaoId}")
+    @DeleteMapping("/profissionais/{sessaoId}/desmarcar")
     public ResponseEntity<Void> desmarcarSessaoProfissionais(
             Authentication authentication,
             @PathVariable UUID sessaoId) {
@@ -47,22 +50,24 @@ public class SessionsController {
     }
 
     @PostMapping("/profissionais/{sessaoId}/confirmar")
-    public ResponseEntity<Sessions> confirmarSessaoProfissionais(
+    public ResponseEntity<SessionsResponse> confirmarSessaoProfissionais(
             Authentication authentication,
             @PathVariable UUID sessaoId) {
 
         Sessions session = professionalService.confirmarSessao(authentication, sessaoId);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/profissionais/{sessaoId}/rejeitar")
-    public ResponseEntity<Sessions> rejeitarSessaoProfissionais(
+    public ResponseEntity<SessionsResponse> rejeitarSessaoProfissionais(
             Authentication authentication,
             @PathVariable UUID sessaoId,
             @RequestBody String motivo) {
 
         Sessions session = professionalService.rejeitarSessao(authentication, sessaoId, motivo);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/profissionais/{sessaoId}/cancelar")
@@ -76,13 +81,14 @@ public class SessionsController {
     }
 
     @PutMapping("/profissionais/{sessaoId}/reagendar")
-    public ResponseEntity<Sessions> reagendarSessaoProfissionais(
+    public ResponseEntity<SessionsResponse> reagendarSessaoProfissionais(
             Authentication authentication,
             @PathVariable UUID sessaoId,
             @Valid @RequestBody SessionsRequest request) {
 
         Sessions session = professionalService.reagendarSessao(authentication, sessaoId, request.dateTime(), request);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/profissionais/todas-sessoes")
@@ -108,17 +114,18 @@ public class SessionsController {
 
     // ========== Cuidadroes ==========
     @PostMapping("/cuidadores/{patientId}/marcar-sessao/{professionalId}")
-    public ResponseEntity<Sessions> marcarSessaoCuidadorCuidadores(
+    public ResponseEntity<SessionsResponse> marcarSessaoCuidadorCuidadores(
             Authentication authentication,
             @PathVariable UUID patientId,
             @PathVariable UUID professionalId,
             @Valid @RequestBody SessionsRequest request) {
 
         Sessions session = caregiverService.marcarSessaoParaPaciente(authentication, patientId, professionalId, request);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/cuidadores/{sessaoId}")
+    @DeleteMapping("/cuidadores/{sessaoId}/desmarcar")
     public ResponseEntity<Void> desmarcarSessaoCuidadores(
             Authentication authentication,
             @PathVariable UUID sessaoId) {
@@ -128,22 +135,24 @@ public class SessionsController {
     }
 
     @PostMapping("/cuidadores/{sessaoId}/confirmar")
-    public ResponseEntity<Sessions> confirmarSessaoCuidadores(
+    public ResponseEntity<SessionsResponse> confirmarSessaoCuidadores(
             Authentication authentication,
             @PathVariable UUID sessaoId) {
 
         Sessions session = caregiverService.confirmarSessao(authentication, sessaoId);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/cuidadores/{sessaoId}/rejeitar")
-    public ResponseEntity<Sessions> rejeitarSessaoCuidadores(
+    public ResponseEntity<SessionsResponse> rejeitarSessaoCuidadores(
             Authentication authentication,
             @PathVariable UUID sessaoId,
             @RequestBody String motivo) {
 
         Sessions session = caregiverService.rejeitarSessao(authentication, sessaoId, motivo);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/cuidadores/{sessaoId}/cancelar")
@@ -157,19 +166,20 @@ public class SessionsController {
     }
 
     @PutMapping("/cuidadores/{sessaoId}/reagendar")
-    public ResponseEntity<Sessions> reagendarSessaoCuidadores(
+    public ResponseEntity<SessionsResponse> reagendarSessaoCuidadores(
             Authentication authentication,
             @PathVariable UUID sessaoId,
             @Valid @RequestBody SessionsRequest request) {
 
         Sessions session = caregiverService.reagendarSessao(authentication, sessaoId, request.dateTime(), request);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/cuidadores/todas-sessoes/{patientId}")
     public ResponseEntity<Page<SessionsResponse>> listarTodasSessoesCuidadores(
             Authentication authentication,
-            UUID patientId,
+            @PathVariable UUID patientId,
             @RequestParam(required = false) SessionsStatus status,
             @PageableDefault(size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
@@ -178,10 +188,10 @@ public class SessionsController {
         return ResponseEntity.ok(page);
     }
 
-    @GetMapping("/cuidadores/sessoes-anteriores{patientId}")
+    @GetMapping("/cuidadores/sessoes-anteriores/{patientId}")
     public ResponseEntity<Page<SessionsResponse>> listarSessoesAnterioresCuidadores(
             Authentication authentication,
-            UUID patientId,
+            @PathVariable UUID patientId,
             @PageableDefault(size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<SessionsResponse> page = caregiverService.listarSessoesAnterioresDoPaciente(authentication, patientId, pageable);
@@ -191,16 +201,17 @@ public class SessionsController {
 
     // ========== Paciente ==========
     @PostMapping("/pacientes/marcar-sessao/{professionalId}")
-    public ResponseEntity<Sessions> marcarSessaoPaciente(
+    public ResponseEntity<SessionsResponse> marcarSessaoPaciente(
             Authentication authentication,
             @PathVariable UUID professionalId,
             @Valid @RequestBody SessionsRequest request) {
 
         Sessions session = patientService.marcarSessaoParaPaciente(authentication, professionalId, request);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/pacientes/{sessaoId}")
+    @DeleteMapping("/pacientes/{sessaoId}/desmarcar")
     public ResponseEntity<Void> desmarcarSessaoPaciente(
             Authentication authentication,
             @PathVariable UUID sessaoId) {
@@ -210,22 +221,24 @@ public class SessionsController {
     }
 
     @PostMapping("/pacientes/{sessaoId}/confirmar")
-    public ResponseEntity<Sessions> confirmarSessaoPaciente(
+    public ResponseEntity<SessionsResponse> confirmarSessaoPaciente(
             Authentication authentication,
             @PathVariable UUID sessaoId) {
 
         Sessions session = patientService.confirmarSessao(authentication, sessaoId);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/pacientes/{sessaoId}/rejeitar")
-    public ResponseEntity<Sessions> rejeitarSessaoPaciente(
+    public ResponseEntity<SessionsResponse> rejeitarSessaoPaciente(
             Authentication authentication,
             @PathVariable UUID sessaoId,
             @RequestBody String motivo) {
 
         Sessions session = patientService.rejeitarSessao(authentication, sessaoId, motivo);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/pacientes/{sessaoId}/cancelar")
@@ -239,13 +252,14 @@ public class SessionsController {
     }
 
     @PutMapping("/pacientes/{sessaoId}/reagendar")
-    public ResponseEntity<Sessions> reagendarSessaoPaciente(
+    public ResponseEntity<SessionsResponse> reagendarSessaoPaciente(
             Authentication authentication,
             @PathVariable UUID sessaoId,
             @Valid @RequestBody SessionsRequest request) {
 
         Sessions session = patientService.reagendarSessao(authentication, sessaoId, request.dateTime(), request);
-        return ResponseEntity.ok(session);
+        SessionsResponse response = mapearParaResponse(session);
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/pacientes/todas-sessoes")
@@ -266,6 +280,25 @@ public class SessionsController {
 
         Page<SessionsResponse> page = patientService.listarSessoesAnteriores(authentication, pageable);
         return ResponseEntity.ok(page);
+    }
+
+
+    // Auxiliar
+    private SessionsResponse mapearParaResponse(Sessions s) {
+        return new SessionsResponse(
+                s.getId(),
+                s.getDateTime(),
+                s.getRemote(),
+                s.getPlace(),
+                s.getPatient().getNameComplete(),
+                s.getPatient().getIdUser(),
+                s.getPatient().getNameComplete(),
+                s.getProfessional().getNameComplete(),
+                s.getProfessional().getIdUser(),
+                s.getStatus(),
+                s.getReasonChange(),
+                s.getCaregiver() != null ? s.getCaregiver().getIdUser() : null
+        );
     }
 }
 

@@ -9,7 +9,7 @@ public record NotificationsResponse(
         UUID id,
         String title,
         String message,
-        TipoNotificacao type,
+        String type,
         boolean read,
         LocalDateTime createdAt
 ) {}

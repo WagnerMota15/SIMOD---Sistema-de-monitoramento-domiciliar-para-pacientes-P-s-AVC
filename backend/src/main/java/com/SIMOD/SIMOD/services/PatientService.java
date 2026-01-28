@@ -1,10 +1,7 @@
 package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
-import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
-import com.SIMOD.SIMOD.domain.enums.Role;
-import com.SIMOD.SIMOD.domain.enums.SessionsStatus;
-import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
+import com.SIMOD.SIMOD.domain.enums.*;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
 import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
@@ -298,7 +295,7 @@ public class PatientService {
     @Transactional(readOnly = true)
     public Page<SessionsResponse> listarTodasMinhasSessoes(
             Authentication authentication,
-            @Nullable SessionsStatus status,
+            @Nullable Status status,
             Pageable pageable) {
 
         Patient patient = getPatientLogado(authentication);

@@ -52,7 +52,14 @@ public class SecurityConfig {
                         .requestMatchers("/sessoes/profissionais/**").hasAnyRole("MEDICO",
                                 "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
                         .requestMatchers("/sessoes/cuidaores/**").hasRole("CUIDADOR")
-                        .requestMatchers("sessoes/pacientes/**").hasRole("PACIENTE")
+                        .requestMatchers("/sessoes/pacientes/**").hasRole("PACIENTE")
+                        .requestMatchers("/dietas/nutricionistas/**").hasRole("NUTRICIONISTA")
+                        .requestMatchers("/dietas/usuarios/**").authenticated()
+                        .requestMatchers("/medicamentos/medicos/**").hasRole("MEDICO")
+                        .requestMatchers("/medicamentos/usuarios/**").authenticated()
+                        .requestMatchers("/atividades/fisio-fono/**").hasAnyRole("FISIOTERAPEUTA",
+                                "FONOAUDIOLOGO")
+                        .requestMatchers("/atividades/usuarios/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

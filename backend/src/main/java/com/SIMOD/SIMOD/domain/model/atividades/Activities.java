@@ -1,11 +1,14 @@
 package com.SIMOD.SIMOD.domain.model.atividades;
 
+import com.SIMOD.SIMOD.domain.enums.ActivitiesTypes;
+import com.SIMOD.SIMOD.domain.enums.Status;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.relatorio.Report;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -29,14 +32,27 @@ public class Activities {
     @Column(nullable = false, length = 100)
     private String description;
 
-    @Column(nullable = false, length = 45)
-    private String typeExercise;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type_exercise", nullable = false)
+    private ActivitiesTypes type;
 
-    @Column(nullable = false)
+    @Column(name = "freq_recommended", nullable = false)
     private int freqRecommended;
 
-    @Column(length = 45)
+    @Column(name = "video_url", length = 200)
     private String videoUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)

@@ -1,6 +1,7 @@
 package com.SIMOD.SIMOD.controller.plansTreatment;
 
 import com.SIMOD.SIMOD.domain.enums.SessionsStatus;
+import com.SIMOD.SIMOD.domain.enums.Status;
 import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsResponse;
@@ -265,7 +266,7 @@ public class SessionsController {
     @GetMapping("/pacientes/todas-sessoes")
     public ResponseEntity<Page<SessionsResponse>> listarTodasSessoesPaciente(
             Authentication authentication,
-            @RequestParam(required = false) SessionsStatus status,
+            @RequestParam(required = false) Status status,
             @PageableDefault(size = 10, sort = "dateTime", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<SessionsResponse> page = patientService.listarTodasMinhasSessoes(authentication, status, pageable);

@@ -18,15 +18,15 @@
 
         tools:targetApi="31">
         <activity
-            android:name=".ui.auth.LoginActivity"
+            android:name=".ui.auth.FinalRegisterActivity"
              android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-            <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />
-            <activity android:name=".ui.auth.FinalRegisterActivity" android:exported="false"/>
+<!--            <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />-->
+<!--            <activity android:name=".ui.auth.FinalRegisterActivity" android:exported="false"/>-->
 
 <!--        <activity android:name=".ui.main.PrincipalActivity" android:exported="false" />-->
     </application>

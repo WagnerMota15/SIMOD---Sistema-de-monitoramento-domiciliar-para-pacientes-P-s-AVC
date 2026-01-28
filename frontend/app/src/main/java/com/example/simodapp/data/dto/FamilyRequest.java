@@ -8,6 +8,9 @@ public class FamilyRequest {
     private Kinship kinship;
 
     public FamilyRequest(String name, String telephone, Kinship kinship) {
+        this.name = name;
+        this.telephone = telephone;
+        this.kinship = kinship;
     }
 
     public String getName() {

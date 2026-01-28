@@ -47,6 +47,7 @@ public class FamilyAdapter extends RecyclerView.Adapter<FamilyAdapter.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         FamilyRequest familyRequest = listFamily.get(position);
+
         holder.name.setText(familyRequest.getName() + " (" + familyRequest.getKinship() + ")");
         holder.telephone.setText(familyRequest.getTelephone());
 

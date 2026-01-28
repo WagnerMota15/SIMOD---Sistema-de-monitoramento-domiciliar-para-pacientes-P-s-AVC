@@ -1,9 +1,40 @@
-package com.SIMOD.SIMOD.repositories;
+    package com.SIMOD.SIMOD.repositories;
 
-import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
-import org.springframework.data.jpa.repository.JpaRepository;
+    import com.SIMOD.SIMOD.domain.enums.Status;
+    import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
+    import com.SIMOD.SIMOD.domain.model.paciente.Patient;
+    import org.springframework.data.domain.Page;
+    import org.springframework.data.domain.Pageable;
+    import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
+    import java.util.List;
+    import java.util.UUID;
 
-public interface MedicinesRepository extends JpaRepository<Medicines, UUID> {
-}
+    public interface MedicinesRepository extends JpaRepository<Medicines, UUID> {
+        Page<Medicines> findByPatientIdUserOrderByCreatedAtDesc(
+                UUID patientUserId,
+                Pageable pageable
+        );
+
+        Page<Medicines> findByPatientIdUserAndStatusOrderByCreatedAtDesc(
+                UUID patientUserId,
+                Status status,
+                Pageable pageable
+        );
+
+        Page<Medicines> findByPatientOrderByCreatedAtDesc(
+                Patient patient,
+                Pageable pageable
+        );
+
+        Page<Medicines> findByPatientInOrderByCreatedAtDesc(
+                List<Patient> patients,
+                Pageable pageable
+        );
+
+        Page<Medicines> findByPatientInAndStatusOrderByCreatedAtDesc(
+                List<Patient> patients,
+                Status status,
+                Pageable pageable
+        );
+    }

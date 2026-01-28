@@ -7,6 +7,7 @@ import com.SIMOD.SIMOD.domain.model.endereço.Address;
 import com.SIMOD.SIMOD.domain.model.familiares.Family;
 import com.SIMOD.SIMOD.domain.model.historicoMedico.Historical;
 import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
+import com.SIMOD.SIMOD.domain.model.pacienteEndereco.PatientAddress;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
@@ -53,8 +54,12 @@ public class Patient extends User {
     @OneToMany(mappedBy = "patient")
     private Set<Historical> medicalHistory = new HashSet<>();
 
-    @ManyToMany(mappedBy = "patients")
-    private Set<Address> addresses = new HashSet<>();
+    @OneToMany(
+            mappedBy = "patient",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private Set<PatientAddress> addresses = new HashSet<>();
 
     public void adicionarVinculoCuidador(CaregiverPatient vinculo) {
         this.caregiverVinculos.add(vinculo);
@@ -64,6 +69,11 @@ public class Patient extends User {
     public void adicionarVinculoProfissional(PatientProfessional vinculo) {
         this.professionalVinculos.add(vinculo);
         vinculo.setPatient(this);
+    }
+
+    public void addFamilyMemmber(Family family){
+        familyMembers.add(family);
+        family.setPatient(this);
     }
 
     public UUID getPatientId() {

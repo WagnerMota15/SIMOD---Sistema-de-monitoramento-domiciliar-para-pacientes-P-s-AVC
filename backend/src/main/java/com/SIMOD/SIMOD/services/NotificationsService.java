@@ -30,7 +30,7 @@ public class NotificationsService {
                 .userId(userDestination)
                 .title(request.titulo())
                 .message(request.mensagem())
-                .type(TipoNotificacao.valueOf(request.tipo()))
+                .type(request.tipo())
                 .read(false)
                 .createdAt(LocalDateTime.now())
                 .build();

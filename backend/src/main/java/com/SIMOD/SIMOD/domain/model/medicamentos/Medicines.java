@@ -1,5 +1,6 @@
 package com.SIMOD.SIMOD.domain.model.medicamentos;
 
+import com.SIMOD.SIMOD.domain.enums.Status;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.relatorio.Report;
@@ -7,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -39,6 +41,18 @@ public class Medicines {
 
     @Column(length = 100)
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)

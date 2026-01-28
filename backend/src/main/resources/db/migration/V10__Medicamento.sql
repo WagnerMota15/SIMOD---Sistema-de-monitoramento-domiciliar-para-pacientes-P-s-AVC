@@ -5,6 +5,8 @@ CREATE TABLE medicines(
     unity VARCHAR(10) NOT NULL,
     frequency INTEGER NOT NULL,
     description VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     patient_id UUID NOT NULL,
     professional_id UUID NOT NULL,
     FOREIGN KEY (patient_id) REFERENCES patient(id) ON DELETE CASCADE,

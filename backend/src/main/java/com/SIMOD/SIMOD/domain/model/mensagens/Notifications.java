@@ -23,10 +23,10 @@ public class Notifications {
     private UUID userId;
 
     private String title;
+
     private String message;
 
-    @Enumerated(EnumType.STRING)
-    private TipoNotificacao type;
+    private String type;
 
     private boolean read = false;
 

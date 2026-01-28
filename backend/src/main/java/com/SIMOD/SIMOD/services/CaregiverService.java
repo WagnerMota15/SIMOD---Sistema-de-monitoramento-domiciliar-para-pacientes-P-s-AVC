@@ -12,7 +12,7 @@ import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
-import com.SIMOD.SIMOD.dto.caregiver.CaregiverRequest;
+import com.SIMOD.SIMOD.dto.cuidador.CaregiverRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsResponse;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;

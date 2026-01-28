@@ -10,7 +10,7 @@ import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
-import com.SIMOD.SIMOD.dto.patient.PatientRequest;
+import com.SIMOD.SIMOD.dto.paciente.PatientRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsResponse;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;

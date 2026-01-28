@@ -1,21 +1,21 @@
-package com.example.simodapp;
+package com.example.simodapp.data.api;
 
-public class User {
+public class UserRequest {
 
-    private String id;
     private String CPF;
     private String nomeComplete;
     private String email;
     private String password;
     private String telephone;
 
-    public String getId() {
-        return id;
+    public UserRequest(String nomeComplete, String CPF, String email, String password, String telephone) {
+        this.nomeComplete = nomeComplete;
+        this.CPF = CPF;
+        this.email = email;
+        this.password = password;
+        this.telephone = telephone;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getCPF() {
         return CPF;
@@ -33,12 +33,12 @@ public class User {
         this.nomeComplete = nomeComplete;
     }
 
-    public String getEmail() {
-        return email;
+    public String getTelephone() {
+        return telephone;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     public String getPassword() {
@@ -49,11 +49,11 @@ public class User {
         this.password = password;
     }
 
-    public String getTelephone() {
-        return telephone;
+    public String getEmail() {
+        return email;
     }
 
-    public void setTelephone(String telephone) {
-        this.telephone = telephone;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

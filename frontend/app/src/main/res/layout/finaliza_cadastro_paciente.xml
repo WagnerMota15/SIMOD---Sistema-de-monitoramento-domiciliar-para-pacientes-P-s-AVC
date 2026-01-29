@@ -17,7 +17,7 @@
         android:contentDescription="Voltar"
         android:src="@drawable/baseline_arrow_back_24"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <!-- Logo -->
     <ImageView
@@ -28,15 +28,16 @@
         app:srcCompat="@drawable/simodpngsemfundo"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
-    <!-- Conteúdo com Scroll -->
+    <!-- Scroll do Conteúdo -->
     <ScrollView
+        android:id="@+id/scrollContent"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:fillViewport="true"
         app:layout_constraintTop_toBottomOf="@id/imageView8"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btnFinalizar"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
@@ -48,15 +49,42 @@
 
             <!-- Título -->
             <TextView
-                android:id="@+id/tvTitulo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Finalização de Cadastro"
-                android:textColor="#000000"
                 android:textSize="22sp"
                 android:textStyle="bold"
+                android:textColor="#000000"
                 android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"/>
+                android:layout_marginBottom="20dp"/>
+
+            <!-- Tipo de AVC -->
+            <TextView
+                android:text="Tipo de AVC"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="#000000"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopStart="16dp"
+                app:boxCornerRadiusTopEnd="16dp"
+                app:boxCornerRadiusBottomStart="16dp"
+                app:boxCornerRadiusBottomEnd="16dp">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/actStrokeType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:padding="14dp"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- CEP -->
             <EditText
@@ -75,9 +103,20 @@
                 android:layout_height="53dp"
                 android:layout_marginTop="8dp"
                 android:hint="Logradouro"
-                android:inputType="text"
                 android:background="@drawable/caixa_texto"
-                android:padding="16dp"/>
+                android:padding="16dp"
+                android:enabled="true"/>
+
+            <!-- Bairro -->
+            <EditText
+                android:id="@+id/etCampoBairro"
+                android:layout_width="match_parent"
+                android:layout_height="53dp"
+                android:layout_marginTop="8dp"
+                android:hint="Bairro"
+                android:background="@drawable/caixa_texto"
+                android:padding="16dp"
+                android:enabled="true"/>
 
             <!-- Cidade + UF + Número -->
             <LinearLayout
@@ -87,26 +126,27 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/etCampoCidade2"
+                    android:id="@+id/etCampoCidade"
                     android:layout_width="0dp"
                     android:layout_height="53dp"
                     android:layout_weight="1"
                     android:hint="Cidade"
                     android:background="@drawable/caixa_texto"
-                    android:padding="16dp"/>
+                    android:padding="16dp"
+                    android:enabled="true"/>
 
                 <Space
                     android:layout_width="8dp"
                     android:layout_height="wrap_content"/>
 
                 <EditText
-                    android:id="@+id/etCampoUF2"
-                    android:layout_width="60dp"
+                    android:id="@+id/etCampoUF"
+                    android:layout_width="64dp"
                     android:layout_height="53dp"
                     android:hint="UF"
-                    android:inputType="textCapCharacters"
                     android:background="@drawable/caixa_texto"
-                    android:padding="16dp"/>
+                    android:padding="16dp"
+                    android:enabled="true"/>
 
                 <Space
                     android:layout_width="8dp"
@@ -114,7 +154,7 @@
 
                 <EditText
                     android:id="@+id/etCampoNumero"
-                    android:layout_width="70dp"
+                    android:layout_width="72dp"
                     android:layout_height="53dp"
                     android:hint="Nº"
                     android:inputType="number"
@@ -124,79 +164,50 @@
 
             <!-- Contatos -->
             <TextView
-                android:id="@+id/lblContatos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Contatos de Emergência (Familiares):"
+                android:layout_marginTop="24dp"
+                android:text="Contatos de Emergência"
+                android:textStyle="bold"
+                android:textSize="16sp"
                 android:textColor="#000000"
-                android:textSize="16sp"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvContatos"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:overScrollMode="never"
-                android:scrollbars="vertical"
+                android:layout_height="180dp"
+                android:layout_marginTop="8dp"
+                android:nestedScrollingEnabled="false"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_contato"/>
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddContato"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-                android:layout_width="369dp"
-                android:layout_height="61dp"
-                android:layout_marginTop="8dp"
-                android:text="ADICIONAR NOVO CONTATO"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="12dp"
+                android:text="ADICIONAR CONTATO"
                 android:textColor="#005B96"
                 app:cornerRadius="20dp"
                 app:strokeColor="#005B96"
-                app:strokeWidth="2dp" />
-
-            <!-- Tipo AVC -->
-            <TextView
-                android:id="@+id/lblAvc"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:text="Selecione o Tipo de AVC:"
-                android:textColor="#000000"
-                android:textSize="16sp"/>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/tilStrokeType"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="Tipo de AVC"
-                app:boxBackgroundMode="outline"
-                app:boxCornerRadiusTopStart="16dp"
-                app:boxCornerRadiusTopEnd="16dp"
-                app:boxCornerRadiusBottomStart="16dp"
-                app:boxCornerRadiusBottomEnd="16dp">
-
-                <com.google.android.material.textfield.MaterialAutoCompleteTextView
-                    android:id="@+id/actStrokeType"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="none"
-                    android:padding="14dp"/>
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Botão Finalizar -->
-            <Button
-                android:id="@+id/btnFinalizar"
-                android:layout_width="370dp"
-                android:layout_height="69dp"
-                android:layout_marginTop="30dp"
-                android:backgroundTint="#FFFFFF"
-                android:text="FINALIZAR CADASTRO"
-                android:textColor="#000000"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                app:cornerRadius="30dp" />
+                app:strokeWidth="2dp"/>
 
         </LinearLayout>
     </ScrollView>
+
+    <!-- Botão Finalizar FIXO -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnFinalizar"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:layout_margin="16dp"
+        android:text="FINALIZAR CADASTRO"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        app:cornerRadius="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

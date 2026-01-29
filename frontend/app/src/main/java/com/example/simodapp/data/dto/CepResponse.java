@@ -2,24 +2,15 @@ package com.example.simodapp.data.dto;
 
 public class CepResponse {
 
-    private String publicPlace;
-    private String city;
-    private String state;
-    private boolean error;
+    private String logradouro;
+    private String bairro;
+    private String localidade;
+    private String uf;
+    private boolean erro;
 
-    public String getPublicPlace() {
-        return publicPlace;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public boolean isError() {
-        return error;
-    }
+    public String getLogradouro() { return logradouro; }
+    public String getBairro() { return bairro; }
+    public String getLocalidade() { return localidade; }
+    public String getUf() { return uf; }
+    public boolean isErro() { return erro;}
 }

@@ -164,16 +164,16 @@ public class FinalRegisterActivity extends AppCompatActivity {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 String cep = s.toString().replace("-","");
 
-                if(cep.length() == 8 && !findAddress){
-                    findAddress = true;
-                    loadingAddress();
-                    searchAddressForCep(cep);
-                    blockData(findAddress);
-                }
                 if(cep.length()<8){
                     findAddress=false;
                     clearData();
-                    blockData(findAddress);
+                    blockAll(findAddress);
+                    return;
+                }
+                if(cep.length() == 8 && !findAddress){
+                    findAddress=true;
+                    loadingAddress();
+                    searchAddressForCep(cep);
                 }
 
             }
@@ -195,9 +195,11 @@ public class FinalRegisterActivity extends AppCompatActivity {
                     etCity.setText(res.getLocalidade());
                     etState.setText(res.getUf());
                     etNeighborhood.setText(res.getBairro());
+                    analyzeAddress(res);
+
                 } else {
                     clearData();
-                    blockData(findAddress);
+                    blockAll(findAddress);
                     Toast.makeText(FinalRegisterActivity.this, "CEP INVÁLIDO", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -206,10 +208,18 @@ public class FinalRegisterActivity extends AppCompatActivity {
             public void onFailure(Call<CepResponse> call, Throwable t) {
                 findAddress = false;
                 clearData();
-                blockData(findAddress);
+                blockAll(findAddress);
                 Toast.makeText(FinalRegisterActivity.this, "ERRO AO BUSCAR CEP", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void analyzeAddress(CepResponse address){
+        if(address.getLogradouro().isEmpty() && address.getBairro().isEmpty() || address.getLogradouro() == null && address.getBairro() == null){
+            blockData();
+        } else {
+            blockAll(findAddress);
+        }
     }
 
     private void clearData(){
@@ -219,8 +229,15 @@ public class FinalRegisterActivity extends AppCompatActivity {
         etState.setText("");
 
     }
-
-    public void blockData(boolean block){
+    //função utilizada para bloquear desbloquear somente a rua e o bairro,
+    //permitindo que zonas rurais nas quais essas informações não forem encontradas possa ser editadas
+    public void blockData(){
+        etPublicSpace.setEnabled(true);
+        etNeighborhood.setEnabled(true);
+        etCity.setEnabled(false);
+        etState.setEnabled(false);
+    }
+    public void blockAll(boolean block){
         etPublicSpace.setEnabled(block);
         etCity.setEnabled(block);
         etNeighborhood.setEnabled(block);

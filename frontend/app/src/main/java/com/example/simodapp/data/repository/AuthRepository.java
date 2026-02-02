@@ -17,8 +17,8 @@ public class AuthRepository {
 
     private final AuthApi authApi;
 
-    public AuthRepository(){
-        authApi = RetrofitClient.getClient().create(AuthApi.class);
+    public AuthRepository(AuthApi authApi){
+        this.authApi = authApi;
     }
 
     public void login(String login, String password, LoginCallback callback){
@@ -27,7 +27,7 @@ public class AuthRepository {
         authApi.login(loginRequest).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
-                if(response.isSuccessful()){
+                if(response.isSuccessful() && response.body()!= null){
                     callback.onSucess(response.body());
                 } else {
                     callback.onError("Credenciais inválidas");

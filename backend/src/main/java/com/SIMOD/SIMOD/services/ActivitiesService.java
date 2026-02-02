@@ -3,6 +3,7 @@ package com.SIMOD.SIMOD.services;
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
 import com.SIMOD.SIMOD.domain.enums.Role;
 import com.SIMOD.SIMOD.domain.enums.Status;
+import com.SIMOD.SIMOD.domain.enums.TipoNotificacao;
 import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
@@ -18,6 +19,7 @@ import com.SIMOD.SIMOD.dto.plansTreatment.ActivitiesResponse;
 import com.SIMOD.SIMOD.dto.plansTreatment.DietRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.DietResponse;
 import com.SIMOD.SIMOD.repositories.*;
+import com.SIMOD.SIMOD.services.firebase.NotificationFacadeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -39,7 +41,7 @@ public class ActivitiesService {
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final CaregiverPatientRepository caregiverPatientRepository;
     private final ActivitiesRepository activitiesRepository;
-    private final NotificationsService notificationsService;
+    private final NotificationFacadeService notificationFacadeService;
 
     @Transactional
     public Activities prescreverAtividade(Authentication authentication, UUID patientId, ActivitiesRequest request){
@@ -74,15 +76,15 @@ public class ActivitiesService {
                 "Nova ativididade prescrita",
                 "O " + professional.getRole() + " " + professional.getNameComplete() +
                         " prescreveu uma nova atividade para você.",
-                "ATIVIDADE_PRESCRITA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(patient.getIdUser(), notifPaciente);
+        notificationFacadeService.notify(patient.getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(patient,
                 "Nova atividade prescrita para o paciente",
                 "O " + professional.getRole() + " " + professional.getNameComplete() +
                         " prescreveu uma atividade para o paciente " + patient.getNameComplete(),
-                "ATIVIDADE_PRESCRITA"
+                TipoNotificacao.INFO
         );
 
         return savedActivities;
@@ -117,15 +119,15 @@ public class ActivitiesService {
                 "Atividade editada",
                 "O " + professional.getRole() + " " + professional.getNameComplete() +
                         " editou uma atividade.",
-                "ATIVIDADE_EDITADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(activities.getPatient().getIdUser(), notifPaciente);
+        notificationFacadeService.notify(activities.getPatient().getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(activities.getPatient(),
                 "Atividade editada para o paciente",
                 "O " + professional.getRole() + " " + professional.getNameComplete() +
                         " editou uma atividade do paciente " + activities.getPatient().getNameComplete(),
-                "ATIVIDADE_EDITADA"
+                TipoNotificacao.INFO
         );
 
         return toResponse(updated);
@@ -157,15 +159,15 @@ public class ActivitiesService {
                 "Atividade inativada",
                 "O " + professional.getRole() + " " + professional.getNameComplete() +
                         " inativou uma atividade.",
-                "ATIVIDADE_INATIVADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(activities.getPatient().getIdUser(), notifPaciente);
+        notificationFacadeService.notify(activities.getPatient().getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(activities.getPatient(),
                 "Atividade inativada para o paciente",
                 "O " + professional.getRole() + " " + professional.getNameComplete() +
                         " inativou uma atividade do paciente " + activities.getPatient().getNameComplete(),
-                "ATIVIDADE_INATIVADA"
+                TipoNotificacao.INFO
         );
     }
 
@@ -419,13 +421,13 @@ public class ActivitiesService {
                 );
     }
 
-    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, String tipo) {
+    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
         for (CaregiverPatient vinculo : vinculos) {
             Caregiver caregiver = vinculo.getCaregiver();
             if (caregiver != null && caregiver.getIdUser() != null) {
                 NotificationsRequest notif = new NotificationsRequest(titulo, mensagem, tipo);
-                notificationsService.criarNotificacao(caregiver.getIdUser(), notif);
+                notificationFacadeService.notify(caregiver.getIdUser(), notif);
             }
         }
     }

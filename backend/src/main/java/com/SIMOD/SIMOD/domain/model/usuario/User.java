@@ -26,6 +26,8 @@ public abstract class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idUser;
+    @Column(name = "fcm_token")
+    private String fcmToken;
     @CPF(message = "CPF inválido")
     private String cpf;
     private String nameComplete;

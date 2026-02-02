@@ -3,9 +3,7 @@ package com.SIMOD.SIMOD.domain.enums;
 public enum TipoLembrete {
     MEDICAMENTO,
     EXERCICIO,
-    ATIVIDADE,
+    DIETA,
     SESSOES,
-    MENSAGEM,
-    VINCULO,
     AVISO
 }

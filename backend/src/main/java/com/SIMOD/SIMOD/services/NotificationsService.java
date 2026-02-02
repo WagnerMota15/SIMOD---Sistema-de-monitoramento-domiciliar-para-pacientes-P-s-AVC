@@ -7,6 +7,7 @@ import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsResponse;
 import com.SIMOD.SIMOD.repositories.NotificationsRepository;
 import com.SIMOD.SIMOD.repositories.UserRepository;
+import com.SIMOD.SIMOD.services.firebase.FcmService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,14 @@ import java.util.UUID;
 public class NotificationsService {
 
     private final NotificationsRepository notificationRepository;
+    private final FcmService fcmService;
+    private final UserRepository userRepository;
 
     @Transactional
     public void criarNotificacao(UUID userDestination, NotificationsRequest request) {
+        User user = userRepository.findById(userDestination)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
         Notifications notificacao = Notifications.builder()
                 .userId(userDestination)
                 .title(request.titulo())
@@ -36,6 +42,14 @@ public class NotificationsService {
                 .build();
 
         notificationRepository.save(notificacao);
+
+        if (user.getFcmToken() != null && deveEnviarPush(request.tipo())) {
+            fcmService.send(
+                    user.getFcmToken(),
+                    request.titulo(),
+                    request.mensagem()
+            );
+        }
     }
 
     @Transactional(readOnly = true)
@@ -120,5 +134,12 @@ public class NotificationsService {
                 n.isRead(),
                 n.getCreatedAt()
         );
+    }
+
+    private boolean deveEnviarPush(TipoNotificacao tipo) {
+        return switch (tipo) {
+            case ALERTA, INFO, URGENTE -> true;
+            case SISTEMA -> false;
+        };
     }
 }

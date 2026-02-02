@@ -13,8 +13,10 @@ import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.paciente.PatientRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsResponse;
+import com.SIMOD.SIMOD.dto.samu.SamuResponse;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.*;
+import com.SIMOD.SIMOD.services.firebase.NotificationFacadeService;
 import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -39,7 +41,7 @@ public class PatientService {
     private final CaregiverPatientRepository caregiverPatientRepository;
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final UserRepository userRepository;
-    private final NotificationsService notificationsService;
+    private final NotificationFacadeService notificationFacadeService;
     private final SessionsRepository sessionsRepository;
 
     public Patient criarPaciente(PatientRequest dado) {
@@ -84,16 +86,16 @@ public class PatientService {
                 "Nova sessão marcada pelo paciente",
                 "O paciente " + patient.getNameComplete() +
                         " marcou uma sessão com você em " + request.dateTime() + ". Verifique e confirme.",
-                "SESSAO_AGENDADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(professional.getIdUser(), notifProfissional);
+        notificationFacadeService.notify(professional.getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(patient,
                 "Sessão marcada pelo paciente",
                 "O paciente " + patient.getNameComplete() +
                         " marcou uma sessão com o profissional " + professional.getNameComplete() +
                         " em " + request.dateTime() + ".",
-                "SESSAO_AGENDADA"
+                TipoNotificacao.INFO
         );
 
         return saved;
@@ -125,16 +127,16 @@ public class PatientService {
                 "Sessão desmarcada",
                 "O paciente " + patient.getNameComplete() +
                         " desmarcou a sessão agendada para " + session.getDateTime() + ".",
-                "SESSAO_DESMARCADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente desmarcada",
                 "O paciente " + patient.getNameComplete() +
                         " desmarcou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " agendada para " + session.getDateTime() + ".",
-                "SESSAO_DESMARCADA"
+                TipoNotificacao.INFO
         );
     }
 
@@ -160,16 +162,16 @@ public class PatientService {
                 "Sessão confirmada",
                 "O paciente " + patient.getNameComplete() +
                         " confirmou a sessão em " + session.getDateTime() + ".",
-                "SESSAO_CONFIRMADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente confirmada",
                 "O paciente " + patient.getNameComplete() +
                         " confirmou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " em " + session.getDateTime() + ".",
-                "SESSAO_CONFIRMADA"
+                TipoNotificacao.INFO
         );
 
         return session;
@@ -198,16 +200,16 @@ public class PatientService {
                 "Sessão rejeitada",
                 "O paciente " + patient.getNameComplete() +
                         " rejeitou a sessão marcada para " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_REJEITADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente rejeitada",
                 "O paciente " + patient.getNameComplete() +
                         " rejeitou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " marcada para " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_REJEITADA"
+                TipoNotificacao.INFO
         );
 
         return session;
@@ -236,16 +238,16 @@ public class PatientService {
                 "Sessão cancelada",
                 "O paciente " + patient.getNameComplete() +
                         " cancelou a sessão marcada para " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_CANCELADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente cancelada",
                 "O paciente " + patient.getNameComplete() +
                         " cancelou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " marcada para " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_CANCELADA"
+                TipoNotificacao.INFO
         );
 
         return session;
@@ -277,16 +279,16 @@ public class PatientService {
                 "Sessão reagendada pelo paciente",
                 "O paciente " + patient.getNameComplete() +
                         " reagendou a sessão para " + novaDataHora + ". Verifique e confirme.",
-                "SESSAO_REAGENDADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente reagendada",
                 "O paciente " + patient.getNameComplete() +
                         " reagendou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " para " + novaDataHora + ".",
-                "SESSAO_REAGENDADA"
+                TipoNotificacao.INFO
         );;
 
         return session;
@@ -358,10 +360,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Nova solicitação de vínculo",
                 "O paciente " + patient.getNameComplete() + " gostaria de se vincular a você.",
-                "VINCULO_SOLICITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(caregiver.getIdUser(), notificationRequest);
+        notificationFacadeService.notify(caregiver.getIdUser(), notificationRequest);
         System.out.println("Notificação enviada");
     }
 
@@ -393,10 +395,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Nova solicitação de vínculo",
                 "O paciente " + patient.getNameComplete() + " gostaria de se vincular a você.",
-                "VINCULO_SOLICITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(professional.getIdUser(), notificationRequest);
+        notificationFacadeService.notify(professional.getIdUser(), notificationRequest);
     }
 
     @Transactional(readOnly = true)
@@ -496,10 +498,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Aceitação de vínculo",
                 "O paciente " + patient.getNameComplete() + " aceitou sua solicitação",
-                "VINCULO_ACEITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(caregiverId, notificationRequest);
+        notificationFacadeService.notify(caregiverId, notificationRequest);
     }
 
     @Transactional
@@ -522,10 +524,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Rejeitação de vínculo",
                 "O paciente " + patient.getNameComplete() + " rejeitou sua solicitação",
-                "VINCULO_REJEITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(caregiverId, notificationRequest);
+        notificationFacadeService.notify(caregiverId, notificationRequest);
     }
 
     @Transactional
@@ -554,10 +556,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Aceitação de vínculo",
                 "O paciente " + patient.getNameComplete() + " aceitou sua solicitação",
-                "VINCULO_ACEITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(professionalId, notificationRequest);
+        notificationFacadeService.notify(professionalId, notificationRequest);
     }
 
     @Transactional
@@ -581,10 +583,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Rejeitação de vínculo",
                 "O paciente " + patient.getNameComplete() + " rejeitou sua solicitação",
-                "VINCULO_REJEITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(professionalId, notificationRequest);
+        notificationFacadeService.notify(professionalId, notificationRequest);
     }
 
     @Transactional
@@ -608,10 +610,10 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Desfez o vínculo",
                 "O paciente " + patient.getNameComplete() + " desfez o vínculo com você",
-                "VINCULO_DESFEITO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(caregiverId, notificationRequest);
+        notificationFacadeService.notify(caregiverId, notificationRequest);
     }
 
     @Transactional
@@ -635,11 +637,47 @@ public class PatientService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Desfez o vínculo",
                 "O paciente " + patient.getNameComplete() + " desfez o vínculo com você",
-                "VINCULO_DESFEITO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(professionalId, notificationRequest);
+        notificationFacadeService.notify(professionalId, notificationRequest);
     }
+
+
+
+    // Botão SAMU
+    @Transactional
+    public SamuResponse alertarSamu(Authentication authentication) {
+        Patient patient = getPatientLogado(authentication);
+
+        String titulo = "🚨 Emergência SAMU";
+        String mensagem = "O paciente " + patient.getNameComplete() + " acionou o botão de emergência. Por favor, entre em contato imediatamente.";
+
+        List<String> cuidadoresNotificados = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO)
+                .stream()
+                .map(vinculo -> vinculo.getCaregiver())
+                .filter(c -> c != null && c.getIdUser() != null)
+                .map(c -> {
+                    notificationFacadeService.notify(c.getIdUser(), new NotificationsRequest(titulo, mensagem, TipoNotificacao.URGENTE));
+                    return c.getNameComplete();
+                })
+                .toList();
+
+        List<String> profissionaisNotificados = patientProfessionalRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO)
+                .stream()
+                .map(vinculo -> vinculo.getProfessional())
+                .filter(p -> p != null && p.getIdUser() != null)
+                .map(p -> {
+                    notificationFacadeService.notify(p.getIdUser(), new NotificationsRequest(titulo, mensagem, TipoNotificacao.URGENTE));
+                    return p.getNameComplete();
+                })
+                .toList();
+
+        return new SamuResponse(cuidadoresNotificados, profissionaisNotificados);
+    }
+
+
+
 
     // Auxiliares
     private Patient getPatientLogado(Authentication authentication) {
@@ -652,13 +690,13 @@ public class PatientService {
                 );
     }
 
-    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, String tipo) {
+    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
         for (CaregiverPatient vinculo : vinculos) {
             Caregiver caregiver = vinculo.getCaregiver();
             if (caregiver != null && caregiver.getIdUser() != null) {
                 NotificationsRequest notif = new NotificationsRequest(titulo, mensagem, tipo);
-                notificationsService.criarNotificacao(caregiver.getIdUser(), notif);
+                notificationFacadeService.notify(caregiver.getIdUser(), notif);
             }
         }
     }

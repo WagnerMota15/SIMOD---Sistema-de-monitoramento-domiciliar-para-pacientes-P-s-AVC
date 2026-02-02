@@ -1,6 +1,7 @@
 package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.config.JwtUtil;
+import com.SIMOD.SIMOD.config.UserDetailsImpl;
 import com.SIMOD.SIMOD.dto.auth.LoginRequest;
 import com.SIMOD.SIMOD.dto.auth.LoginResponse;
 import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
@@ -55,6 +56,16 @@ public class AuthController {
             );
             // Se chegou aqui → credenciais corretas
             String jwt = jwtUtil.generateToken(authentication);
+            if (request.fcmToken() != null && !request.fcmToken().isBlank()) {
+                UserDetailsImpl userDetails =
+                        (UserDetailsImpl) authentication.getPrincipal();
+
+                authService.atualizarFcmToken(
+                        userDetails.getUser().getIdUser(),
+                        request.fcmToken(),
+                        request.platform()
+                );
+            }
             return ResponseEntity.ok(new LoginResponse(jwt));
 
         } catch (BadCredentialsException e) {

@@ -1,6 +1,6 @@
 package com.SIMOD.SIMOD.config;
 
-import com.SIMOD.SIMOD.services.CustomUserDetailsService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,15 +14,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final UserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
-
-    public SecurityConfig(UserDetailsService userDetailsService, JwtAuthFilter jwtAuthFilter) {
-        this.userDetailsService = userDetailsService;
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -48,7 +44,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/patients/**").hasRole("PACIENTE")
+                        .requestMatchers("/pacientes/**").hasRole("PACIENTE")
+                        .requestMatchers("/cuidadores/**").hasRole("CUIDADOR")
+                        .requestMatchers("/profissionais/**").hasAnyRole("MEDICO",
+                                "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
+                        .requestMatchers("/mensagens/**").authenticated()
+                        .requestMatchers("/sessoes/profissionais/**").hasAnyRole("MEDICO",
+                                "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
+                        .requestMatchers("/sessoes/cuidaores/**").hasRole("CUIDADOR")
+                        .requestMatchers("/sessoes/pacientes/**").hasRole("PACIENTE")
+                        .requestMatchers("/dietas/nutricionistas/**").hasRole("NUTRICIONISTA")
+                        .requestMatchers("/dietas/usuarios/**").authenticated()
+                        .requestMatchers("/medicamentos/medicos/**").hasRole("MEDICO")
+                        .requestMatchers("/medicamentos/usuarios/**").authenticated()
+                        .requestMatchers("/atividades/fisio-fono/**").hasAnyRole("FISIOTERAPEUTA",
+                                "FONOAUDIOLOGO")
+                        .requestMatchers("/atividades/usuarios/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

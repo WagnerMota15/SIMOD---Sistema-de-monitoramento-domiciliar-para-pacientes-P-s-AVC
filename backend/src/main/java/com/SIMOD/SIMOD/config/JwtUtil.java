@@ -12,9 +12,11 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+
     @Value("${jwt.secret}")
     private String secret;
-    @Value("${jwt.expiration:86400000}")  // 24h padrão, pode sobrepor em properties
+
+    @Value("${jwt.expiration:86400000}")
     private long expirationMs;
 
     public String generateToken(Authentication authentication) {
@@ -52,3 +54,4 @@ public class JwtUtil {
         return expiration.before(new Date());
     }
 }
+

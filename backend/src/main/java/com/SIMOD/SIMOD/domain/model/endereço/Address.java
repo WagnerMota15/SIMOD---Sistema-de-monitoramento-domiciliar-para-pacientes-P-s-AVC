@@ -1,6 +1,6 @@
 package com.SIMOD.SIMOD.domain.model.endereço;
 
-import com.SIMOD.SIMOD.domain.model.pacienteEndereco.PatientAddress;
+import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,9 +24,22 @@ public class Address {
     private UUID id;
 
     private String cep;
+    private String publicSpace;
+    private String neighborhood;
+    private String city;
+    private String state;
     private String number;
-    private String description;
 
     @OneToMany(mappedBy = "address")
-    private Set<PatientAddress> patients = new HashSet<>();
+    private Set<Patient> patients = new HashSet<>();
+
+    public Address(String cep, String publicSpace, String neighborhood, String city, String state, String number) {
+        this.cep = cep;
+        this.publicSpace = publicSpace;
+        this.neighborhood = neighborhood;
+        this.city = city;
+        this.state = state;
+        this.number = number;
+    }
+
 }

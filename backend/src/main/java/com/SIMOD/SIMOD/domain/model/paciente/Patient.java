@@ -8,14 +8,12 @@ import com.SIMOD.SIMOD.domain.model.endereço.Address;
 import com.SIMOD.SIMOD.domain.model.familiares.Family;
 import com.SIMOD.SIMOD.domain.model.historicoMedico.Historical;
 import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
-import com.SIMOD.SIMOD.domain.model.pacienteEndereco.PatientAddress;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,15 +50,12 @@ public class Patient extends User{
     @OneToMany(mappedBy = "patient")
     private Set<Family> familyMembers = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
+
     @OneToMany(mappedBy = "patient")
     private Set<Historical> medicalHistory = new HashSet<>();
-
-    @OneToMany(
-            mappedBy = "patient",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private Set<PatientAddress> addresses = new HashSet<>();
 
     @ManyToMany(mappedBy = "patients")
     private Set<Caregiver> caregivers = new HashSet<>();

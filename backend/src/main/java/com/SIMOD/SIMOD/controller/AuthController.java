@@ -4,6 +4,7 @@ import com.SIMOD.SIMOD.config.JwtUtil;
 import com.SIMOD.SIMOD.dto.auth.LoginRequest;
 import com.SIMOD.SIMOD.dto.auth.LoginResponse;
 import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
+import com.SIMOD.SIMOD.dto.auth.RegisterResponse;
 import com.SIMOD.SIMOD.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/auth")
@@ -37,9 +39,9 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Void> register(@RequestBody @Valid RegisterRequest request) {
-        authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
+        UUID userId = authService.register(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponse(userId));
     }
 
     @PostMapping("/login")

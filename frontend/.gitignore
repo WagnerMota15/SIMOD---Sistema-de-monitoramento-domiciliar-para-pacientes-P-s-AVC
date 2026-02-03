@@ -1,15 +1,49 @@
-*.iml
+# Gradle
 .gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
-.DS_Store
-/build
-/captures
-.externalNativeBuild
-.cxx
+build/
 local.properties
+*.iml
+.gradle/
+
+# IntelliJ IDEA / Android Studio
+.idea/
+*.iws
+*.iml
+
+# Arquivos específicos do .idea (mais granular, mas .idea/ cobre tudo)
+# Se preferir granular, mantenha esses e remova .idea/ acima
+# /.idea/caches/
+# /.idea/libraries/
+# /.idea/modules.xml
+# /.idea/workspace.xml
+# /.idea/navEditor.xml
+# /.idea/assetWizardSettings.xml
+
+# Captures e debug
+captures/
+output.json
+
+# Android / NDK
+.externalNativeBuild/
+.cxx/
+
+# Arquivos gerados pelo build
+*.class
+*.apk
+*.ap_
+*.dex
+*-unaligned.apk
+*.jar
+
+# Logs e temporários
+*.log
+*.tmp
+*.bak
+*~
+
+# macOS
+.DS_Store
+
+# Outros comuns
+Thumbs.db
+ehthumbs.db

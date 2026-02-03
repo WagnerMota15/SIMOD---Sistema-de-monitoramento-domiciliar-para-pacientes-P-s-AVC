@@ -29,6 +29,14 @@
 <!--            <activity android:name=".ui.auth.FinalRegisterActivity" android:exported="false"/>-->
 
 <!--        <activity android:name=".ui.main.PrincipalActivity" android:exported="false" />-->
+
+        <activity
+            android:name=".ui.vitals.VitalsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.emergency.EmergencyActivity"
+            android:exported="false" />
     </application>
 
 </manifest>

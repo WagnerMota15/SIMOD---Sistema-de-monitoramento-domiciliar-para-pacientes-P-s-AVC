@@ -1,4 +1,4 @@
-package com.example.simodapp;
+package com.example.simodapp.ui.auth;
 
 import android.os.Bundle;
 
@@ -8,7 +8,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class User_Types extends AppCompatActivity {
+import com.example.simodapp.R;
+
+public class UserTypesActivity extends AppCompatActivity {
 
 
     // Atributos acima

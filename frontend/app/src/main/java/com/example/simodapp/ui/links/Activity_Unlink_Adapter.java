@@ -1,4 +1,4 @@
-package com.example.simodapp;
+package com.example.simodapp.ui.links;
 
 import android.os.Bundle;
 
@@ -8,6 +8,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
+import com.example.simodapp.R;
 import com.example.simodapp.databinding.ActivityUnlinkAdapterBinding;
 import java.util.Arrays;
 import java.util.List;

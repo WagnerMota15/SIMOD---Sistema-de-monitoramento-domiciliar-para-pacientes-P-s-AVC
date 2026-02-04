@@ -78,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void actionsConfig() {
         txtCadastreSe.setOnClickListener(v ->
-                startActivity(new Intent(this, RegisterActivity.class))
+                startActivity(new Intent(this, UserTypesActivity.class))
         );
 
         btnLogin.setOnClickListener(v -> {

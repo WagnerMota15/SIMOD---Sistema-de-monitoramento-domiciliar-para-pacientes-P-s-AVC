@@ -39,10 +39,10 @@
             android:exported="false" />
         tools:targetApi="31">
         <activity
-            android:name=".Activity_Patient_Detail"
+            android:name=".ui.links.Activity_Patient_Detail"
             android:exported="false" />
         <activity
-            android:name=".Activity_Pending_Links"
+            android:name=".ui.links.Activity_Pending_Links"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -51,19 +51,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activity_Active_Links"
+            android:name=".ui.links.Activity_Active_Links"
             android:exported="false" />
         <activity
-            android:name=".Activity_Unlink_Adapter"
+            android:name=".ui.links.Activity_Unlink_Adapter"
             android:exported="false" />
         <activity
-            android:name=".bind"
+            android:name=".ui.links.bind"
             android:exported="false" />
         <activity
-            android:name=".Links_Menu"
+            android:name=".ui.links.Links_Menu"
             android:exported="false" />
         <activity
-            android:name=".User_Types"
+            android:name=".ui.auth.UserTypesActivity"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

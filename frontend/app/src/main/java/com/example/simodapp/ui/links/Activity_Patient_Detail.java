@@ -1,4 +1,4 @@
-package com.example.simodapp;
+package com.example.simodapp.ui.links;
 
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;

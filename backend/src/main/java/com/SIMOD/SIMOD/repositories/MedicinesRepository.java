@@ -11,6 +11,8 @@
     import java.util.UUID;
 
     public interface MedicinesRepository extends JpaRepository<Medicines, UUID> {
+        List<Medicines> findByPatientIdUserAndStatus(UUID patientId, Status status);
+
         Page<Medicines> findByPatientIdUserOrderByCreatedAtDesc(
                 UUID patientUserId,
                 Pageable pageable

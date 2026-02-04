@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 public class UserDevices {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)

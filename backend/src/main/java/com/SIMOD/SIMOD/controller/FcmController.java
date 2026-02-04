@@ -10,13 +10,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/Fcm")
+@RequestMapping("/fcm")
 @RequiredArgsConstructor
 public class FcmController {
 
     private final AuthService authService;
 
-    @PutMapping("/fcm-token")
+    @PutMapping("/token")
     public ResponseEntity<Void> atualizarFcmToken(
             Authentication authentication,
             @RequestBody @Valid UpdateFcmTokenRequest request

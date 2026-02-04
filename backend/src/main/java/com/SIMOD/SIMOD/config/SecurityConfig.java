@@ -60,6 +60,8 @@ public class SecurityConfig {
                         .requestMatchers("/atividades/fisio-fono/**").hasAnyRole("FISIOTERAPEUTA",
                                 "FONOAUDIOLOGO")
                         .requestMatchers("/atividades/usuarios/**").authenticated()
+                        .requestMatchers("/diario-de-saude/**").authenticated()
+                        .requestMatchers("/diario-de-saude/listarDiarios/**").hasAnyRole("PACIENTE", "CUIDADOR")
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session ->

@@ -10,6 +10,36 @@
 
 
     <ImageView
+        android:id="@+id/imageView9"
+        android:layout_width="61dp"
+        android:layout_height="62dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.06"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.816"
+        app:srcCompat="@drawable/senhaicone" />
+
+    <EditText
+        android:id="@+id/etCampoConfirmarSenha"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:layout_marginStart="90dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/caixa_texto"
+        android:ems="10"
+        android:hint="CONFIRME SUA SENHA"
+        android:inputType="textPassword"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.815" />
+
+    <ImageView
         android:id="@+id/imageView2"
         android:layout_width="200dp"
         android:layout_height="100dp"
@@ -33,13 +63,13 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatButton
-        android:id="@+id/btnCadastro"
+        android:id="@+id/btnContinuarCadastro"
         android:layout_width="match_parent"
         android:layout_height="70dp"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
-        android:background="@drawable/botao_cadastrar"
-        android:text="CADASTRAR"
+        android:background="@drawable/botao_continuar_cadastrar"
+        android:text="CONTINUAR"
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -48,6 +78,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.944"
         tools:ignore="MissingConstraints" />
+
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/etCampoNome"
         android:layout_width="0dp"
@@ -56,15 +87,15 @@
         android:layout_marginEnd="32dp"
         android:background="@drawable/caixa_texto"
         android:ems="10"
-        android:hint="Nome Completo"
-        android:inputType="text"
+        android:hint="NOME COMPLETO"
+        android:inputType="textCapCharacters"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.264" />
+        app:layout_constraintVertical_bias="0.173" />
 
     <EditText
         android:id="@+id/etCampoCpf"
@@ -75,14 +106,15 @@
         android:background="@drawable/caixa_texto"
         android:ems="10"
         android:hint="CPF"
-        android:inputType="text"
+        android:inputType="number"
+        android:maxLength="14"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.402" />
+        app:layout_constraintVertical_bias="0.302" />
 
     <EditText
         android:id="@+id/etCampoEmail"
@@ -92,15 +124,15 @@
         android:layout_marginEnd="32dp"
         android:background="@drawable/caixa_texto"
         android:ems="10"
-        android:hint="E-mail"
-        android:inputType="text"
+        android:hint="E-MAIL"
+        android:inputType="textEmailAddress"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.529" />
+        app:layout_constraintVertical_bias="0.43" />
 
     <EditText
         android:id="@+id/etCampoTelefone"
@@ -110,15 +142,15 @@
         android:layout_marginEnd="32dp"
         android:background="@drawable/caixa_texto"
         android:ems="10"
-        android:hint="Telefone"
-        android:inputType="text"
+        android:hint="TELEFONE"
+        android:inputType="phone"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.667" />
+        app:layout_constraintVertical_bias="0.56" />
 
     <EditText
         android:id="@+id/etCampoCriarSenha"
@@ -128,15 +160,15 @@
         android:layout_marginEnd="32dp"
         android:background="@drawable/caixa_texto"
         android:ems="10"
-        android:hint="Criar Senha"
-        android:inputType="text"
+        android:hint="CRIAR SENHA"
+        android:inputType="textPassword"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.8" />
+        app:layout_constraintVertical_bias="0.689" />
 
     <ImageView
         android:id="@+id/imageView3"
@@ -144,10 +176,10 @@
         android:layout_height="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.017"
+        app:layout_constraintHorizontal_bias="0.035"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.272"
+        app:layout_constraintVertical_bias="0.18"
         app:srcCompat="@drawable/usericone" />
 
     <ImageView
@@ -159,7 +191,7 @@
         app:layout_constraintHorizontal_bias="0.017"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.402"
+        app:layout_constraintVertical_bias="0.302"
         app:srcCompat="@drawable/cpficone" />
 
     <ImageView
@@ -168,10 +200,10 @@
         android:layout_height="45dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.045"
+        app:layout_constraintHorizontal_bias="0.048"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.528"
+        app:layout_constraintVertical_bias="0.431"
         app:srcCompat="@drawable/emailicone" />
 
     <ImageView
@@ -180,10 +212,10 @@
         android:layout_height="65dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.046"
+        app:layout_constraintHorizontal_bias="0.051"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.661"
+        app:layout_constraintVertical_bias="0.562"
         app:srcCompat="@drawable/telefoneicone" />
 
     <ImageView
@@ -192,10 +224,10 @@
         android:layout_height="62dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.045"
+        app:layout_constraintHorizontal_bias="0.06"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.792"
+        app:layout_constraintVertical_bias="0.682"
         app:srcCompat="@drawable/senhaicone" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

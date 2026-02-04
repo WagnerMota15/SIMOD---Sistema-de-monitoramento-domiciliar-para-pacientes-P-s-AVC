@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.simodapp.R;
+import com.example.simodapp.ui.home.HomeActivity;
 import com.example.simodapp.util.SessionManager;
 import com.example.simodapp.viewmodel.LoginViewModel;
 
@@ -62,7 +63,8 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
 
 //                // Ir para próxima tela
-//                startActivity(new Intent(this, HomeActivity.class));
+                startActivity(new Intent(this, HomeActivity.class));
+                //com o finish,não permite voltar á tela anterior(login),se voltar,o usuário sai do app
                 finish();
             }
         });

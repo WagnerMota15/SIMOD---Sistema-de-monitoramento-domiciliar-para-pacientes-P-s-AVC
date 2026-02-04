@@ -40,6 +40,7 @@ public class FinalRegisterActivity extends AppCompatActivity {
     private FamilyAdapter familyAdapter;
 
     private PatientViewModel patientViewModel;
+    private RegisterViewModel registerViewModel;
 
     private MaterialAutoCompleteTextView actStrokeType;
 
@@ -65,13 +66,20 @@ public class FinalRegisterActivity extends AppCompatActivity {
         etCity = findViewById(R.id.etCampoCidade);
         etState = findViewById(R.id.etCampoUF);
 
+        //recupera os dados da activity anterior
+        String name = getIntent().getStringExtra("name");
+        String cpf = getIntent().getStringExtra("cpf");
+        String email = getIntent().getStringExtra("email");
+        String telephone = getIntent().getStringExtra("telephone");
+        String password = getIntent().getStringExtra("password");
+
         setupStrokeDropdown();
         setupFamilySection();
         configSearchCep();
 
         findViewById(R.id.btnAddContato).setOnClickListener(v -> showDialogAdd());
         findViewById(R.id.actStrokeType).setOnClickListener(v -> actStrokeType.showDropDown());
-        findViewById(R.id.btnFinalizar).setOnClickListener(v -> finishProcess());
+        findViewById(R.id.btnFinalizar).setOnClickListener(v -> registerViewModel.register(name,cpf,email,telephone,password,,actStrokeType.toString()));
 
 
 

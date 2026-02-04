@@ -1,0 +1,8 @@
+CREATE TABLE family(
+    id_family UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    name VARCHAR(80) NOT NULL,
+    telephone VARCHAR(20) NOT NULL,
+    kinship VARCHAR(20) NOT NULL,
+    patient_id UUID NOT NULL,
+    FOREIGN KEY (patient_id) REFERENCES patient(id) ON DELETE CASCADE
+);

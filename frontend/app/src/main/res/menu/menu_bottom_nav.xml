@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/outline_add_home_24"
+        android:title="Início"/>
+
+    <item
+        android:id="@+id/nav_signs"
+        android:icon="@drawable/outline_bid_landscape_24"
+        android:title="Sinais"/>
+
+    <item
+        android:id="@+id/nav_chat"
+        android:icon="@drawable/outline_chat_24"
+        android:title="Chat"/>
+
+    <item
+        android:id="@+id/nav_diary"
+        android:icon="@drawable/outline_book_2_24"
+        android:title="Diário"/>
+
+    <item
+        android:id="@+id/nav_menu"
+        android:icon="@drawable/outline_apps_24"
+        android:title="Menu"/>
+</menu>

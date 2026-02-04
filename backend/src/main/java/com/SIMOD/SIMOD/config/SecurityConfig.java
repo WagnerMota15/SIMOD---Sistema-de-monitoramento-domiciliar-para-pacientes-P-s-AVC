@@ -1,0 +1,73 @@
+package com.SIMOD.SIMOD.config;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+@Configuration
+@RequiredArgsConstructor
+public class SecurityConfig {
+
+    private final UserDetailsService userDetailsService;
+    private final JwtAuthFilter jwtAuthFilter;
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(authenticationProvider());
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/pacientes/**").hasRole("PACIENTE")
+                        .requestMatchers("/cuidadores/**").hasRole("CUIDADOR")
+                        .requestMatchers("/profissionais/**").hasAnyRole("MEDICO",
+                                "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
+                        .requestMatchers("/mensagens/**").authenticated()
+                        .requestMatchers("/sessoes/profissionais/**").hasAnyRole("MEDICO",
+                                "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
+                        .requestMatchers("/sessoes/cuidaores/**").hasRole("CUIDADOR")
+                        .requestMatchers("/sessoes/pacientes/**").hasRole("PACIENTE")
+                        .requestMatchers("/dietas/nutricionistas/**").hasRole("NUTRICIONISTA")
+                        .requestMatchers("/dietas/usuarios/**").authenticated()
+                        .requestMatchers("/medicamentos/medicos/**").hasRole("MEDICO")
+                        .requestMatchers("/medicamentos/usuarios/**").authenticated()
+                        .requestMatchers("/atividades/fisio-fono/**").hasAnyRole("FISIOTERAPEUTA",
+                                "FONOAUDIOLOGO")
+                        .requestMatchers("/atividades/usuarios/**").authenticated()
+                        .anyRequest().authenticated()
+                )
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .authenticationProvider(authenticationProvider())
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+}

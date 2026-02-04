@@ -39,7 +39,7 @@ public class Activity_Active_Links extends AppCompatActivity {
     private void initRecyclerView() {
         binding.recycleView.setLayoutManager(new LinearLayoutManager(this));
         binding.recycleView.setHasFixedSize(true);
-        binding.recycleView.setAdapter(new Unlink_Adapter(getList()));
+        binding.recycleView.setAdapter(new Active_Links_Adapter(getList()));
     }
 
     private List<String> getList() {

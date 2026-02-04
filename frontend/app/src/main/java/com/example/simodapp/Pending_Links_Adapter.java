@@ -1,5 +1,6 @@
 package com.example.simodapp;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,13 @@ public class Pending_Links_Adapter extends RecyclerView.Adapter<Pending_Links_Ad
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
         String name = myList.get(position);
         holder.textName.setText(name);
+
+        //quando clickar vai para a tela que mostra os dados do paciente
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), Activity_Patient_Detail.class);
+            intent.putExtra("NAME", name);
+            v.getContext().startActivity(intent);
+        });
     }
 
     // Retorna o tamanho da lista

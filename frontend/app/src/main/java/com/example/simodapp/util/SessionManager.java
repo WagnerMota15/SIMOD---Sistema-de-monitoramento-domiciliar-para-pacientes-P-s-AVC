@@ -15,6 +15,7 @@ public class SessionManager {
 
     public void saveToken(String token) {
 
+
         preferences.edit().putString(TOKEN, token).apply();
     }
 

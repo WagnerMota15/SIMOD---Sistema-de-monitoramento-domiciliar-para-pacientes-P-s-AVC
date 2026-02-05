@@ -11,7 +11,7 @@ import com.example.simodapp.R;
 import com.example.simodapp.domain.enums.Role;
 import com.example.simodapp.viewmodel.RoleViewModel;
 
-public class FinalRegisterProfessionalActivity extends AppCompatActivity {
+public class ProfessionalTypesActivity extends AppCompatActivity {
 
     private RoleViewModel roleViewModel;
 
@@ -26,9 +26,6 @@ public class FinalRegisterProfessionalActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.escolha_profissional);
 
-        // Inicializa ViewModel
-        roleViewModel = new ViewModelProvider(this).get(RoleViewModel.class);
-
         // Inicializa botões
         btnMedico = findViewById(R.id.btnMedico);
         btnFonoaudiologo = findViewById(R.id.btnFono);
@@ -36,7 +33,7 @@ public class FinalRegisterProfessionalActivity extends AppCompatActivity {
         btnNutricionista = findViewById(R.id.btnNutricionista);
         btnOutroPsicologo = findViewById(R.id.btnPsico);
 
-        // Configura clique de cada botão
+        // Configura clique de cada botão e atribui o Role de acordo com cada botão selecionado
         btnMedico.setOnClickListener(v -> selectRoleAndGo(Role.MEDICO));
         btnFonoaudiologo.setOnClickListener(v -> selectRoleAndGo(Role.FONOAUDIOLOGO));
         btnFisioterapeuta.setOnClickListener(v -> selectRoleAndGo(Role.FISIOTERAPEUTA));
@@ -45,10 +42,10 @@ public class FinalRegisterProfessionalActivity extends AppCompatActivity {
     }
 
     private void selectRoleAndGo(Role role) {
-        roleViewModel.setSelectedRole(role);
 
-        // Vai para a tela de registro
+        // Vai para a tela de registro passando a role
         Intent intent = new Intent(this, RegisterActivity.class);
+        intent.putExtra("role", role.name()); // passa como string
         startActivity(intent);
         finish(); // fecha esta activity para não voltar
     }

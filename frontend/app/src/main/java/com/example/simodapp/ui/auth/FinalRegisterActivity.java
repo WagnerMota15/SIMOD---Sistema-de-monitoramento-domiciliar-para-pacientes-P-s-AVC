@@ -1,6 +1,7 @@
 package com.example.simodapp.ui.auth;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -18,18 +19,29 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.simodapp.R;
+import com.example.simodapp.data.api.AddressApi;
+import com.example.simodapp.data.api.AuthApi;
+import com.example.simodapp.data.api.FamilyApi;
+import com.example.simodapp.data.api.RetrofitClient;
 import com.example.simodapp.data.api.RetrofitConfig;
+import com.example.simodapp.data.dto.AddressRequest;
 import com.example.simodapp.data.dto.CepResponse;
 import com.example.simodapp.data.dto.FamilyRequest;
+import com.example.simodapp.data.repository.AuthRepository;
 import com.example.simodapp.domain.enums.Kinship;
+import com.example.simodapp.domain.enums.Role;
 import com.example.simodapp.domain.enums.StrokeTypes;
+import com.example.simodapp.ui.home.HomeActivity;
 import com.example.simodapp.ui.paciente.adapter.FamilyAdapter;
+import com.example.simodapp.util.SessionManager;
 import com.example.simodapp.viewmodel.FamilyViewModel;
 import com.example.simodapp.viewmodel.PatientViewModel;
 import com.example.simodapp.viewmodel.RegisterViewModel;
+import com.example.simodapp.viewmodel.RegisterViewModelFactory;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
 import java.util.List;
+import java.util.UUID;
 
 import retrofit2.Call;
 import retrofit2.Response;
@@ -38,15 +50,15 @@ public class FinalRegisterActivity extends AppCompatActivity {
 
     private FamilyViewModel familyViewModel;
     private FamilyAdapter familyAdapter;
-
-    private PatientViewModel patientViewModel;
     private RegisterViewModel registerViewModel;
 
     private MaterialAutoCompleteTextView actStrokeType;
 
     private EditText etCep,etPublicSpace,etCity,etState,etNeighborhood;
+    private Role role;
+    private StrokeTypes selectStrokeType;
 
-    private boolean findAddress = false;
+    private boolean isSearchingAddress = false;
 
 
     @Override
@@ -55,9 +67,22 @@ public class FinalRegisterActivity extends AppCompatActivity {
         setContentView(R.layout.finaliza_cadastro_paciente);
 
         familyViewModel = new ViewModelProvider(this).get(FamilyViewModel.class);
+        SessionManager sessionManager = new SessionManager(this);
 
-        patientViewModel = new ViewModelProvider(this).get(PatientViewModel.class);
+        AuthApi authApi = RetrofitClient
+                .getClient(sessionManager)
+                .create(AuthApi.class);
 
+        AuthRepository repository =
+                new AuthRepository(authApi, sessionManager);
+
+        registerViewModel = new ViewModelProvider(
+                this,
+                new RegisterViewModelFactory(repository)
+        ).get(RegisterViewModel.class);
+
+
+        //views
         actStrokeType = findViewById(R.id.actStrokeType);
 
         etCep = findViewById(R.id.etCampoCep);
@@ -66,20 +91,51 @@ public class FinalRegisterActivity extends AppCompatActivity {
         etCity = findViewById(R.id.etCampoCidade);
         etState = findViewById(R.id.etCampoUF);
 
-        //recupera os dados da activity anterior
+        //recupera os dados da activity anterior(RegisterActivity)
         String name = getIntent().getStringExtra("name");
         String cpf = getIntent().getStringExtra("cpf");
         String email = getIntent().getStringExtra("email");
         String telephone = getIntent().getStringExtra("telephone");
         String password = getIntent().getStringExtra("password");
+        role = Role.valueOf(getIntent().getStringExtra("role"));
 
         setupStrokeDropdown();
         setupFamilySection();
         configSearchCep();
 
         findViewById(R.id.btnAddContato).setOnClickListener(v -> showDialogAdd());
-        findViewById(R.id.actStrokeType).setOnClickListener(v -> actStrokeType.showDropDown());
-        findViewById(R.id.btnFinalizar).setOnClickListener(v -> registerViewModel.register(name,cpf,email,telephone,password,,actStrokeType.toString()));
+        findViewById(R.id.btnFinalizar).setOnClickListener(v -> {
+
+            if(!finishProcess()) return;
+
+            //representação do caso de uso de registrar paciente/usuário no sistema
+            registerViewModel.register(name,cpf,email,telephone,password,role,selectStrokeType,null);
+
+            registerViewModel.getRegisterSuccess().observe(this,registerResponse -> {
+
+                UUID patientId = UUID.fromString(registerResponse.getUserId());
+
+                //coleto os dados de endereço e transformo em objeto address
+                AddressRequest addressRequest = buildAddressRequest();
+
+
+                List<FamilyRequest> familyRequests = familyViewModel.getShippingList();
+                sendFamilyContacts(patientId,familyRequests);
+
+                Toast.makeText(this, "CADASTRO FINALIZADO COM SUCESSO", Toast.LENGTH_SHORT).show();
+
+                Intent intent = new Intent(FinalRegisterActivity.this, HomeActivity.class);
+                startActivity(intent);
+                //não permitindo que o usuário volte á tela de cadastro após entrar na home
+                finish();
+
+            });
+
+
+
+        });
+
+        //enviar endereço e contatos
 
 
 
@@ -94,10 +150,10 @@ public class FinalRegisterActivity extends AppCompatActivity {
                 );
 
         actStrokeType.setAdapter(adapter);
+        actStrokeType.setOnClickListener(v->actStrokeType.showDropDown());
 
         actStrokeType.setOnItemClickListener((parent, view, position, id) -> {
-            StrokeTypes selected = (StrokeTypes) parent.getItemAtPosition(position);
-            patientViewModel.setStrokeType(selected);
+            selectStrokeType = (StrokeTypes) parent.getItemAtPosition(position);
         });
     }
 
@@ -173,13 +229,13 @@ public class FinalRegisterActivity extends AppCompatActivity {
                 String cep = s.toString().replace("-","");
 
                 if(cep.length()<8){
-                    findAddress=false;
+                    isSearchingAddress=false;
                     clearData();
-                    blockAll(findAddress);
+                    blockAll(isSearchingAddress);
                     return;
                 }
-                if(cep.length() == 8 && !findAddress){
-                    findAddress=true;
+                if(cep.length() == 8 && !isSearchingAddress){
+                    isSearchingAddress=true;
                     loadingAddress();
                     searchAddressForCep(cep);
                 }
@@ -195,7 +251,7 @@ public class FinalRegisterActivity extends AppCompatActivity {
         RetrofitConfig.getCepService().searchCep(cep).enqueue(new retrofit2.Callback<CepResponse>() {
             @Override
             public void onResponse(retrofit2.Call<CepResponse> call, retrofit2.Response<CepResponse> response) {
-                findAddress = false;
+                isSearchingAddress = false;
                 CepResponse res = response.body();
 
                 if(response.isSuccessful() && response.body() != null && !response.body().isErro()){
@@ -207,16 +263,16 @@ public class FinalRegisterActivity extends AppCompatActivity {
 
                 } else {
                     clearData();
-                    blockAll(findAddress);
+                    blockAll(isSearchingAddress);
                     Toast.makeText(FinalRegisterActivity.this, "CEP INVÁLIDO", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<CepResponse> call, Throwable t) {
-                findAddress = false;
+                isSearchingAddress = false;
                 clearData();
-                blockAll(findAddress);
+                blockAll(isSearchingAddress);
                 Toast.makeText(FinalRegisterActivity.this, "ERRO AO BUSCAR CEP", Toast.LENGTH_SHORT).show();
             }
         });
@@ -226,7 +282,7 @@ public class FinalRegisterActivity extends AppCompatActivity {
         if(address.getLogradouro().isEmpty() && address.getBairro().isEmpty() || address.getLogradouro() == null && address.getBairro() == null){
             blockData();
         } else {
-            blockAll(findAddress);
+            blockAll(isSearchingAddress);
         }
     }
 
@@ -261,22 +317,84 @@ public class FinalRegisterActivity extends AppCompatActivity {
 
     }
 
+    public AddressRequest buildAddressRequest(){
+        return new AddressRequest(etCep.getText().toString(),
+                etPublicSpace.getText().toString(),
+                etNeighborhood.getText().toString(),
+                etCity.getText().toString(),
+                etState.getText().toString());
+    }
 
-    public void finishProcess(){
+    public void sendAddress(AddressRequest request){
+        AddressApi api = RetrofitClient
+                .getClient(new SessionManager(this))
+                .create(AddressApi.class);
+
+        api.saveAddress(request).enqueue(new retrofit2.Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(
+                            FinalRegisterActivity.this,
+                            "ERRO AO SALVAR O ENDEREÇO",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(
+                        FinalRegisterActivity.this,
+                        "FALHA DE CONEXÇAO",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
+
+    }
+
+    public void sendFamilyContacts(UUID patientId,List<FamilyRequest> requests){
+        FamilyApi api = RetrofitClient
+                .getClient(new SessionManager(this))
+                .create(FamilyApi.class);
+
+        api.createFamilyContacts(patientId, requests)
+                .enqueue(new retrofit2.Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (!response.isSuccessful()) {
+                            Toast.makeText(FinalRegisterActivity.this,
+                                    "Erro ao cadastrar contatos familiares",
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Toast.makeText(FinalRegisterActivity.this,
+                                "Falha de conexão ao enviar contatos familiares",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+    }
+
+
+    public boolean finishProcess(){
 
         List<FamilyRequest> currentList = familyViewModel.getShippingList();
-        StrokeTypes strokeTypes = patientViewModel.getStrokeType();
 
         if(currentList.isEmpty()){
             Toast.makeText(this, "ADICIONE AO MENOS UM CONTATO DE EMERGÊNCIA", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
 
-        if(strokeTypes == null){
+        if(selectStrokeType == null){
             Toast.makeText(this, "SELECIONE O TIPO DE AVC", Toast.LENGTH_SHORT).show();
-            return;
+            return false;
         }
-
+        return true;
 
     }
 

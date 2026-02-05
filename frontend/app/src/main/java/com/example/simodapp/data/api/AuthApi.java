@@ -17,4 +17,5 @@ public interface AuthApi {
 
     @POST("auth/register")
     Call<RegisterResponse> register(@Body RegisterRequest request);
+
 }

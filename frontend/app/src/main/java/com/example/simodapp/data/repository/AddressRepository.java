@@ -7,11 +7,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AddresRepository {
+public class AddressRepository {
     private final AddressApi api;
 
 
-    public AddresRepository(AddressApi api) {
+    public AddressRepository(AddressApi api) {
         this.api = api;
     }
 

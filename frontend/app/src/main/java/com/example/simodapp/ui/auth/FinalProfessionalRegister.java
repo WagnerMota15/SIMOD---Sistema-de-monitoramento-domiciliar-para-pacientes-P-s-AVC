@@ -1,13 +1,18 @@
-package com.example.simodapp.ui.auth;
-
-import android.widget.Button;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-public class ProfessionalTypesActivity extends AppCompatActivity {
-
-    private final Button btnPhysiotherapist,btnSpeechTherapist,btnMedical,btnNutritionist,btnPsychologist;
+//package com.example.simodapp.ui.auth;
+//
 
 
+//colocar a questão do numero do conselho
 
-}
+
+//import android.widget.Button;
+//
+//import androidx.appcompat.app.AppCompatActivity;
+//
+//public class ProfessionalTypesActivity extends AppCompatActivity {
+//
+//    private final Button btnPhysiotherapist,btnSpeechTherapist,btnMedical,btnNutritionist,btnPsychologist;
+//
+//
+//
+//}

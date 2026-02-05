@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/patients/{patientId}/family")
+@RequestMapping("/auth/patients/{patientId}/family")
 @RequiredArgsConstructor
 public class FamilyController {
 

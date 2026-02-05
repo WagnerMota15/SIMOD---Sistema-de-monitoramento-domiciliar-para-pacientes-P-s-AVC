@@ -59,12 +59,4 @@ public class Patient extends User {
     @OneToMany(mappedBy = "patient")
     private Set<Historical> medicalHistory = new HashSet<>();
 
-    public void addFamilyMemmber(Family family){
-        familyMembers.add(family);
-        family.setPatient(this);
-    }
-
-    public UUID getPatientId() {
-        return this.getIdUser();
-    }
 }

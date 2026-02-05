@@ -23,6 +23,10 @@ import java.util.UUID;
 
 public abstract class User {
 
+    public UUID getId() {
+        return idUser;
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idUser;

@@ -40,9 +40,25 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
+
         UUID userId = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterResponse(userId));
+
+        // Autentica automaticamente após o registro do usuário
+        //lógica reaproveitada do login
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.cpf(),
+                        request.password()
+                )
+        );
+
+        String jwt = jwtUtil.generateToken(authentication);
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new RegisterResponse(userId, jwt));
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {

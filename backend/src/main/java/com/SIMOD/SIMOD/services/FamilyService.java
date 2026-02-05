@@ -9,6 +9,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,14 +23,22 @@ public class FamilyService {
     }
 
     @Transactional
-    public void createContactFamily(UUID patientId,FamilyRequest request){
-        Patient patient = patientRepository.findById(patientId).orElseThrow(() -> new EntityNotFoundException("Patient not found"));
+    public void createContacstFamily(UUID patientId, List<FamilyRequest> requests){
+        Patient patient = patientRepository.findById(patientId).orElseThrow(() -> new EntityNotFoundException("PACIENTE NÃO ENCONTRADO"));
 
-        Family family = new Family(request.name(), request.telephone(), request.kinship());
-        patient.addFamilyMemmber(family);
+        List<Family> contacts = requests.stream()
+                .map(request -> toEntity(request, patient))
+                .toList();
 
-        familyRepository.save(family);
+        familyRepository.saveAll(contacts);
+    }
 
+    private Family toEntity(FamilyRequest request, Patient patient) {
+        return Family.builder().name(request.name())
+                .telephone(request.telephone())
+                .kinship(request.kinship())
+                .patient(patient)
+                .build();
     }
 
 }

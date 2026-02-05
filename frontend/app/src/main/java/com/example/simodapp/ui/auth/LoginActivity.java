@@ -11,25 +11,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.simodapp.R;
+import com.example.simodapp.data.api.AuthApi;
+import com.example.simodapp.data.api.RetrofitClient;
+import com.example.simodapp.data.repository.AuthRepository;
 import com.example.simodapp.ui.home.HomeActivity;
 import com.example.simodapp.util.SessionManager;
 import com.example.simodapp.viewmodel.LoginViewModel;
+import com.example.simodapp.viewmodel.LoginViewModelFactory;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private Button btnLogin;
     private EditText etLogin, etPassword;
+    private Button btnLogin;
     private TextView txtCadastreSe;
 
     private LoginViewModel viewModel;
-    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tela_login);
-
-        sessionManager = new SessionManager(this);
 
         initViews();
         initViewModel();
@@ -45,31 +46,31 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initViewModel() {
-        // Inicializa o ViewModel diretamente passando o SessionManager
-        viewModel = new ViewModelProvider(this, new ViewModelProvider.NewInstanceFactory() {
-            @Override
-            public <T extends androidx.lifecycle.ViewModel> T create(Class<T> modelClass) {
-                return (T) new LoginViewModel(sessionManager);
-            }
-        }).get(LoginViewModel.class);
+        SessionManager sessionManager = new SessionManager(this);
+
+        AuthApi authApi = RetrofitClient
+                .getClient(sessionManager)
+                .create(AuthApi.class);
+
+        AuthRepository authRepository = new AuthRepository(authApi, sessionManager);
+
+        viewModel = new ViewModelProvider(
+                this,
+                new LoginViewModelFactory(authRepository)
+        ).get(LoginViewModel.class);
     }
 
     private void observeViewModel() {
-        viewModel.getLoginSucess().observe(this, response -> {
-            if (response != null && response.getToken() != null) {
-                // Salva token
-                sessionManager.saveToken(response.getToken());
 
+        viewModel.getToken().observe(this, token -> {
+            if (token != null) {
                 Toast.makeText(this, "Login realizado com sucesso!", Toast.LENGTH_SHORT).show();
-
-//                // Ir para próxima tela
                 startActivity(new Intent(this, HomeActivity.class));
-                //com o finish,não permite voltar á tela anterior(login),se voltar,o usuário sai do app
                 finish();
             }
         });
 
-        viewModel.getLoginError().observe(this, message -> {
+        viewModel.getError().observe(this, message -> {
             if (message != null) {
                 Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
             }

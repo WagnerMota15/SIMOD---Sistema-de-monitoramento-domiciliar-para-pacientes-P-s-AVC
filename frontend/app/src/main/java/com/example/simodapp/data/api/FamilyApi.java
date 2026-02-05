@@ -11,7 +11,7 @@ import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface FamilyApi {
-    @POST("/patients/{patientId}/family")
+    @POST("/auth/patients/{patientId}/family")
     Call<Void> createFamilyContacts(
             @Path("patientId") UUID patientId,
             @Body List<FamilyRequest> requests

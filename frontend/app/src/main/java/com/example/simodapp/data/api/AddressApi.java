@@ -8,6 +8,6 @@ import retrofit2.http.POST;
 
 public interface AddressApi {
 
-    @POST("/address")
+    @POST("/auth/address")
     Call<Void> saveAddress(@Body AddressRequest request);
 }

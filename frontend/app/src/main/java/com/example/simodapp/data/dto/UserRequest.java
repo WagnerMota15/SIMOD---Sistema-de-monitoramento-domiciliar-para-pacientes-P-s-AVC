@@ -1,4 +1,4 @@
-package com.example.simodapp.data.api;
+package com.example.simodapp.data.dto;
 
 public class UserRequest {
 

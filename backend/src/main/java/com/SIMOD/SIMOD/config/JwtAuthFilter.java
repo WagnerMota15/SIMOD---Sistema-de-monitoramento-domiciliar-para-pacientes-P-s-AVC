@@ -31,6 +31,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        //IGNORA VALIDAÇÃO DE TOKEN PARA ENDPOINTS DE AUTENTICAÇÃO,LIBEREI PARA REALIZAR CADASTRO DE NOVOS USUÁRIOS
+        String requestURI = request.getRequestURI();
+        if (requestURI.startsWith("/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         String authHeader = request.getHeader("Authorization");
 

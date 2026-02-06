@@ -1,54 +1,57 @@
 package com.example.simodapp.viewmodel;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.simodapp.data.api.AuthApi;
-import com.example.simodapp.data.api.RetrofitClient;
-import com.example.simodapp.data.repository.LoginCallback;
-import com.example.simodapp.data.repository.AuthRepository;
+import com.example.simodapp.data.dto.LoginRequest;
 import com.example.simodapp.data.dto.LoginResponse;
-import com.example.simodapp.util.SessionManager;
+import com.example.simodapp.data.repository.AuthRepository;
+import com.example.simodapp.data.repository.LoginCallback;
 
 public class LoginViewModel extends ViewModel {
 
-
     private final AuthRepository authRepository;
-    private final MutableLiveData<LoginResponse> loginSucess = new MutableLiveData<>();
-    private final MutableLiveData<String> loginError = new MutableLiveData<>();
 
-    public LoginViewModel(SessionManager sessionManager) {
-        AuthApi authApi = RetrofitClient.getClient(sessionManager).create(AuthApi.class);
-        this.authRepository = new AuthRepository(authApi);
+    private final MutableLiveData<String> token = new MutableLiveData<>();
+    private final MutableLiveData<String> error = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
+
+    public LoginViewModel(AuthRepository authRepository) {
+        this.authRepository = authRepository;
     }
 
-    public LiveData<LoginResponse> getLoginSucess(){
-
-        return loginSucess;
+    public LiveData<String> getToken() {
+        return token;
     }
 
-    public LiveData<String> getLoginError(){
-        return loginError;
+    public LiveData<String> getError() {
+        return error;
     }
 
-    public void login(String login,String password){
+    public LiveData<Boolean> getLoading() {
+        return loading;
+    }
 
-        authRepository.login(login, password, new LoginCallback() {
+    public void login(String login, String password) {
+
+        loading.setValue(true);
+        error.setValue(null);
+
+        LoginRequest request = new LoginRequest(login, password);
+
+        authRepository.login(request, new LoginCallback() {
             @Override
             public void onSucess(LoginResponse response) {
-                loginSucess.postValue(response);
+                loading.postValue(false);
+                token.postValue(response.getToken());
             }
 
             @Override
             public void onError(String message) {
-                loginError.postValue(message);
-
+                loading.postValue(false);
+                error.postValue(message);
             }
         });
-
     }
-
 }

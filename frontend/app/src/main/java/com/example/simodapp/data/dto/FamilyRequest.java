@@ -2,6 +2,8 @@ package com.example.simodapp.data.dto;
 
 import com.example.simodapp.domain.enums.Kinship;
 
+import java.util.UUID;
+
 public class FamilyRequest {
     private String name;
     private String telephone;

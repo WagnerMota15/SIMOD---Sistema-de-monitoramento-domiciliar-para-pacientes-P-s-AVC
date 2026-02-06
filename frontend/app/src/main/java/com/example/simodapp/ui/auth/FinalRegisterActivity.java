@@ -1,88 +1,105 @@
 package com.example.simodapp.ui.auth;
 
-import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
-import android.text.Editable;
-import android.view.LayoutInflater;
-import android.view.View;
+import android.util.Log;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
-import android.widget.EditText;
-import android.widget.Spinner;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.simodapp.R;
-import com.example.simodapp.data.api.RetrofitConfig;
-import com.example.simodapp.data.dto.CepResponse;
-import com.example.simodapp.data.dto.FamilyRequest;
-import com.example.simodapp.domain.enums.Kinship;
+import com.example.simodapp.data.api.AuthApi;
+import com.example.simodapp.data.repository.AuthRepository;
+import com.example.simodapp.domain.enums.Role;
 import com.example.simodapp.domain.enums.StrokeTypes;
-import com.example.simodapp.ui.paciente.adapter.FamilyAdapter;
-import com.example.simodapp.viewmodel.FamilyViewModel;
-import com.example.simodapp.viewmodel.PatientViewModel;
+import com.example.simodapp.util.SessionManager;
 import com.example.simodapp.viewmodel.RegisterViewModel;
+import com.example.simodapp.viewmodel.RegisterViewModelFactory;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.textfield.MaterialAutoCompleteTextView;
 
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Response;
+import java.util.UUID;
 
 public class FinalRegisterActivity extends AppCompatActivity {
 
-    private FamilyViewModel familyViewModel;
-    private FamilyAdapter familyAdapter;
+    private MaterialAutoCompleteTextView actStrokeType;
+    private MaterialButton btnContinuar;
+    private ImageButton btnVoltar;
 
-    private PatientViewModel patientViewModel;
+    private StrokeTypes selectedStrokeType;
+
     private RegisterViewModel registerViewModel;
 
-    private MaterialAutoCompleteTextView actStrokeType;
+    // Dados vindos do RegisterActivity
+    private String name, cpf, email, telephone, password;
+    private Role role;
 
-    private EditText etCep,etPublicSpace,etCity,etState,etNeighborhood;
-
-    private boolean findAddress = false;
-
+    // Flag para evitar múltiplos disparos do LiveData
+    private boolean handled = false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.finaliza_cadastro_paciente);
+        setContentView(R.layout.stroke_type_activity);
 
-        familyViewModel = new ViewModelProvider(this).get(FamilyViewModel.class);
-
-        patientViewModel = new ViewModelProvider(this).get(PatientViewModel.class);
-
-        actStrokeType = findViewById(R.id.actStrokeType);
-
-        etCep = findViewById(R.id.etCampoCep);
-        etPublicSpace = findViewById(R.id.etCampoLogradouro);
-        etNeighborhood = findViewById(R.id.etCampoBairro);
-        etCity = findViewById(R.id.etCampoCidade);
-        etState = findViewById(R.id.etCampoUF);
-
-        //recupera os dados da activity anterior
-        String name = getIntent().getStringExtra("name");
-        String cpf = getIntent().getStringExtra("cpf");
-        String email = getIntent().getStringExtra("email");
-        String telephone = getIntent().getStringExtra("telephone");
-        String password = getIntent().getStringExtra("password");
-
+        bindViews();
+        recoverIntentData();
+        setupViewModel();
         setupStrokeDropdown();
-        setupFamilySection();
-        configSearchCep();
 
-        findViewById(R.id.btnAddContato).setOnClickListener(v -> showDialogAdd());
-        findViewById(R.id.actStrokeType).setOnClickListener(v -> actStrokeType.showDropDown());
-        findViewById(R.id.btnFinalizar).setOnClickListener(v -> registerViewModel.register(name,cpf,email,telephone,password,,actStrokeType.toString()));
+        btnVoltar.setOnClickListener(v -> finish());
 
+        btnContinuar.setOnClickListener(v -> {
+            if (!validate()) return;
 
+            registerViewModel.register(
+                    name,
+                    cpf,
+                    email,
+                    password,
+                    telephone,
+                    role,
+                    selectedStrokeType,
+                    null
+            );
+        });
 
+        observeRegister();
+    }
+
+    private void bindViews() {
+        actStrokeType = findViewById(R.id.actStrokeType);
+        btnContinuar = findViewById(R.id.btnContinuarStroke);
+        btnVoltar = findViewById(R.id.btnVoltarStroke);
+    }
+
+    private void recoverIntentData() {
+        name = getIntent().getStringExtra("name");
+        cpf = getIntent().getStringExtra("cpf");
+        email = getIntent().getStringExtra("email");
+        telephone = getIntent().getStringExtra("telephone");
+        password = getIntent().getStringExtra("password");
+        role = Role.valueOf(getIntent().getStringExtra("role"));
+    }
+
+    private void setupViewModel() {
+        SessionManager sessionManager = new SessionManager(this);
+
+        AuthApi authApi = com.example.simodapp.data.api.RetrofitClient
+                .getClient(sessionManager)
+                .create(AuthApi.class);
+
+        AuthRepository repository =
+                new AuthRepository(authApi, sessionManager);
+
+        registerViewModel = new ViewModelProvider(
+                this,
+                new RegisterViewModelFactory(repository)
+        ).get(RegisterViewModel.class);
     }
 
     private void setupStrokeDropdown() {
@@ -94,191 +111,48 @@ public class FinalRegisterActivity extends AppCompatActivity {
                 );
 
         actStrokeType.setAdapter(adapter);
+        actStrokeType.setOnClickListener(v -> actStrokeType.showDropDown());
 
-        actStrokeType.setOnItemClickListener((parent, view, position, id) -> {
-            StrokeTypes selected = (StrokeTypes) parent.getItemAtPosition(position);
-            patientViewModel.setStrokeType(selected);
-        });
+        actStrokeType.setOnItemClickListener((parent, view, position, id) ->
+                selectedStrokeType = (StrokeTypes) parent.getItemAtPosition(position)
+        );
     }
 
-
-
-
-    public void setupFamilySection(){
-
-        RecyclerView recyclerView = findViewById(R.id.rvContatos);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        familyAdapter =
-                new FamilyAdapter(position ->
-                        familyViewModel.removeContacts(position));
-
-        recyclerView.setAdapter(familyAdapter);
-
-        familyViewModel.contactsFamily.observe(this, list -> {
-            familyAdapter.addFamily(list);
-        });
+    private boolean validate() {
+        if (selectedStrokeType == null) {
+            Toast.makeText(this, "Selecione o tipo de AVC", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
     }
 
-    private void showDialogAdd(){
-        AlertDialog.Builder builder =new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.dialog_add_contato,null);
-        builder.setView(view);
-
-        EditText etName,etTelephone;
-        Spinner spKinship;
-
-        etName= view.findViewById(R.id.etDialogNome);
-        etTelephone = view.findViewById(R.id.etDialogTelefone);
-        spKinship = view.findViewById(R.id.spDialogParentesco);
-
-        spKinship.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, Kinship.values()));
-
-        builder.setPositiveButton("Salvar",(dialog, which) -> {
-            String name,telephone;
-            name = etName.getText().toString();
-            telephone = etTelephone.getText().toString();
-            Kinship kinship = (Kinship) spKinship.getSelectedItem();
-
-            if(!name.isEmpty() && !telephone.isEmpty()){
-                familyViewModel.addContacts(name,telephone,kinship);
-            } else {
-                Toast.makeText(this, "Preencha todos os dados", Toast.LENGTH_SHORT).show();
-            }
-
-        });
-
-        builder.setNegativeButton("Cancelar",null);
-        builder.create().show();
-
-
-    }
-
-
-    private void configSearchCep(){
-        etCep.addTextChangedListener(new android.text.TextWatcher() {
+    private void observeRegister() {
+        registerViewModel.getRegisterSuccess().observe(this, new Observer<com.example.simodapp.data.dto.RegisterResponse>() {
             @Override
-            public void afterTextChanged(android.text.Editable s) {
+            public void onChanged(com.example.simodapp.data.dto.RegisterResponse response) {
+                if (handled || response == null) return;
+                handled = true;
 
-            }
+                Log.d("FinalRegisterActivity", "Cadastro realizado com sucesso: " + response.getId());
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                String cep = s.toString().replace("-","");
-
-                if(cep.length()<8){
-                    findAddress=false;
-                    clearData();
-                    blockAll(findAddress);
-                    return;
-                }
-                if(cep.length() == 8 && !findAddress){
-                    findAddress=true;
-                    loadingAddress();
-                    searchAddressForCep(cep);
-                }
-
-            }
-        });
-
-
-    }
-
-    private void searchAddressForCep(String cep){
-
-        RetrofitConfig.getCepService().searchCep(cep).enqueue(new retrofit2.Callback<CepResponse>() {
-            @Override
-            public void onResponse(retrofit2.Call<CepResponse> call, retrofit2.Response<CepResponse> response) {
-                findAddress = false;
-                CepResponse res = response.body();
-
-                if(response.isSuccessful() && response.body() != null && !response.body().isErro()){
-                    etPublicSpace.setText(res.getLogradouro());
-                    etCity.setText(res.getLocalidade());
-                    etState.setText(res.getUf());
-                    etNeighborhood.setText(res.getBairro());
-                    analyzeAddress(res);
-
-                } else {
-                    clearData();
-                    blockAll(findAddress);
-                    Toast.makeText(FinalRegisterActivity.this, "CEP INVÁLIDO", Toast.LENGTH_SHORT).show();
+                try {
+                    UUID patientId = UUID.fromString(response.getId());
+                    Intent intent = new Intent(FinalRegisterActivity.this, AddressFamilyActivity.class);
+                    intent.putExtra("patientId", patientId.toString());
+                    startActivity(intent);
+                    finish();
+                } catch (Exception e) {
+                    Log.e("FinalRegisterActivity", "Erro ao abrir AddressFamilyActivity", e);
+                    Toast.makeText(FinalRegisterActivity.this, "Erro ao abrir próxima tela", Toast.LENGTH_LONG).show();
                 }
             }
+        });
 
-            @Override
-            public void onFailure(Call<CepResponse> call, Throwable t) {
-                findAddress = false;
-                clearData();
-                blockAll(findAddress);
-                Toast.makeText(FinalRegisterActivity.this, "ERRO AO BUSCAR CEP", Toast.LENGTH_SHORT).show();
+        registerViewModel.getError().observe(this, error -> {
+            if (error != null && !error.isEmpty()) {
+                Log.e("FinalRegisterActivity", "Erro no cadastro: " + error);
+                Toast.makeText(FinalRegisterActivity.this, error, Toast.LENGTH_SHORT).show();
             }
         });
     }
-
-    private void analyzeAddress(CepResponse address){
-        if(address.getLogradouro().isEmpty() && address.getBairro().isEmpty() || address.getLogradouro() == null && address.getBairro() == null){
-            blockData();
-        } else {
-            blockAll(findAddress);
-        }
-    }
-
-    private void clearData(){
-        etPublicSpace.setText("");
-        etCity.setText("");
-        etNeighborhood.setText("");
-        etState.setText("");
-
-    }
-    //função utilizada para bloquear desbloquear somente a rua e o bairro,
-    //permitindo que zonas rurais nas quais essas informações não forem encontradas possa ser editadas
-    public void blockData(){
-        etPublicSpace.setEnabled(true);
-        etNeighborhood.setEnabled(true);
-        etCity.setEnabled(false);
-        etState.setEnabled(false);
-    }
-    public void blockAll(boolean block){
-        etPublicSpace.setEnabled(block);
-        etCity.setEnabled(block);
-        etNeighborhood.setEnabled(block);
-        etState.setEnabled(block);
-    }
-
-    private void loadingAddress(){
-
-        etPublicSpace.setText("Buscando...");
-        etCity.setText("Buscando..");
-        etNeighborhood.setText("Buscando...");
-        etState.setText("...");
-
-    }
-
-
-    public void finishProcess(){
-
-        List<FamilyRequest> currentList = familyViewModel.getShippingList();
-        StrokeTypes strokeTypes = patientViewModel.getStrokeType();
-
-        if(currentList.isEmpty()){
-            Toast.makeText(this, "ADICIONE AO MENOS UM CONTATO DE EMERGÊNCIA", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        if(strokeTypes == null){
-            Toast.makeText(this, "SELECIONE O TIPO DE AVC", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-
-    }
-
-
 }

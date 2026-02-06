@@ -12,7 +12,21 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "address")
+@Table(
+        name = "address",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {
+                                "cep",
+                                "public_space",
+                                "number",
+                                "neighborhood",
+                                "city",
+                                "state"
+                        }
+                )
+        }
+)
 @Setter
 @Getter
 @NoArgsConstructor
@@ -24,7 +38,7 @@ public class Address {
     private UUID id;
 
     private String cep;
-    private String publicSpace;
+    private String street;
     private String neighborhood;
     private String city;
     private String state;
@@ -33,9 +47,9 @@ public class Address {
     @OneToMany(mappedBy = "address")
     private Set<Patient> patients = new HashSet<>();
 
-    public Address(String cep, String publicSpace, String neighborhood, String city, String state, String number) {
+    public Address(String cep, String street, String neighborhood, String city, String state, String number) {
         this.cep = cep;
-        this.publicSpace = publicSpace;
+        this.street = street;
         this.neighborhood = neighborhood;
         this.city = city;
         this.state = state;

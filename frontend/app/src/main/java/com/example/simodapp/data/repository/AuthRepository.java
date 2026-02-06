@@ -8,6 +8,7 @@ import com.example.simodapp.data.dto.RegisterRequest;
 import com.example.simodapp.data.dto.RegisterResponse;
 import com.example.simodapp.domain.enums.Role;
 import com.example.simodapp.domain.enums.StrokeTypes;
+import com.example.simodapp.util.SessionManager;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -16,18 +17,21 @@ import retrofit2.Response;
 public class AuthRepository {
 
     private final AuthApi authApi;
+    private final SessionManager sessionManager;
 
-    public AuthRepository(AuthApi authApi){
+    public AuthRepository(AuthApi authApi,SessionManager sessionManager){
+
         this.authApi = authApi;
+        this.sessionManager = sessionManager;
     }
 
-    public void login(String login, String password, LoginCallback callback){
-        LoginRequest loginRequest = new LoginRequest(login,password);
+    public void login(LoginRequest loginRequest, LoginCallback callback){
 
         authApi.login(loginRequest).enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if(response.isSuccessful() && response.body()!= null){
+                    sessionManager.saveToken(response.body().getToken());
                     callback.onSucess(response.body());
                 } else {
                     callback.onError("Credenciais inválidas");
@@ -43,12 +47,17 @@ public class AuthRepository {
     }
 
 
-    public void register(String nameComplete, String cpf, String email, String password, String telephone, Role role, StrokeTypes strokeTypes, String numCouncil, RegisterCallback callback){
-        RegisterRequest request = new RegisterRequest(nameComplete, cpf, email, password, telephone, role, strokeTypes, numCouncil);
-        authApi.register(request).enqueue(new Callback<RegisterResponse>() {
+    public void register(RegisterRequest registerRequest, RegisterCallback callback){
+
+        authApi.register(registerRequest).enqueue(new Callback<RegisterResponse>() {
             @Override
             public void onResponse(Call<RegisterResponse> call, Response<RegisterResponse> response) {
                 if(response.isSuccessful()&&response.body()!=null){
+
+                    if(response.body().getToken()!=null){
+                        sessionManager.saveToken(response.body().getToken());
+                    }
+
                     callback.registerSucess(response.body());
                 } else {
                     callback.registerError("Erro ao cadastrar usuário");

@@ -26,13 +26,15 @@ public class AddressService {
     @Transactional
     public void create(UUID patientId,AddressRequest request){
 
+
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new EntityNotFoundException("PACIENTE NÃO ENCONTRADO"));
 
+        //MÉTODO ANALISA SE O ADDRESS DE UM NOVO PACIENTE JÁ EXISTE,EVITANDO DUPLICAÇÃO DE ENDEREÇO NO BANCO DE DADOS
         Address address = addressRepository
-                .findByCepAndPublicSpaceAndNumberAndNeighborhoodAndCityAndState(
+                .findByCepAndStreetAndNumberAndNeighborhoodAndCityAndState(
                         request.cep(),
-                        request.publicSpace(),
+                        request.street(),
                         request.number(),
                         request.neighborhood(),
                         request.city(),
@@ -41,7 +43,7 @@ public class AddressService {
                 .orElseGet(() -> {
                     Address newAddress = new Address(
                             request.cep(),
-                            request.publicSpace(),
+                            request.street(),
                             request.neighborhood(),
                             request.city(),
                             request.state(),

@@ -4,16 +4,11 @@ public enum Kinship {
     MÃE,
     PAI,
     IRMÃO,
-    IRMÃ,
     AVÔ,
-    AVÓ,
     TIO,
-    TIA,
     PRIMO,
-    PRIMA,
-    CONJUGE,
+    CÔNJUGE,
     FILHO,
-    FILHA,
     AMIGO,
     OUTRO
 }

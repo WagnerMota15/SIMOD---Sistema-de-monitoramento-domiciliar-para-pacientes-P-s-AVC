@@ -12,7 +12,21 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name = "address")
+@Table(
+        name = "address",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        columnNames = {
+                                "cep",
+                                "public_space",
+                                "number",
+                                "neighborhood",
+                                "city",
+                                "state"
+                        }
+                )
+        }
+)
 @Setter
 @Getter
 @NoArgsConstructor

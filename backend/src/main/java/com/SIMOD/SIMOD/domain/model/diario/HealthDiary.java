@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@Builder
 @Entity
 @Table(name = "health_diary")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class HealthDiary {
@@ -27,6 +27,9 @@ public class HealthDiary {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "patient_id", nullable = false)
     private Patient patient;
+
+    @Column(name = "patient_name")
+    private String patientName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "caregiver_id")
@@ -54,15 +57,19 @@ public class HealthDiary {
     private String symptoms;
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<HealthDiaryMedicine> medicines = new ArrayList<>();
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<HealthDiaryDiet> diets = new ArrayList<>();
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<HealthDiaryActivity> activities = new ArrayList<>();
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<HealthDiarySession> sessions = new ArrayList<>();
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP WITH TIME ZONE")
@@ -72,6 +79,7 @@ public class HealthDiary {
     protected void onCreate() {
         this.createdAt = OffsetDateTime.now();
     }
+
 }
 
 

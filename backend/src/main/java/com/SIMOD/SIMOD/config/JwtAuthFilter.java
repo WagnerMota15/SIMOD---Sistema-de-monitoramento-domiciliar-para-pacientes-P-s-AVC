@@ -18,6 +18,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+/* Responsável por interceptar cada requisição HTTP, extrair o token JWT do header e, se válido
+, autenticar o usuário no contexto de segurança da aplicação. */
+
 @Component
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -39,6 +42,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Extração do token
         String token = authHeader.substring(7);
         String username = jwtUtil.extractUsername(token);
 
@@ -48,6 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
             if (jwtUtil.isTokenValid(token, userDetails)) {
 
+        // Esse objeto representa um usuário autenticado dentro do Spring Security, incluindo suas permissões
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,
@@ -58,11 +63,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        /*if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            System.out.println(">>> AUTH: " +
-                    SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-            );
-        }*/
 
         filterChain.doFilter(request, response);
     }

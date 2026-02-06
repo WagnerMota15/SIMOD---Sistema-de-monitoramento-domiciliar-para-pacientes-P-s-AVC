@@ -25,8 +25,7 @@ public class FcmController {
 
         authService.atualizarFcmToken(
                 userDetails.getUser().getIdUser(),
-                request.fcmToken(),
-                request.platform()
+                request.fcmToken()
         );
 
         return ResponseEntity.noContent().build();

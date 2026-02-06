@@ -54,7 +54,6 @@ public class CaregiverService {
 
 
     // ----- SISTEMA DE SESSÃO -----
-
     @Transactional
     public Sessions marcarSessaoParaPaciente(Authentication authentication, UUID patientId, UUID professionalId, SessionsRequest request) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -105,6 +104,7 @@ public class CaregiverService {
         return saved;
     }
 
+
     @Transactional
     public void desmarcarSessao(Authentication authentication, UUID sessaoId) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -150,6 +150,7 @@ public class CaregiverService {
         );
     }
 
+
     @Transactional
     public Sessions confirmarSessao(Authentication authentication, UUID sessaoId) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -193,6 +194,7 @@ public class CaregiverService {
 
         return session;
     }
+
 
     @Transactional
     public Sessions rejeitarSessao(Authentication authentication, UUID sessaoId, String motivo) {
@@ -238,6 +240,7 @@ public class CaregiverService {
         return session;
     }
 
+
     @Transactional
     public Sessions cancelarSessao(Authentication authentication, UUID sessaoId, String motivo) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -280,6 +283,7 @@ public class CaregiverService {
 
         return session;
     }
+
 
     @Transactional
     public Sessions reagendarSessao(Authentication authentication, UUID sessaoId, LocalDateTime novaDataHora, SessionsRequest request) {
@@ -329,6 +333,7 @@ public class CaregiverService {
         return session;
     }
 
+
     @Transactional(readOnly = true)
     public Page<SessionsResponse> listarTodasSessoesDoPaciente(
             Authentication authentication,
@@ -355,6 +360,7 @@ public class CaregiverService {
 
     }
 
+
     @Transactional(readOnly = true)
     public Page<SessionsResponse> listarSessoesAnterioresDoPaciente(
             Authentication authentication,
@@ -378,8 +384,6 @@ public class CaregiverService {
 
         return new PageImpl<>(anteriores.stream().map(this::mapearParaResponse).toList(), pageable, page.getTotalElements());
     }
-
-
 
 
     // ----- SISTEMA DE VÍNCULO -----
@@ -417,6 +421,7 @@ public class CaregiverService {
         notificationFacadeService.notify(patient.getIdUser(), notificationRequest);
     }
 
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarPacientesAtivos(Authentication authentication) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -434,6 +439,7 @@ public class CaregiverService {
                 .collect(Collectors.toList());
     }
 
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesPacientes(Authentication authentication) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -450,6 +456,7 @@ public class CaregiverService {
                 ))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void aceitarSolicitacaoPaciente(Authentication authentication, UUID patientId) {
@@ -483,6 +490,7 @@ public class CaregiverService {
         notificationFacadeService.notify(patientId, notificationRequest);
     }
 
+
     @Transactional
     public void rejeitarSolicitacaoPaciente(Authentication authentication, UUID patientId, String motivo) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -508,6 +516,7 @@ public class CaregiverService {
 
         notificationFacadeService.notify(patientId, notificationRequest);
     }
+
 
     @Transactional
     public void desfazerVinculoPaciente(Authentication authentication, UUID patientId) {
@@ -548,12 +557,14 @@ public class CaregiverService {
                 );
     }
 
+
     private void validarVinculoAtivoComPaciente(Caregiver caregiver, Patient patient) {
         if (!caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(
                 caregiver, patient, VinculoStatus.ACEITO)) {
             throw new IllegalStateException("Você não tem vínculo ativo com este paciente.");
         }
     }
+
 
     private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
@@ -565,6 +576,7 @@ public class CaregiverService {
             }
         }
     }
+
 
     private SessionsResponse mapearParaResponse(Sessions s) {
         return new SessionsResponse(

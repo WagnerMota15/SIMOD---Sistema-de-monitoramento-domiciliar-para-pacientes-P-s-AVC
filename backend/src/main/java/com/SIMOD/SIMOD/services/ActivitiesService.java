@@ -43,11 +43,12 @@ public class ActivitiesService {
     private final ActivitiesRepository activitiesRepository;
     private final NotificationFacadeService notificationFacadeService;
 
+
     @Transactional
     public Activities prescreverAtividade(Authentication authentication, UUID patientId, ActivitiesRequest request){
         Professional professional = getProfessionalLogado(authentication);
 
-        if (professional.getRole() != Role.FISIOTERAPEUTA || professional.getRole() != Role.FISIOTERAPEUTA) {
+        if (professional.getRole() != Role.FISIOTERAPEUTA && professional.getRole() != Role.FONOAUDIOLOGO) {
             throw new IllegalStateException("Apenas fisioterapeutas ou fonoaudiologos podem prescrever exercicios");
         }
 
@@ -89,6 +90,7 @@ public class ActivitiesService {
 
         return savedActivities;
     }
+
 
     @Transactional
     public ActivitiesResponse editarAtividade(Authentication authentication, UUID activitiesId, ActivitiesRequest request) {
@@ -133,6 +135,7 @@ public class ActivitiesService {
         return toResponse(updated);
     }
 
+
     @Transactional
     public void inativarAtividade(Authentication authentication, UUID activitiesId) {
         Professional professional = getProfessionalLogado(authentication);
@@ -170,6 +173,7 @@ public class ActivitiesService {
                 TipoNotificacao.INFO
         );
     }
+
 
     @Transactional(readOnly = true)
     public Page<ActivitiesResponse> listarAtividades(Authentication authentication, Pageable pageable) {
@@ -212,6 +216,7 @@ public class ActivitiesService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<ActivitiesResponse> listarAtividadesAtivas(Authentication authentication, Pageable pageable) {
@@ -256,6 +261,7 @@ public class ActivitiesService {
         };
     }
 
+
     @Transactional(readOnly = true)
     public Page<ActivitiesResponse> listarAtividadesInativas(Authentication authentication, Pageable pageable) {
         User user = getUsuarioLogado(authentication);
@@ -298,6 +304,7 @@ public class ActivitiesService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<ActivitiesResponse> listarAtividadePorPaciente(Authentication authentication, UUID patientId, Pageable pageable) {
@@ -390,12 +397,12 @@ public class ActivitiesService {
     }
 
 
-
     // Auxiliares
     private User getUsuarioLogado(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return userDetails.getUser();
     }
+
 
     private Professional getProfessionalLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
@@ -405,6 +412,7 @@ public class ActivitiesService {
                 );
     }
 
+
     private Patient getPacienteLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
         return patientRepository.findByIdUser(user.getIdUser())
@@ -413,6 +421,7 @@ public class ActivitiesService {
                 );
     }
 
+
     private Caregiver getCuidadorLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
         return caregiverRepository.findByIdUser(user.getIdUser())
@@ -420,6 +429,7 @@ public class ActivitiesService {
                         new EntityNotFoundException("Cuidador não encontrado")
                 );
     }
+
 
     private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
@@ -431,6 +441,7 @@ public class ActivitiesService {
             }
         }
     }
+
 
     private ActivitiesResponse toResponse(Activities activities) {
         return new ActivitiesResponse(

@@ -4,6 +4,7 @@ import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,9 @@ public class HealthDiarySession {
 
     @Column(name = "attended")
     private boolean attended;
+
+    @Column(name = "time_attended")
+    private LocalTime timeAttended;
 
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;

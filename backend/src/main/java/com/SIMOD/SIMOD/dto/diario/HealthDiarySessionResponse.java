@@ -6,6 +6,5 @@ import java.util.UUID;
 public record HealthDiarySessionResponse(
         UUID sessionId,
         LocalDateTime dateTime,
-        boolean attended,
-        String note
+        boolean attended
 ) {}

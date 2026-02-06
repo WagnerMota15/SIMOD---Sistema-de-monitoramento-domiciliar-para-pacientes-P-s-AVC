@@ -44,20 +44,8 @@ public class PatientService {
     private final NotificationFacadeService notificationFacadeService;
     private final SessionsRepository sessionsRepository;
 
-    public Patient criarPaciente(PatientRequest dado) {
-        Patient novoPaciente = new Patient();
-        novoPaciente.setNameComplete(dado.nomeComplete());
-        novoPaciente.setEmail(dado.email());
-        novoPaciente.setCpf(dado.CPF());
-        novoPaciente.setPassword(dado.password());
-        novoPaciente.setTelephone(dado.telephone());
-        // novoPaciente.setTipoAVC(dado.tipoAVC());
-        return patientRepository.save(novoPaciente);
-    }
-
 
     // ----- SISTEMA DE SESSÃO -----
-
     @Transactional
     public Sessions marcarSessaoParaPaciente(Authentication authentication, UUID professionalId, SessionsRequest request) {
         Patient patient = getPatientLogado(authentication);
@@ -101,6 +89,7 @@ public class PatientService {
         return saved;
     }
 
+
     @Transactional
     public void desmarcarSessao(Authentication authentication, UUID sessaoId) {
         Patient patient = getPatientLogado(authentication);
@@ -140,6 +129,7 @@ public class PatientService {
         );
     }
 
+
     @Transactional
     public Sessions confirmarSessao(Authentication authentication, UUID sessaoId) {
         Patient patient = getPatientLogado(authentication);
@@ -176,6 +166,7 @@ public class PatientService {
 
         return session;
     }
+
 
     @Transactional
     public Sessions rejeitarSessao(Authentication authentication, UUID sessaoId, String motivo) {
@@ -215,6 +206,7 @@ public class PatientService {
         return session;
     }
 
+
     @Transactional
     public Sessions cancelarSessao(Authentication authentication, UUID sessaoId, String motivo) {
         Patient patient = getPatientLogado(authentication);
@@ -252,6 +244,7 @@ public class PatientService {
 
         return session;
     }
+
 
     @Transactional
     public Sessions reagendarSessao(Authentication authentication, UUID sessaoId, LocalDateTime novaDataHora, SessionsRequest request) {
@@ -294,6 +287,7 @@ public class PatientService {
         return session;
     }
 
+
     @Transactional(readOnly = true)
     public Page<SessionsResponse> listarTodasMinhasSessoes(
             Authentication authentication,
@@ -327,8 +321,6 @@ public class PatientService {
 
         return new PageImpl<>(anteriores.stream().map(this::mapearParaResponse).toList(), pageable, page.getTotalElements());
     }
-
-
 
 
     // ----- SISTEMA DE VÍNCULO -----
@@ -367,6 +359,7 @@ public class PatientService {
         System.out.println("Notificação enviada");
     }
 
+
     @Transactional
     public void solicitarVinculoProfissional(Authentication authentication, SolicitarVinculoRequest request) {
         Patient patient = getPatientLogado(authentication);
@@ -401,6 +394,7 @@ public class PatientService {
         notificationFacadeService.notify(professional.getIdUser(), notificationRequest);
     }
 
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarCuidadoresAtivos(Authentication authentication) {
         Patient patient = getPatientLogado(authentication);
@@ -417,6 +411,7 @@ public class PatientService {
                 ))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarProfissionaisAtivos(Authentication authentication) {
@@ -435,7 +430,7 @@ public class PatientService {
                 .collect(Collectors.toList());
     }
 
-    // Listar solicitações pendentes de cuidadores
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesCuidadores(Authentication authentication) {
         Patient patient = getPatientLogado(authentication);
@@ -453,7 +448,7 @@ public class PatientService {
                 .collect(Collectors.toList());
     }
 
-    // Listar solicitações pendentes de profissionais
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesProfissionais(Authentication authentication) {
         Patient patient = getPatientLogado(authentication);
@@ -470,6 +465,7 @@ public class PatientService {
                 ))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void aceitarSolicitacaoCuidador(Authentication authentication, UUID caregiverId) {
@@ -504,6 +500,7 @@ public class PatientService {
         notificationFacadeService.notify(caregiverId, notificationRequest);
     }
 
+
     @Transactional
     public void rejeitarSolicitacaoCuidador(Authentication authentication, UUID caregiverId, String motivo) {
         Patient patient = getPatientLogado(authentication);
@@ -529,6 +526,7 @@ public class PatientService {
 
         notificationFacadeService.notify(caregiverId, notificationRequest);
     }
+
 
     @Transactional
     public void aceitarSolicitacaoProfissional(Authentication authentication, UUID professionalId) {
@@ -562,6 +560,7 @@ public class PatientService {
         notificationFacadeService.notify(professionalId, notificationRequest);
     }
 
+
     @Transactional
     public void rejeitarSolicitacaoProfissional(Authentication authentication, UUID professionalId, String motivo) {
         Patient patient = getPatientLogado(authentication);
@@ -588,6 +587,7 @@ public class PatientService {
 
         notificationFacadeService.notify(professionalId, notificationRequest);
     }
+
 
     @Transactional
     public void desfazerVinculoCuidador(Authentication authentication, UUID caregiverId) {
@@ -616,6 +616,7 @@ public class PatientService {
         notificationFacadeService.notify(caregiverId, notificationRequest);
     }
 
+
     @Transactional
     public void desfazerVinculoProfissional(Authentication authentication, UUID professionalId) {
         Patient patient = getPatientLogado(authentication);
@@ -642,7 +643,6 @@ public class PatientService {
 
         notificationFacadeService.notify(professionalId, notificationRequest);
     }
-
 
 
     // Botão SAMU
@@ -677,8 +677,6 @@ public class PatientService {
     }
 
 
-
-
     // Auxiliares
     private Patient getPatientLogado(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
@@ -689,6 +687,7 @@ public class PatientService {
                         new EntityNotFoundException("Paciente não encontrado para o usuário autenticado")
                 );
     }
+
 
     private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
@@ -701,6 +700,7 @@ public class PatientService {
         }
     }
 
+    
     private SessionsResponse mapearParaResponse(Sessions s) {
         return new SessionsResponse(
                 s.getId(),

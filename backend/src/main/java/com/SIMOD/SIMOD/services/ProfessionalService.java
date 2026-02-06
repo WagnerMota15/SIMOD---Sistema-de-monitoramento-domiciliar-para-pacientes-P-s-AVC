@@ -88,6 +88,7 @@ public class ProfessionalService {
         return saved;
     }
 
+
     @Transactional
     public void desmarcarSessao(Authentication authentication, UUID sessaoId) {
         Professional professional = getProfessionalLogado(authentication);
@@ -127,6 +128,7 @@ public class ProfessionalService {
         );
     }
 
+
     @Transactional
     public Sessions confirmarSessao(Authentication authentication, UUID sessaoId) {
         Professional professional = getProfessionalLogado(authentication);
@@ -164,6 +166,7 @@ public class ProfessionalService {
         return session;
     }
 
+
     @Transactional
     public Sessions rejeitarSessao(Authentication authentication, UUID sessaoId, String motivo) {
         Professional professional = getProfessionalLogado(authentication);
@@ -199,6 +202,7 @@ public class ProfessionalService {
 
         return session;
     }
+
 
     @Transactional
     public Sessions cancelarSessao(Authentication authentication, UUID sessaoId, String motivo) {
@@ -237,6 +241,7 @@ public class ProfessionalService {
 
         return session;
     }
+
 
     @Transactional
     public Sessions reagendarSessao(Authentication authentication, UUID sessaoId, LocalDateTime novaDataHora, SessionsRequest request) {
@@ -315,8 +320,6 @@ public class ProfessionalService {
     }
 
 
-
-
     // ----- SISTEMA DE VÍNCULO -----
     @Transactional
     public void solicitarVinculoPaciente(Authentication authentication, SolicitarVinculoRequest request) {
@@ -361,6 +364,7 @@ public class ProfessionalService {
         notificationFacadeService.notify(patient.getIdUser(), notificationRequest);
     }
 
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarPacientesAtivos(Authentication authentication) {
         Professional professional = getProfessionalLogado(authentication);
@@ -397,6 +401,7 @@ public class ProfessionalService {
                 ))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void aceitarSolicitacaoPaciente(Authentication authentication, UUID patientId) {
@@ -435,6 +440,7 @@ public class ProfessionalService {
         notificationFacadeService.notify(patientId, notificationRequest);
     }
 
+
     @Transactional
     public void rejeitarSolicitacaoPaciente(Authentication authentication, UUID patientId, String motivo) {
         Professional professional = getProfessionalLogado(authentication);
@@ -465,6 +471,7 @@ public class ProfessionalService {
 
         notificationFacadeService.notify(patientId, notificationRequest);
     }
+
 
     @Transactional
     public void desfazerVinculoPaciente(Authentication authentication, UUID patientId) {
@@ -519,6 +526,7 @@ public class ProfessionalService {
             }
         }
     }
+
 
     private SessionsResponse mapearParaResponse(Sessions s) {
         return new SessionsResponse(

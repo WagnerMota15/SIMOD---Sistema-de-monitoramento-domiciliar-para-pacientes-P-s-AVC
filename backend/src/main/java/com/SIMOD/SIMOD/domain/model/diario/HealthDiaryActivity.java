@@ -4,6 +4,7 @@ import com.SIMOD.SIMOD.domain.model.atividades.Activities;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,9 @@ public class HealthDiaryActivity {
 
     @Column(name = "completed")
     private boolean completed;
+
+    @Column(name = "time_completed")
+    private LocalTime timeCompleted;
 
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;

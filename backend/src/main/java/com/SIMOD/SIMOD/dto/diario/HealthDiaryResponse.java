@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public record HealthDiaryResponse(
         UUID id,
+        String name,
         LocalDate diaryDate,
         Integer systolicBp,
         Integer diastolicBp,

@@ -24,6 +24,7 @@ public class PatientAddressService {
     public PatientAddressRepository patientAddressRepository;
     public AddressRepository addressRepository;
 
+
     @Transactional
     public AddressResponse addAddressToPatient(UUID patientId, AddressRequest request) {
 

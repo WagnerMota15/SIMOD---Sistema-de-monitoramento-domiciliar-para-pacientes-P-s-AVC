@@ -1,12 +1,13 @@
 package com.SIMOD.SIMOD.domain.model.usuario;
 
-import com.SIMOD.SIMOD.domain.enums.Platform;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+
+// Representa os dispositivos associados a um usuário, servirá para o push de notificações
 
 @Entity
 @Table(name = "user_devices")
@@ -22,10 +23,6 @@ public class UserDevices {
 
     @Column(nullable = false, unique = true)
     private String fcmToken;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "platform")
-    private Platform platform;
 
     private LocalDateTime createdAt;
 

@@ -1,10 +1,8 @@
 package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
-import com.SIMOD.SIMOD.domain.enums.SessionsStatus;
-import com.SIMOD.SIMOD.domain.enums.Status;
-import com.SIMOD.SIMOD.domain.enums.TipoNotificacao;
-import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
+import com.SIMOD.SIMOD.domain.enums.*;
+import com.SIMOD.SIMOD.domain.enums.TipoLembrete;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
 import com.SIMOD.SIMOD.domain.model.atividades.Activities;
@@ -12,6 +10,7 @@ import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.model.diario.*;
 import com.SIMOD.SIMOD.domain.model.dieta.Diet;
 import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
+import com.SIMOD.SIMOD.domain.model.mensagens.Reminders;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
@@ -19,6 +18,7 @@ import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.diario.*;
 import com.SIMOD.SIMOD.mapper.diario.HealthDiaryMapper;
+import com.SIMOD.SIMOD.domain.model.diario.HealthDiary;
 import com.SIMOD.SIMOD.repositories.*;
 import com.SIMOD.SIMOD.services.firebase.NotificationFacadeService;
 import jakarta.persistence.EntityNotFoundException;
@@ -30,12 +30,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
-
-import static java.util.Collections.singletonList;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.function.BiConsumer;
 
 @Service
 @RequiredArgsConstructor
@@ -49,10 +46,11 @@ public class HealthDiaryService {
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final NotificationFacadeService notificationFacadeService;
     private final MedicinesRepository medicinesRepository;
-    private final ActivitiesRepository  activitiesRepository;
-    private final DietRepository  dietRepository;
-    private final SessionsRepository  sessionsRepository;
+    private final ActivitiesRepository activitiesRepository;
+    private final DietRepository dietRepository;
+    private final SessionsRepository sessionsRepository;
     private final HealthDiaryMapper mapper;
+    private final RemindersRepository remindersRepository;
 
 
     @Transactional
@@ -89,21 +87,20 @@ public class HealthDiaryService {
                 .orElse(HealthDiary.builder()
                         .patient(patient)
                         .caregiver(isCaregiver ? caregiver : null)
+                        .patientName(patient.getNameComplete())
                         .diaryDate(request.diaryDate())
                         .build()
                 );
 
-        // atualiza campos
+
         diary.setSystolicBp(request.systolicBp());
         diary.setDiastolicBp(request.diastolicBp());
         diary.setHeartRate(request.heartRate());
         diary.setWeight(request.weight());
         diary.setSymptoms(request.symptoms());
         diary.setGlucose(request.glucose());
-        atualizarMedicamentos(diary, request);
-        atualizarDietas(diary, request);
-        atualizarAtividades(diary, request);
-        atualizarSessoes(diary, request);
+
+        popularDiarioComLembretes(diary);
 
         HealthDiary saved = healthDiaryRepository.save(diary);
 
@@ -150,6 +147,14 @@ public class HealthDiaryService {
             throw new IllegalStateException("Sem permissão para visualizar este diário");
         }
 
+        LocalDate today = LocalDate.now();
+        LocalDate limiteInferior = today.minusDays(30);
+        Page<HealthDiary> diaries = healthDiaryRepository.findByPatientAndDiaryDateGreaterThanEqualOrderByDiaryDateDesc(
+                patient,
+                limiteInferior,
+                pageable
+        );
+
         return healthDiaryRepository.findByPatientOrderByDiaryDateDesc(patient, pageable)
                 .map(this.mapper::toResponse);
     }
@@ -167,6 +172,16 @@ public class HealthDiaryService {
             throw new IllegalStateException("Sem permissão para visualizar este diário");
         }
 
+        LocalDate today = LocalDate.now();
+        LocalDate limiteInferior = today.minusDays(90);
+        if (date.isAfter(today)) {
+            throw new IllegalArgumentException("Não é permitido visualizar diários de datas futuras.");
+        }
+
+        if (date.isBefore(limiteInferior)) {
+            throw new IllegalArgumentException("Só é permitido visualizar diários dos últimos 90 dias.");
+        }
+
         Caregiver caregiver = isCaregiverLinked(authentication, patient)
                 ? getCuidadorLogado(authentication) : null;
         HealthDiary diary = getOrCreateDiary(patient, date, caregiver);
@@ -175,6 +190,318 @@ public class HealthDiaryService {
     }
 
 
+    @Transactional(readOnly = true)
+    public Page<HealthDiaryResponse> listarDiariosVinculadosCaregiver(Authentication authentication, Pageable pageable) {
+        Caregiver caregiver = getCuidadorLogado(authentication);
+
+        List<Patient> pacientes = caregiverPatientRepository.findByCaregiverAndStatus(caregiver, VinculoStatus.ACEITO)
+                .stream()
+                .map(CaregiverPatient::getPatient)
+                .toList();
+
+        Page<HealthDiary> diaries = healthDiaryRepository.findByPatientInOrderByDiaryDateDesc(pacientes, pageable);
+
+        return diaries.map(this.mapper::toResponse);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<HealthDiaryResponse> listarDiariosVinculadosProfessional(Authentication authentication, Pageable pageable) {
+        User user = getUsuarioLogado(authentication);
+        Professional prof = (Professional) professionalRepository.findByIdUser(user.getIdUser())
+                .orElseThrow(() -> new EntityNotFoundException("Profissional não encontrado"));
+
+        List<Patient> pacientes = patientProfessionalRepository.findByProfessionalAndStatus(prof, VinculoStatus.ACEITO)
+                .stream()
+                .map(PatientProfessional::getPatient)
+                .toList();
+
+        Page<HealthDiary> diaries = healthDiaryRepository.findByPatientInOrderByDiaryDateDesc(pacientes, pageable);
+
+        return diaries.map(this.mapper::toResponse);
+    }
+
+
+    // Confirmações de atividades
+    @Transactional
+    public ReminderCompletedResponse confirmarMedicamento(Authentication authentication, UUID diaryId, UUID healthDiaryMedicineId) {
+        HealthDiary diary = healthDiaryRepository.findById(diaryId)
+                .orElseThrow(() -> new EntityNotFoundException("Diário não encontrado"));
+
+        Patient patient = diary.getPatient();
+        if (patient == null) {
+            throw new IllegalStateException("Paciente não associado ao diário");
+        }
+
+        User user = getUsuarioLogado(authentication);
+
+        boolean isPatient = user.getIdUser().equals(patient.getIdUser());
+        boolean isCaregiver = false;
+
+        if (!isPatient) {
+            Caregiver caregiver = getCuidadorLogado(authentication);
+            isCaregiver = caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(
+                    caregiver,
+                    patient,
+                    VinculoStatus.ACEITO
+            );
+        }
+
+        if (!isPatient && !isCaregiver) {
+            throw new IllegalStateException("Sem permissão para confirmar entradas neste diário. " +
+                    "Apenas o paciente dono ou cuidadores vinculados podem realizar esta ação.");
+        }
+
+        HealthDiaryMedicine entry = diary.getMedicines().stream()
+                .filter(medicine -> medicine.getId().equals(healthDiaryMedicineId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Entrada de medicamento não encontrada"));
+
+        if (entry.isTaken()) {
+            throw new IllegalStateException("Este medicamento já foi marcado como tomado");
+        }
+
+        entry.setTaken(true);
+
+        Reminders reminder = entry.getMedicine() != null
+                ? remindersRepository.findByMedicineAndScheduledAtAndPatient(
+                entry.getMedicine(),
+                entry.getTimeTaken().atDate(diary.getDiaryDate()),
+                diary.getPatient()
+        ).orElse(null)
+                : null;
+
+        if (reminder == null) {
+            throw new IllegalStateException("Lembrete original não encontrado para esta entrada");
+        }
+
+        reminder.setConfirmed(true);
+        reminder.setConfirmedAt(LocalDateTime.now());
+
+        remindersRepository.save(reminder);
+
+        entry.setTaken(true);
+
+        healthDiaryRepository.save(diary);
+
+        return new ReminderCompletedResponse(
+                diary.getId(),
+                diary.getPatient().getNameComplete(),
+                true,
+                "Medicamento confirmado com sucesso"
+        );
+    }
+
+
+    @Transactional
+    public ReminderCompletedResponse confirmarDieta(Authentication authentication, UUID diaryId, UUID healthDiaryDietaId) {
+        HealthDiary diary = healthDiaryRepository.findById(diaryId)
+                .orElseThrow(() -> new EntityNotFoundException("Diário não encontrado"));
+
+        Patient patient = diary.getPatient();
+        if (patient == null) {
+            throw new IllegalStateException("Paciente não associado ao diário");
+        }
+
+        User user = getUsuarioLogado(authentication);
+
+        boolean isPatient = user.getIdUser().equals(patient.getIdUser());
+        boolean isCaregiver = false;
+
+        if (!isPatient) {
+            Caregiver caregiver = getCuidadorLogado(authentication);
+            isCaregiver = caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(
+                    caregiver,
+                    patient,
+                    VinculoStatus.ACEITO
+            );
+        }
+
+        if (!isPatient && !isCaregiver) {
+            throw new IllegalStateException("Sem permissão para confirmar entradas neste diário. " +
+                    "Apenas o paciente dono ou cuidadores vinculados podem realizar esta ação.");
+        }
+
+        HealthDiaryDiet entry = diary.getDiets().stream()
+                .filter(diet -> diet.getId().equals(healthDiaryDietaId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Entrada de dieta não encontrada"));
+
+        if (entry.isFollowed()) {
+            throw new IllegalStateException("Esta dieta já foi marcado como seguida");
+        }
+
+        entry.setFollowed(true);
+
+        Reminders reminder = entry.getDiet() != null
+                ? remindersRepository.findByDietAndScheduledAtAndPatient(
+                entry.getDiet(),
+                entry.getTimeFollowed().atDate(diary.getDiaryDate()),
+                diary.getPatient()
+        ).orElse(null)
+                : null;
+
+        if (reminder == null) {
+            throw new IllegalStateException("Lembrete original não encontrado para esta entrada");
+        }
+
+        reminder.setConfirmed(true);
+        reminder.setConfirmedAt(LocalDateTime.now());
+
+        remindersRepository.save(reminder);
+
+        entry.setFollowed(true);
+
+        healthDiaryRepository.save(diary);
+
+        return new ReminderCompletedResponse(
+                diary.getId(),
+                diary.getPatient().getNameComplete(),
+                true,
+                "Dieta confirmada com sucesso"
+        );
+    }
+
+
+    @Transactional
+    public ReminderCompletedResponse confirmarAtividade(Authentication authentication, UUID diaryId, UUID healthDiaryAtividadeId) {
+        HealthDiary diary = healthDiaryRepository.findById(diaryId)
+                .orElseThrow(() -> new EntityNotFoundException("Ativiade não encontrado"));
+
+        Patient patient = diary.getPatient();
+        if (patient == null) {
+            throw new IllegalStateException("Paciente não associado ao diário");
+        }
+
+        User user = getUsuarioLogado(authentication);
+
+        boolean isPatient = user.getIdUser().equals(patient.getIdUser());
+        boolean isCaregiver = false;
+
+        if (!isPatient) {
+            Caregiver caregiver = getCuidadorLogado(authentication);
+            isCaregiver = caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(
+                    caregiver,
+                    patient,
+                    VinculoStatus.ACEITO
+            );
+        }
+
+        if (!isPatient && !isCaregiver) {
+            throw new IllegalStateException("Sem permissão para confirmar entradas neste diário. " +
+                    "Apenas o paciente dono ou cuidadores vinculados podem realizar esta ação.");
+        }
+
+        HealthDiaryActivity entry = diary.getActivities().stream()
+                .filter(activity -> activity.getId().equals(healthDiaryAtividadeId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Entrada de atividade não encontrada"));
+
+        if (entry.isCompleted()) {
+            throw new IllegalStateException("Esta atividade já foi marcada como concluida");
+        }
+
+        entry.setCompleted(true);
+
+        Reminders reminder = entry.getActivity() != null
+                ? remindersRepository.findByActivityAndScheduledAtAndPatient(
+                entry.getActivity(),
+                entry.getTimeCompleted().atDate(diary.getDiaryDate()),
+                diary.getPatient()
+        ).orElse(null)
+                : null;
+
+        if (reminder == null) {
+            throw new IllegalStateException("Lembrete original não encontrado para esta entrada");
+        }
+
+        reminder.setConfirmed(true);
+        reminder.setConfirmedAt(LocalDateTime.now());
+
+        remindersRepository.save(reminder);
+
+        entry.setCompleted(true);
+
+        healthDiaryRepository.save(diary);
+
+        return new ReminderCompletedResponse(
+                diary.getId(),
+                diary.getPatient().getNameComplete(),
+                true,
+                "Atividade confirmada com sucesso"
+        );
+    }
+
+
+    @Transactional
+    public ReminderCompletedResponse confirmarSessao(Authentication authentication, UUID diaryId, UUID healthDiarySessaoId) {
+        HealthDiary diary = healthDiaryRepository.findById(diaryId)
+                .orElseThrow(() -> new EntityNotFoundException("Diário não encontrado"));
+
+        Patient patient = diary.getPatient();
+        if (patient == null) {
+            throw new IllegalStateException("Paciente não associado ao diário");
+        }
+
+        User user = getUsuarioLogado(authentication);
+
+        boolean isPatient = user.getIdUser().equals(patient.getIdUser());
+        boolean isCaregiver = false;
+
+        if (!isPatient) {
+            Caregiver caregiver = getCuidadorLogado(authentication);
+            isCaregiver = caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(
+                    caregiver,
+                    patient,
+                    VinculoStatus.ACEITO
+            );
+        }
+
+        if (!isPatient && !isCaregiver) {
+            throw new IllegalStateException("Sem permissão para confirmar entradas neste diário. " +
+                    "Apenas o paciente dono ou cuidadores vinculados podem realizar esta ação.");
+        }
+
+        HealthDiarySession entry = diary.getSessions().stream()
+                .filter(session -> session.getId().equals(healthDiarySessaoId))
+                .findFirst()
+                .orElseThrow(() -> new EntityNotFoundException("Entrada de sessao não encontrada"));
+
+        if (entry.isAttended()) {
+            throw new IllegalStateException("Esta sessao já foi marcada como concluida");
+        }
+
+        entry.setAttended(true);
+
+        Reminders reminder = entry.getSession() != null
+                ? remindersRepository.findBySessionAndScheduledAtAndPatient(
+                entry.getSession(),
+                entry.getTimeAttended().atDate(diary.getDiaryDate()),
+                diary.getPatient()
+        ).orElse(null)
+                : null;
+
+        if (reminder == null) {
+            throw new IllegalStateException("Lembrete original não encontrado para esta entrada");
+        }
+
+        reminder.setConfirmed(true);
+        reminder.setConfirmedAt(LocalDateTime.now());
+
+        remindersRepository.save(reminder);
+
+        entry.setAttended(true);
+
+        healthDiaryRepository.save(diary);
+
+        return new ReminderCompletedResponse(
+                diary.getId(),
+                diary.getPatient().getNameComplete(),
+                true,
+                "Sessão confirmada com sucesso"
+        );
+    }
+
 
     // Auxiliares
     private User getUsuarioLogado(Authentication authentication) {
@@ -182,11 +509,13 @@ public class HealthDiaryService {
         return userDetails.getUser();
     }
 
+
     private Caregiver getCuidadorLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
         return caregiverRepository.findByIdUser(user.getIdUser())
                 .orElseThrow(() -> new EntityNotFoundException("Cuidador não encontrado"));
     }
+
 
     private boolean isCaregiverLinked(Authentication authentication, Patient patient) {
         User user = getUsuarioLogado(authentication);
@@ -204,6 +533,8 @@ public class HealthDiaryService {
         return patientProfessionalRepository.existsByPatientAndProfessionalAndStatus(patient, prof, VinculoStatus.ACEITO);
     }
 
+
+    @Transactional
     private HealthDiary getOrCreateDiary(Patient patient, LocalDate date, Caregiver caregiver) {
         return healthDiaryRepository
                 .findByPatientAndDiaryDate(patient, date)
@@ -211,190 +542,257 @@ public class HealthDiaryService {
                     HealthDiary diary = HealthDiary.builder()
                             .patient(patient)
                             .caregiver(caregiver)
+                            .patientName(patient.getNameComplete())
                             .diaryDate(date)
                             .build();
 
-                    popularPlanoInicial(diary);
+                    System.out.println("Novo diary criado - medicines inicializado? " + (diary.getMedicines() != null));
+                    System.out.println("Tamanho inicial de medicines: " + diary.getMedicines().size());
+
+                    popularDiarioComLembretes(diary);
 
                     return healthDiaryRepository.save(diary);
                 });
     }
 
-    private void atualizarMedicamentos(HealthDiary diary, HealthDiaryRequest request) {
-        diary.getMedicines().clear();
 
-        if (request.medicines() == null) return;
+    @Transactional
+    private void popularDiarioComLembretes(HealthDiary diary) {
 
-        for (DiaryMedicineRequest req : request.medicines()) {
+        UUID patientId = diary.getPatient().getIdUser();
+        LocalDate today = diary.getDiaryDate();
+        // Para evitar lembretes duplicados
+        Set<String> deduplicationKeys = new HashSet<>();
 
-            Medicines medicine = medicinesRepository.findById(req.medicineId())
-                    .orElseThrow(() -> new EntityNotFoundException("Medicamento não encontrado"));
+        List<Reminders> reminders = remindersRepository.findByPatientIdUserAndActiveTrue(patientId);
 
-            if (!medicine.getPatient().equals(diary.getPatient())) {
-                throw new IllegalStateException("Medicamento não pertence ao paciente");
+        // 🔹 Cache local
+        Map<UUID, Medicines> medicinesCache = new HashMap<>();
+        Map<UUID, Diet> dietsCache = new HashMap<>();
+        Map<UUID, Activities> activitiesCache = new HashMap<>();
+        Map<UUID, Sessions> sessionsCache = new HashMap<>();
+
+        // 🔹 Estratégias por tipo de lembrete
+        Map<TipoLembrete, BiConsumer<LocalDateTime, Reminders>> handlers = Map.of(
+
+                TipoLembrete.MEDICAMENTO, (occurrence, reminder) -> {
+                    diary.setMedicines(
+                            diary.getMedicines() != null ? diary.getMedicines() : new ArrayList<>()
+                    );
+
+                    // Proteção contra null + log para debug
+                    if (reminder.getMedicine() == null) return;
+
+                    Medicines medicine = medicinesCache.computeIfAbsent(
+                            reminder.getMedicine().getIdMedicine(),
+                            id -> medicinesRepository.findById(id).orElse(null)
+                    );
+
+                    if (medicine == null) return;
+
+                    String key = "MEDICAMENTO:" + medicine.getIdMedicine() + ":" + occurrence.toLocalTime();
+                    if (!deduplicationKeys.add(key)) return;
+
+                    diary.getMedicines().add(
+                            HealthDiaryMedicine.builder()
+                                    .diary(diary)
+                                    .medicine(medicine)
+                                    .doseTaken(medicine.getDosage())
+                                    .unityTaken(medicine.getUnity())
+                                    .taken(false)
+                                    .timeTaken(occurrence.toLocalTime())
+                                    .note(medicine.getDescription())
+                                    .build()
+                    );
+                },
+
+                TipoLembrete.DIETA, (occurrence, reminder) -> {
+                    diary.setDiets(
+                            diary.getDiets() != null ? diary.getDiets() : new ArrayList<>()
+                    );
+
+                    if (reminder.getDiet() == null) return;
+
+                    Diet diet = dietsCache.computeIfAbsent(
+                            reminder.getDiet().getIdDiet(),
+                            id -> dietRepository.findById(id).orElse(null)
+                    );
+
+                    if (diet == null) return;
+
+                    String key = "DIETA:" + diet.getIdDiet() + ":" + today;
+                    if (!deduplicationKeys.add(key)) return;
+
+                    diary.getDiets().add(
+                            HealthDiaryDiet.builder()
+                                    .diary(diary)
+                                    .diet(diet)
+                                    .followed(false)
+                                    .timeFollowed(occurrence.toLocalTime())
+                                    .note(diet.getDescription())
+                                    .build()
+                    );
+                },
+
+                TipoLembrete.EXERCICIO, (occurrence, reminder) -> {
+                    diary.setActivities(
+                            diary.getActivities() != null ? diary.getActivities() : new ArrayList<>()
+                    );
+
+                    if (reminder.getActivity() == null) return;
+
+                    Activities activity = activitiesCache.computeIfAbsent(
+                            reminder.getActivity().getId(),
+                            id -> activitiesRepository.findById(id).orElse(null)
+                    );
+
+                    if (activity == null) return;
+
+                    String key = "EXERCICIO:" + activity.getId() + ":" + today;
+                    if (!deduplicationKeys.add(key)) return;
+
+                    diary.getActivities().add(
+                            HealthDiaryActivity.builder()
+                                    .diary(diary)
+                                    .activity(activity)
+                                    .completed(false)
+                                    .timeCompleted(occurrence.toLocalTime())
+                                    .note(activity.getDescription())
+                                    .build()
+                    );
+                },
+
+                TipoLembrete.SESSOES, (occurrence, reminder) -> {
+                    diary.setSessions(
+                            diary.getSessions() != null ? diary.getSessions() : new ArrayList<>()
+                    );
+
+                    if (reminder.getSession() == null) return;
+
+                    Sessions session = sessionsCache.computeIfAbsent(
+                            reminder.getSession().getId(),
+                            id -> sessionsRepository.findById(id).orElse(null)
+                    );
+
+                    if (session == null) return;
+
+                    String key = "SESSOES:" + session.getId() + ":" + today;
+                    if (!deduplicationKeys.add(key)) return;
+
+                    diary.getSessions().add(
+                            HealthDiarySession.builder()
+                                    .diary(diary)
+                                    .session(session)
+                                    .attended(false)
+                                    .timeAttended(occurrence.toLocalTime())
+                                    .build()
+                    );
+                }
+        );
+
+        for (Reminders reminder : reminders) {
+
+            List<LocalDateTime> occurrences = calcularOcorrenciasDoDia(reminder, today);
+
+            BiConsumer<LocalDateTime, Reminders> handler =
+                    handlers.get(reminder.getType());
+
+            if (handler == null) {
+                System.out.println("→ Handler NÃO encontrado para: " + reminder.getType());
+                continue;
             }
 
-            HealthDiaryMedicine hdm = HealthDiaryMedicine.builder()
-                    .diary(diary)
-                    .medicine(medicine)
-                    .taken(req.taken())
-                    .doseTaken(req.doseTaken())
-                    .unityTaken(req.unityTaken())
-                    .timeTaken(req.timeTaken() != null
-                            ? LocalTime.parse(req.timeTaken())
-                            : null)
-                    .note(req.note())
-                    .build();
-
-            diary.getMedicines().add(hdm);
+            for (LocalDateTime occurrence : occurrences) {
+                handler.accept(occurrence, reminder);
+            }
         }
     }
 
-    private void atualizarDietas(HealthDiary diary, HealthDiaryRequest request) {
-        diary.getDiets().clear();
 
-        if (request.diets() == null) return;
+    private List<LocalDateTime> calcularOcorrenciasDoDia(Reminders reminder, LocalDate diaryDate) {
+        List<LocalDateTime> ocorrencias = new ArrayList<>();
+        LocalDateTime start = reminder.getScheduledAt();
 
-        for (DiaryDietRequest req : request.diets()) {
+        // Caso não recorrente
+        if (!reminder.isRecurring()) {
+            if (!start.toLocalDate().isAfter(diaryDate)) {
+                ocorrencias.add(start);
+            }
+            return ocorrencias;
+        }
 
-            Diet diet = dietRepository.findById(req.dietId())
-                    .orElseThrow(() -> new EntityNotFoundException("Dieta não encontrada"));
+        // Caso recorrente
+        switch (reminder.getIntervalType()) {
 
-            if (!diet.getPatient().equals(diary.getPatient())) {
-                throw new IllegalStateException("Dieta não pertence ao paciente");
+            case HORA -> gerarOcorrenciasPorHora(reminder, diaryDate, ocorrencias);
+
+            case DIARIO -> {
+                if (verificarRecorrenciaDiaria(start, diaryDate)) {
+                    ocorrencias.add(diaryDate.atTime(start.toLocalTime()));
+                }
             }
 
-            HealthDiaryDiet hdd = HealthDiaryDiet.builder()
-                    .diary(diary)
-                    .diet(diet)
-                    .followed(req.followed())
-                    .note(req.note())
-                    .build();
-
-            diary.getDiets().add(hdd);
-        }
-    }
-
-    private void atualizarAtividades(HealthDiary diary, HealthDiaryRequest request) {
-        diary.getActivities().clear();
-
-        if (request.activities() == null) return;
-
-        for (DiaryActivityRequest req : request.activities()) {
-
-            Activities activity = activitiesRepository.findById(req.activityId())
-                    .orElseThrow(() -> new EntityNotFoundException("Atividade não encontrada"));
-
-            if (!activity.getPatient().equals(diary.getPatient())) {
-                throw new IllegalStateException("Atividade não pertence ao paciente");
+            case SEMANAL -> {
+                if (verificarRecorrenciaSemanal(start, diaryDate)) {
+                    ocorrencias.add(diaryDate.atTime(start.toLocalTime()));
+                }
             }
 
-            HealthDiaryActivity hda = HealthDiaryActivity.builder()
-                    .diary(diary)
-                    .activity(activity)
-                    .completed(req.completed())
-                    .note(req.note())
-                    .build();
-
-            diary.getActivities().add(hda);
+            case MENSAL -> {
+                if (verificarRecorrenciaMensal(start, diaryDate)) {
+                    ocorrencias.add(diaryDate.atTime(start.toLocalTime()));
+                }
+            }
         }
+
+        return ocorrencias;
     }
 
-    private void atualizarSessoes(HealthDiary diary, HealthDiaryRequest request) {
-        diary.getSessions().clear();
 
-        if (request.sessions() == null) return;
+    private void gerarOcorrenciasPorHora(Reminders reminder, LocalDate diaryDate,
+            List<LocalDateTime> ocorrencias) {
+        LocalDateTime occurrence = reminder.getScheduledAt();
 
-        for (DiarySessionRequest req : request.sessions()) {
+        // Define quantas horas devem ser somadas entre uma ocorrência e outra do lembrete.
+        int intervalo = reminder.getIntervalHours() != null ? reminder.getIntervalHours() : 1;
 
-            Sessions session = sessionsRepository.findById(req.sessionId())
-                    .orElseThrow(() -> new EntityNotFoundException("Sessão não encontrada"));
+        while (!occurrence.toLocalDate().isAfter(diaryDate)) {
 
-            if (!session.getPatient().equals(diary.getPatient())) {
-                throw new IllegalStateException("Sessao não pertence ao paciente");
+            if (occurrence.toLocalDate().equals(diaryDate)) {
+                ocorrencias.add(occurrence);
             }
 
-            HealthDiarySession hds = HealthDiarySession.builder()
-                    .diary(diary)
-                    .session(session)
-                    .attended(req.attended())
-                    .note(req.note())
-                    .build();
+            occurrence = occurrence.plusHours(intervalo);
 
-            diary.getSessions().add(hds);
+            if (occurrence.isAfter(diaryDate.atTime(23, 59))) {
+                break;
+            }
         }
     }
 
-    // Métodos para popular o diário
-    private void popularPlanoInicial(HealthDiary diary) {
-        UUID patientId = diary.getPatient().getPatientId();
 
-        popularMedicamentos(diary, patientId);
-        popularDietas(diary, patientId);
-        popularAtividades(diary, patientId);
-        popularSessoes(diary, patientId);
+    private boolean verificarRecorrenciaDiaria(
+            LocalDateTime start,
+            LocalDate diaryDate
+    ) {
+        return !start.toLocalDate().isAfter(diaryDate);
     }
 
-    private void popularMedicamentos(HealthDiary diary, UUID patientId) {
-        List<Medicines> meds = medicinesRepository
-                .findByPatientIdUserAndStatus(patientId, Status.ATIVA);
 
-        for (Medicines med : meds) {
-            HealthDiaryMedicine hdm = HealthDiaryMedicine.builder()
-                    .diary(diary)
-                    .medicine(med)
-                    .taken(false)
-                    .build();
-
-            diary.getMedicines().add(hdm);
-        }
+    private boolean verificarRecorrenciaSemanal(
+            LocalDateTime start,
+            LocalDate diaryDate
+    ) {
+        return !start.toLocalDate().isAfter(diaryDate)
+                && start.getDayOfWeek() == diaryDate.getDayOfWeek();
     }
 
-    private void popularDietas(HealthDiary diary, UUID patientId) {
-        List<Diet> diets = dietRepository
-                .findByPatientIdUserAndStatus(patientId, Status.ATIVA);
 
-        for (Diet diet : diets) {
-            HealthDiaryDiet hdd = HealthDiaryDiet.builder()
-                    .diary(diary)
-                    .diet(diet)
-                    .followed(false)
-                    .build();
-
-            diary.getDiets().add(hdd);
-        }
-    }
-
-    private void popularAtividades(HealthDiary diary, UUID patientId) {
-        List<Activities> acts = activitiesRepository
-                .findByPatientIdUserAndStatus(patientId, Status.ATIVA);
-
-        for (Activities act : acts) {
-            HealthDiaryActivity hda = HealthDiaryActivity.builder()
-                    .diary(diary)
-                    .activity(act)
-                    .completed(false)
-                    .build();
-
-            diary.getActivities().add(hda);
-        }
-    }
-
-    private void popularSessoes(HealthDiary diary, UUID patientId) {
-        List<Sessions> sessions = sessionsRepository
-                .findByPatientIdUserAndStatusIn(patientId, List.of(SessionsStatus.AGENDADA,
-                        SessionsStatus.CONFIRMADA,
-                        SessionsStatus.REAGENDADA
-                ));
-
-        for (Sessions session : sessions) {
-            HealthDiarySession hds = HealthDiarySession.builder()
-                    .diary(diary)
-                    .session(session)
-                    .attended(false)
-                    .build();
-
-            diary.getSessions().add(hds);
-        }
+    private boolean verificarRecorrenciaMensal(
+            LocalDateTime start,
+            LocalDate diaryDate
+    ) {
+        return !start.toLocalDate().isAfter(diaryDate)
+                && start.getDayOfMonth() == diaryDate.getDayOfMonth();
     }
 }

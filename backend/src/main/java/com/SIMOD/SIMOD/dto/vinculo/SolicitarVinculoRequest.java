@@ -4,7 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.br.CPF;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
+
+// Fiz tudo numa só, pode e é aconselhavel separar depois
 
 public record SolicitarVinculoRequest(
         @NotBlank (message = "CPF é obrigatório!")

@@ -84,6 +84,7 @@ public class MedicineService {
         return savedMedicine;
     }
 
+
     @Transactional
     public MedicinesResponse editarMedicamento(Authentication authentication, UUID dietId, MedicinesRequest request) {
         Professional professional = getProfessionalLogado(authentication);
@@ -128,6 +129,7 @@ public class MedicineService {
         return toResponse(updated);
     }
 
+
     @Transactional
     public void inativarMedicamento(Authentication authentication, UUID medicineId) {
         Professional professional = getProfessionalLogado(authentication);
@@ -165,6 +167,7 @@ public class MedicineService {
                 TipoNotificacao.INFO
         );
     }
+
 
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentos(Authentication authentication, Pageable pageable) {
@@ -207,6 +210,7 @@ public class MedicineService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentosAtivos(Authentication authentication, Pageable pageable) {
@@ -251,6 +255,7 @@ public class MedicineService {
         };
     }
 
+
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentosInativos(Authentication authentication, Pageable pageable) {
         User user = getUsuarioLogado(authentication);
@@ -293,6 +298,7 @@ public class MedicineService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentosPorPaciente(Authentication authentication, UUID patientId, Pageable pageable) {
@@ -415,6 +421,7 @@ public class MedicineService {
                 );
     }
 
+
     private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
         for (CaregiverPatient vinculo : vinculos) {
@@ -425,6 +432,7 @@ public class MedicineService {
             }
         }
     }
+
 
     private MedicinesResponse toResponse(Medicines medicines) {
         return new MedicinesResponse(

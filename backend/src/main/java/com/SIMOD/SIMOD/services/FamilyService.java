@@ -21,6 +21,7 @@ public class FamilyService {
         this.patientRepository = patientRepository;
     }
 
+
     @Transactional
     public void createContactFamily(UUID patientId,FamilyRequest request){
         Patient patient = patientRepository.findById(patientId).orElseThrow(() -> new EntityNotFoundException("Patient not found"));

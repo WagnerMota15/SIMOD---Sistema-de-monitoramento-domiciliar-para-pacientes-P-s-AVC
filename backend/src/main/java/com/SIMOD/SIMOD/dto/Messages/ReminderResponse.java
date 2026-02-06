@@ -12,6 +12,7 @@ public record ReminderResponse(
     String titulo,
     String descricao,
     LocalDateTime dataHora,
+    Integer intervaloHora,
     boolean recorrente,
     IntervaloRecorrencia intervalo,
     boolean ativo

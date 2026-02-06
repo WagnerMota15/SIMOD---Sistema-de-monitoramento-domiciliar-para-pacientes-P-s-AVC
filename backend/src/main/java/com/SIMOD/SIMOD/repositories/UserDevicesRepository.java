@@ -8,11 +8,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserDevicesRepository extends JpaRepository<UserDevices, UUID> {
-
     List<UserDevices> findByUserId(UUID userId);
 
     Optional<UserDevices> findByFcmToken(String fcmToken);
 
+    /* Remove o registro do dispositivo associado ao token informado, quando ocorre logout ou desregistro do dispositivo*/
     void deleteByFcmToken(String fcmToken);
 }
 

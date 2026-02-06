@@ -10,7 +10,6 @@ public class HealthDiaryDietMapper {
     public HealthDiaryDietResponse toResponse(HealthDiaryDiet diet) {
         return new HealthDiaryDietResponse(
                 diet.getDiet().getIdDiet(),
-                diet.getDiet().getDescription(),
                 diet.isFollowed(),
                 diet.getNote()
         );

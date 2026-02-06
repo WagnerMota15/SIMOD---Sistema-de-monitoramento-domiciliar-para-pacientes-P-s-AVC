@@ -5,6 +5,8 @@ import com.SIMOD.SIMOD.dto.diario.HealthDiaryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/* Responsável por converter a entidade de domínio HealthDiary em um DTO de resposta */
+
 @Component
 @RequiredArgsConstructor
 public class HealthDiaryMapper {
@@ -17,8 +19,8 @@ public class HealthDiaryMapper {
     public HealthDiaryResponse toResponse(HealthDiary diary) {
         return new HealthDiaryResponse(
                 diary.getId(),
+                diary.getPatientName(),
                 diary.getDiaryDate(),
-
                 diary.getSystolicBp(),
                 diary.getDiastolicBp(),
                 diary.getHeartRate(),

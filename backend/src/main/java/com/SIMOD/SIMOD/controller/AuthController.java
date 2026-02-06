@@ -2,10 +2,7 @@ package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.config.JwtUtil;
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
-import com.SIMOD.SIMOD.dto.auth.LoginRequest;
-import com.SIMOD.SIMOD.dto.auth.LoginResponse;
-import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
-import com.SIMOD.SIMOD.dto.auth.RegisterResponse;
+import com.SIMOD.SIMOD.dto.auth.*;
 import com.SIMOD.SIMOD.services.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
@@ -14,10 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.UUID;
@@ -62,8 +56,7 @@ public class AuthController {
 
                 authService.atualizarFcmToken(
                         userDetails.getUser().getIdUser(),
-                        request.fcmToken(),
-                        request.platform()
+                        request.fcmToken()
                 );
             }
             return ResponseEntity.ok(new LoginResponse(jwt));
@@ -72,5 +65,17 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "CPF/Email ou senha inválidos"));
         }
+    }
+
+    @PutMapping("/atualizar-senha")
+    public ResponseEntity<Void> atualizarSenha(
+            @RequestBody UpdatePasswordByEmailRequest request) {
+        System.out.println("Entrei no controller");
+        authService.atualizarSenhaPorEmail(
+                request.email(),
+                request.novaSenha()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

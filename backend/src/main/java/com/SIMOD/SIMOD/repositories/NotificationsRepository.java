@@ -16,11 +16,14 @@ import java.util.UUID;
 public interface NotificationsRepository extends JpaRepository<Notifications, UUID> {
     List<Notifications> findByUserId(UUID userId);
 
-    // Paginação
     Page<Notifications> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+
     Page<Notifications> findByUserIdAndReadFalseOrderByCreatedAtDesc(UUID userId, Pageable pageable);
 
+    // Contagem de notificações não lidas
     long countByUserIdAndReadFalse(UUID userId);
+
+    // Marca todas as notificações lidas de uma vez
     @Modifying
     @Transactional
     @Query("""

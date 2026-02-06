@@ -38,6 +38,7 @@ public class DietService {
     private final DietRepository dietRepository;
     private final NotificationFacadeService notificationFacadeService;
 
+
     @Transactional
     public Diet prescreverDieta(Authentication authentication, UUID patientId, DietRequest request){
         Professional professional = getProfessionalLogado(authentication);
@@ -83,6 +84,7 @@ public class DietService {
         return savedDiet;
     }
 
+
     @Transactional
     public DietResponse editarDieta(Authentication authentication, UUID dietId, DietRequest request) {
         Professional professional = getProfessionalLogado(authentication);
@@ -126,6 +128,7 @@ public class DietService {
         return toResponse(updated);
     }
 
+
     @Transactional
     public void inativarDieta(Authentication authentication, UUID dietId) {
         Professional professional = getProfessionalLogado(authentication);
@@ -163,6 +166,7 @@ public class DietService {
                 TipoNotificacao.INFO
         );
     }
+
 
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietas(Authentication authentication, Pageable pageable) {
@@ -205,6 +209,7 @@ public class DietService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietasAtivas(Authentication authentication, Pageable pageable) {
@@ -249,6 +254,7 @@ public class DietService {
         };
     }
 
+
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietasInativas(Authentication authentication, Pageable pageable) {
         User user = getUsuarioLogado(authentication);
@@ -291,6 +297,7 @@ public class DietService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietasPorPaciente(Authentication authentication, UUID patientId, Pageable pageable) {
@@ -383,12 +390,12 @@ public class DietService {
     }
 
 
-
     // Auxiliares
     private User getUsuarioLogado(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return userDetails.getUser();
     }
+
 
     private Professional getProfessionalLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
@@ -398,6 +405,7 @@ public class DietService {
                 );
     }
 
+
     private Patient getPacienteLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
         return patientRepository.findByIdUser(user.getIdUser())
@@ -406,6 +414,7 @@ public class DietService {
                 );
     }
 
+
     private Caregiver getCuidadorLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
         return caregiverRepository.findByIdUser(user.getIdUser())
@@ -413,6 +422,7 @@ public class DietService {
                         new EntityNotFoundException("Cuidador não encontrado")
                 );
     }
+
 
     private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
@@ -424,6 +434,7 @@ public class DietService {
             }
         }
     }
+
 
     private DietResponse toResponse(Diet diet) {
         return new DietResponse(

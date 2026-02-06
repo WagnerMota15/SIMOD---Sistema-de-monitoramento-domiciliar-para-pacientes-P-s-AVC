@@ -27,6 +27,7 @@ public class NotificationsService {
     private final FcmService fcmService;
     private final UserRepository userRepository;
 
+
     @Transactional
     public void criarNotificacao(UUID userDestination, NotificationsRequest request) {
         User user = userRepository.findById(userDestination)
@@ -52,6 +53,7 @@ public class NotificationsService {
         }
     }
 
+
     @Transactional(readOnly = true)
     public Page<NotificationsResponse> listarNotificacoes(Pageable pageable) {
         UUID usuarioLogadoId = getUsuarioLogadoId();
@@ -61,6 +63,7 @@ public class NotificationsService {
                 .map(this::toResponse);
     }
 
+
     @Transactional(readOnly = true)
     public Page<NotificationsResponse> listarNaoLidas(Pageable pageable) {
         UUID usuarioLogadoId = getUsuarioLogadoId();
@@ -69,6 +72,7 @@ public class NotificationsService {
                 .findByUserIdAndReadFalseOrderByCreatedAtDesc(usuarioLogadoId, pageable)
                 .map(this::toResponse);
     }
+
 
     @Transactional
     public void marcarComoLida(UUID notificacaoId) {
@@ -87,17 +91,20 @@ public class NotificationsService {
         notificationRepository.save(notificacao);
     }
 
+
     @Transactional
     public void marcarTodasComoLidas() {
         UUID usuarioLogadoId = getUsuarioLogadoId();
         notificationRepository.marcarTodasComoLidas(usuarioLogadoId);
     }
 
+
     @Transactional(readOnly = true)
     public long contarNaoLidas() {
         UUID usuarioLogadoId = getUsuarioLogadoId();
         return notificationRepository.countByUserIdAndReadFalse(usuarioLogadoId);
     }
+
 
     @Transactional
     public void apagarNotificacao(UUID notificacaoId) {
@@ -115,6 +122,7 @@ public class NotificationsService {
         notificationRepository.delete(notificacao);
     }
 
+
     // Auxiliares
     private UUID getUsuarioLogadoId() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
@@ -124,6 +132,7 @@ public class NotificationsService {
         var userDetails = (com.SIMOD.SIMOD.config.UserDetailsImpl) auth.getPrincipal();
         return userDetails.getUser().getIdUser();
     }
+
 
     private NotificationsResponse toResponse(Notifications n) {
         return new NotificationsResponse(
@@ -135,6 +144,7 @@ public class NotificationsService {
                 n.getCreatedAt()
         );
     }
+
 
     private boolean deveEnviarPush(TipoNotificacao tipo) {
         return switch (tipo) {

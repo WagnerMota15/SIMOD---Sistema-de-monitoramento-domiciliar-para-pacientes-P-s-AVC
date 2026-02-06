@@ -14,11 +14,13 @@ import java.util.UUID;
 public interface ActivitiesRepository extends JpaRepository<Activities, UUID> {
     List<Activities> findByPatientIdUserAndStatus(UUID patientId, Status status);
 
+    // Page não retorna tudo de vez, retorna resultados paginados o que ajuda quando é algo escalável
     Page<Activities> findByPatientIdUserOrderByCreatedAtDesc(
             UUID patientUserId,
             Pageable pageable
     );
 
+    // OrderByCreatedAtDesc => ordenação por data de criação
     Page<Activities> findByPatientIdUserAndStatusOrderByCreatedAtDesc(
             UUID patientUserId,
             Status status,

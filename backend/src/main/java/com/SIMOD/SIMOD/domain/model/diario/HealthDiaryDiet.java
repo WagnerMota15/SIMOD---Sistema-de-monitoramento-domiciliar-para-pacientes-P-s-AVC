@@ -4,6 +4,7 @@ import com.SIMOD.SIMOD.domain.model.dieta.Diet;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalTime;
 import java.util.UUID;
 
 @Entity
@@ -33,6 +34,9 @@ public class HealthDiaryDiet {
 
     @Column(name = "followed")
     private boolean followed;
+
+    @Column(name = "time_followed")
+    private LocalTime timeFollowed;
 
     @Column(name = "note", columnDefinition = "TEXT")
     private String note;

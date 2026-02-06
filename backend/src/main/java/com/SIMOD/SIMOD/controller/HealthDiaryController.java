@@ -1,7 +1,10 @@
 package com.SIMOD.SIMOD.controller;
 
+import com.SIMOD.SIMOD.domain.model.diario.HealthDiary;
+import com.SIMOD.SIMOD.dto.diario.HealthDiaryMedicineResponse;
 import com.SIMOD.SIMOD.dto.diario.HealthDiaryRequest;
 import com.SIMOD.SIMOD.dto.diario.HealthDiaryResponse;
+import com.SIMOD.SIMOD.dto.diario.ReminderCompletedResponse;
 import com.SIMOD.SIMOD.services.HealthDiaryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -61,6 +64,65 @@ public class HealthDiaryController {
             @PathVariable UUID patientId) {
 
         HealthDiaryResponse response = healthDiaryService.buscarDiario(authentication, patientId, LocalDate.now());
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/caregiver/listar-diarios-vinculados")
+    public ResponseEntity<Page<HealthDiaryResponse>> listarDiariosVinculadosCaregiver(
+            Authentication authentication,
+            @PageableDefault(sort = "diaryDate", direction = DESC) Pageable pageable) {
+
+        Page<HealthDiaryResponse> diaries = healthDiaryService.listarDiariosVinculadosCaregiver(authentication, pageable);
+        return ResponseEntity.ok(diaries);
+    }
+
+    @GetMapping("/professional/listar-diarios-vinculados")
+    public ResponseEntity<Page<HealthDiaryResponse>> listarDiariosVinculadosProfessional(
+            Authentication authentication,
+            @PageableDefault(sort = "diaryDate", direction = DESC) Pageable pageable) {
+
+        Page<HealthDiaryResponse> diaries = healthDiaryService.listarDiariosVinculadosProfessional(authentication, pageable);
+        return ResponseEntity.ok(diaries);
+    }
+
+    // Confirmação das atividades
+    @PutMapping("/confirmar/medicamento/{diaryId}/{diaryMedicineId}")
+    public ResponseEntity<ReminderCompletedResponse> confirmarMedicamento(
+        Authentication authentication,
+        @PathVariable UUID diaryId,
+        @PathVariable UUID diaryMedicineId
+        ){
+        ReminderCompletedResponse response = healthDiaryService.confirmarMedicamento(authentication, diaryId, diaryMedicineId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/confirmar/dieta/{diaryId}/{diaryDietId}")
+    public ResponseEntity<ReminderCompletedResponse> confirmarDieta(
+            Authentication authentication,
+            @PathVariable UUID diaryId,
+            @PathVariable UUID diaryDietId
+    ){
+        ReminderCompletedResponse response = healthDiaryService.confirmarDieta(authentication, diaryId, diaryDietId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/confirmar/atividade/{diaryId}/{diaryActivityId}")
+    public ResponseEntity<ReminderCompletedResponse> confirmarAtividade(
+            Authentication authentication,
+            @PathVariable UUID diaryId,
+            @PathVariable UUID diaryActivityId
+    ){
+        ReminderCompletedResponse response = healthDiaryService.confirmarAtividade(authentication, diaryId, diaryActivityId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/confirmar/sessao/{diaryId}/{diarySessionId}")
+    public ResponseEntity<ReminderCompletedResponse> confirmarSessao(
+            Authentication authentication,
+            @PathVariable UUID diaryId,
+            @PathVariable UUID diarySessionId
+    ){
+        ReminderCompletedResponse response = healthDiaryService.confirmarSessao(authentication, diaryId, diarySessionId);
         return ResponseEntity.ok(response);
     }
 }

@@ -13,6 +13,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/*
+Esta classe define a configuração completa de segurança da aplicação, integrando autenticação via JWT,
+controle de acesso por papéis e uma arquitetura stateless, garantindo que cada requisição seja validada
+de forma segura e consistente com as regras de negócio.
+ */
+
 @Configuration
 @RequiredArgsConstructor
 public class SecurityConfig {
@@ -20,6 +26,7 @@ public class SecurityConfig {
     private final UserDetailsService userDetailsService;
     private final JwtAuthFilter jwtAuthFilter;
 
+    // Define o algoritmo de hash utilizado para armazenar e validar senhas de forma segura.
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -38,6 +45,7 @@ public class SecurityConfig {
         return new ProviderManager(authenticationProvider());
     }
 
+    // Regras de autorização por endpoint
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -61,11 +69,17 @@ public class SecurityConfig {
                                 "FONOAUDIOLOGO")
                         .requestMatchers("/atividades/usuarios/**").authenticated()
                         .requestMatchers("/diario-de-saude/**").authenticated()
+                        .requestMatchers("/diario-de-saude/caregiver/**").hasRole("CUIDADOR")
+                        .requestMatchers("/diario-de-saude/professional/**").hasAnyRole("MEDICO",
+                                "NUTRICIONISTA", "FISIOTERAPEUTA", "FONOAUDIOLOGO", "PSICOLOGO")
                         .requestMatchers("/diario-de-saude/listarDiarios/**").hasAnyRole("PACIENTE", "CUIDADOR")
+                        .requestMatchers("/diario-de-saude/confirmar/**").hasAnyRole("PACIENTE", "CUIDADOR")
                         .anyRequest().authenticated()
                 )
+                // Indica que a aplicação não mantém estado de sessão, reforçando o uso exclusivo do JWT para autenticação.
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+
                 )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

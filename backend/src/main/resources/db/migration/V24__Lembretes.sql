@@ -7,13 +7,15 @@ CREATE TABLE reminders(
     scheduled_at TIMESTAMP NOT NULL,
     recurring BOOLEAN DEFAULT FALSE,
     interval_type VARCHAR(20),
+    interval_hours INTEGER,
     confirmed BOOLEAN DEFAULT FALSE,
     confirmed_at TIMESTAMP,
     created_by VARCHAR(20) NOT NULL,
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_reminder_patient
-        FOREIGN KEY (patient_id)
-            REFERENCES patient(id)
-            ON DELETE CASCADE
+    medicine_id UUID,
+    diet_id UUID,
+    activity_id UUID,
+    session_id UUID,
+    CONSTRAINT fk_reminder_patient FOREIGN KEY (patient_id) REFERENCES patient(id) ON DELETE CASCADE
 );

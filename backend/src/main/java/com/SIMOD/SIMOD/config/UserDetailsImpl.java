@@ -10,6 +10,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/* funciona como um adaptador entre o modelo de domínio da aplicação (User) e o mecanismo de autenticação
+e autorização do Spring. */
+
 @Getter
 public class UserDetailsImpl implements UserDetails {
 
@@ -19,6 +22,9 @@ public class UserDetailsImpl implements UserDetails {
         this.user = user;
     }
 
+
+    /* Converte o papel do usuário do domínio para o formato esperado pelo Spring Security (ROLE_...),
+    permitindo o uso de hasRole e hasAnyRole na configuração de segurança. */
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));

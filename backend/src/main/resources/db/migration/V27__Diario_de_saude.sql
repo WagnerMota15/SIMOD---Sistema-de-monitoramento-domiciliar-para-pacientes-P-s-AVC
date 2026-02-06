@@ -2,6 +2,7 @@ create table health_diary(
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     patient_id UUID NOT NULL,
     caregiver_id UUID,
+    patient_name VARCHAR(100) NOT NULL,
     diary_date DATE NOT NULL,
     systolic_bp INT,
     diastolic_bp INT,

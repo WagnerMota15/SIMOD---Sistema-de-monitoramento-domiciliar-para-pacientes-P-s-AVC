@@ -5,6 +5,8 @@ import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
+// Implementa uma validação customizada de regras de cadastro,  baseada no tipo de usuário que está sendo registrado.
+
 public class RegistrationRulesValidator
         implements ConstraintValidator<ValidRegistration, RegisterRequest> {
 

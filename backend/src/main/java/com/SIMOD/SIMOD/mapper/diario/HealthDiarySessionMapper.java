@@ -11,8 +11,7 @@ public class HealthDiarySessionMapper {
         return new HealthDiarySessionResponse(
                 session.getSession().getId(),
                 session.getSession().getDateTime(),
-                session.isAttended(),
-                session.getNote()
+                session.isAttended()
         );
     }
 }

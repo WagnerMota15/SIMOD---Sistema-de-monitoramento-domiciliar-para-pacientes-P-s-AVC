@@ -44,7 +44,7 @@ public class RegisterActivity extends AppCompatActivity {
         if (roleString != null) {
             selectedRole = Role.valueOf(roleString);
         } else {
-            //valor padrão caso role não tenha sido passado
+            Toast.makeText(this, "Erro ao definir tipo de usuário", Toast.LENGTH_LONG).show();
             finish();
         }
 

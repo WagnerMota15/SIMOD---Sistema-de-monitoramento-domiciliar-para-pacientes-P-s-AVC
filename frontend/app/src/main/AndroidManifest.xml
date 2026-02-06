@@ -31,6 +31,7 @@
         <!-- Activities de autenticação -->
         <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />
         <activity android:name=".ui.auth.FinalRegisterActivity" android:exported="false"/>
+        <activity android:name=".ui.auth.AddressFamilyActivity" android:exported="false"/>
         <activity android:name=".ui.auth.UserTypesActivity" android:exported="false" />
         <activity android:name=".ui.auth.ProfessionalTypesActivity" android:exported="false" />
 

@@ -83,9 +83,10 @@ public class RegisterActivity extends AppCompatActivity {
             if (selectedRole == Role.PACIENTE || selectedRole == Role.CUIDADOR) {
                 intent = new Intent(this, FinalRegisterActivity.class);
             } else {
-                intent = new Intent(this, ProfessionalTypesActivity.class);
+                intent = new Intent(this, FinalProfessionalActivity.class);
             }
 
+            //EU FORÇO O NOME SEMPRE SER MANDADO PARA O BACKEND EM CAIXA ALTA
             intent.putExtra("name", name.getText().toString().toUpperCase());
             intent.putExtra("cpf", cpf.getText().toString());
             intent.putExtra("email", email.getText().toString());

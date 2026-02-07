@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.simodapp.data.dto.LoginRequest;
 import com.example.simodapp.data.dto.LoginResponse;
 import com.example.simodapp.data.repository.AuthRepository;
-import com.example.simodapp.data.repository.LoginCallback;
+import com.example.simodapp.domain.result.LoginCallback;
 
 public class LoginViewModel extends ViewModel {
 

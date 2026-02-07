@@ -34,6 +34,7 @@
         <activity android:name=".ui.auth.AddressFamilyActivity" android:exported="false"/>
         <activity android:name=".ui.auth.UserTypesActivity" android:exported="false" />
         <activity android:name=".ui.auth.ProfessionalTypesActivity" android:exported="false" />
+        <activity android:name=".ui.auth.FinalProfessionalActivity" android:exported="false"/>
 
         <!-- Tela home-->
         <activity android:name=".ui.home.HomeActivity" android:exported="false"/>

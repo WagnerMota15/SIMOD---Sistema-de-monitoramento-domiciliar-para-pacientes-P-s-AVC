@@ -1,13 +1,12 @@
 package com.example.simodapp.data.repository;
 
 import com.example.simodapp.data.api.AuthApi;
-import com.example.simodapp.data.api.RetrofitClient;
 import com.example.simodapp.data.dto.LoginRequest;
 import com.example.simodapp.data.dto.LoginResponse;
 import com.example.simodapp.data.dto.RegisterRequest;
 import com.example.simodapp.data.dto.RegisterResponse;
-import com.example.simodapp.domain.enums.Role;
-import com.example.simodapp.domain.enums.StrokeTypes;
+import com.example.simodapp.domain.result.LoginCallback;
+import com.example.simodapp.domain.result.RegisterCallback;
 import com.example.simodapp.util.SessionManager;
 
 import retrofit2.Call;

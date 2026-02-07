@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel;
 import com.example.simodapp.data.dto.RegisterRequest;
 import com.example.simodapp.data.dto.RegisterResponse;
 import com.example.simodapp.data.repository.AuthRepository;
-import com.example.simodapp.data.repository.RegisterCallback;
+import com.example.simodapp.domain.result.RegisterCallback;
 import com.example.simodapp.domain.enums.Role;
 import com.example.simodapp.domain.enums.StrokeTypes;
 

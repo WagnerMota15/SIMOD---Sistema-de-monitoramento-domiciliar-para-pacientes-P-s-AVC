@@ -77,8 +77,8 @@ public class FinalProfessionalActivity extends AppCompatActivity {
                         name,
                         cpf,
                         email,
-                        telephone,
                         password,
+                        telephone,
                         role,
                         null,// strokeType
                         registration.getText().toString().trim()

@@ -14,8 +14,12 @@ import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
 
 public class UserFactory {
 
+    //Userfactory tem essse método que irá receber dentro desse request o role(o role deve conter as mesmas info tanto no back como no front)
+    //o método create é chamado pelo AuthService
     public static User create(RegisterRequest request){
 
+        //ao acesssar o valor mandando pelo frontend,os cases chamam os métodos create de cada classe
+        //que por sua vez recebe as requisições requeridas pelo RegisterRequest
         return switch(request.role()){
 
             case PACIENTE -> createPaciente(request);

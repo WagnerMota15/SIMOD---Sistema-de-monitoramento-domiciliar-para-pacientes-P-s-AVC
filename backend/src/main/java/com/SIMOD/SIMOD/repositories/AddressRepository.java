@@ -8,6 +8,12 @@ import java.util.UUID;
 
 public interface AddressRepository extends JpaRepository<Address, UUID> {
 
+    // Consulta derivada do Spring Data JPA para buscar um endereço único
+    // com base em todos os atributos estruturais.
+
+    // Evitar duplicidade de endereços no banco
+    // Retorna Optional para forçar tratamento explícito de ausência de dados,
+    // evitando NullPointerException e alinhado a boas práticas de robustez.
     Optional<Address> findByCepAndStreetAndNumberAndNeighborhoodAndCityAndState(
             String cep,
             String street,

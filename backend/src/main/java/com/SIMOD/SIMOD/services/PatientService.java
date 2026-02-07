@@ -42,19 +42,6 @@ public class PatientService {
     private final NotificationsService notificationsService;
     private final SessionsRepository sessionsRepository;
 
-    public UUID criarPaciente(PatientRequest dado) {
-        Patient novoPaciente = new Patient();
-        novoPaciente.setNameComplete(dado.nomeComplete());
-        novoPaciente.setEmail(dado.email());
-        novoPaciente.setCpf(dado.CPF());
-        novoPaciente.setPassword(dado.password());
-        novoPaciente.setTelephone(dado.telephone());
-        //novoPaciente.setTipoAVC(dado.tipoAVC());
-        patientRepository.save(novoPaciente);
-        return novoPaciente.getId();
-    }
-
-
     // ----- SISTEMA DE SESSÃO -----
 
     @Transactional

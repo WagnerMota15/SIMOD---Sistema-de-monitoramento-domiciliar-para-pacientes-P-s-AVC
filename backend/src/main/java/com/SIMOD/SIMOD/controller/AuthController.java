@@ -45,6 +45,13 @@ public class AuthController {
     }
 
     @PostMapping("/register")
+
+    //o método register recebe o JSON de register,e já "aplica" o @Valid
+    //Impede estados inválidos antes de chegar no AuthService
+    //a qual chama RegistrationRulesValidator.isValid()
+    //se houver erro o controller nem entra retorna 400 Bad Request
+    //Com mensagens específicas por campo,definidas nessa classe que implementa a interdace do Bean VAlidation
+    // serve para aplicar regras de validação COMPLEXAS que não podem ser resolvidas com @NotNull, @NotBlank, etc
     public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
 
         UUID userId = authService.register(request);

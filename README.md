@@ -82,7 +82,7 @@ O **SIMOD** é um sistema voltado para **monitoramento domiciliar** e **acompanh
 
 ### 1) Backend (Spring Boot)
 Pré-requisitos:
-- Java (conforme definido no projeto)
+- Java
 - Maven
 - PostgreSQL
 
@@ -90,8 +90,6 @@ Passos (exemplo):
 1. Configure o banco (PostgreSQL) e as variáveis de ambiente (ou `application.properties`).
 2. Rode a aplicação:
    - `mvn spring-boot:run`
-
-> Observação: scripts/migrations podem estar em `backend/src/main/resources/db/migration`.
 
 ---
 
@@ -105,11 +103,9 @@ Passos:
 2. Aguarde o Gradle sincronizar.
 3. Execute no emulador ou dispositivo físico.
 
-> Se aparecer erro de SDK, confira `frontend/local.properties` (`sdk.dir=...`) e/ou `ANDROID_HOME`.
-
 ---
 
-## 🧩 Arquitetura (resumo de qualidade)
+## Arquitetura (resumo de qualidade)
 
 - **Backend em camadas (Layers)**: controllers → services → repositories → banco  
 - **Cliente-Servidor**: app Android (cliente) consumindo API REST (servidor)

@@ -1,107 +1,120 @@
+# SIMOD — Sistema de Monitoramento Domiciliar para Pacientes Pós-AVC
+
+O **SIMOD** é um sistema voltado para **monitoramento domiciliar** e **acompanhamento** de pacientes **pós-AVC**, com foco em organização de rotinas (checklists/lembretes), registro de sinais vitais e suporte a triagem de emergência.
 
 ---
 
-## 👥 Perfis de usuário
+## Principais funcionalidades (visão do usuário)
 
-- **Paciente**: acesso às funcionalidades de acompanhamento e registro (ex.: sinais vitais, diário e rotinas).
-- **Cuidador**: apoio na rotina do paciente e acompanhamento.
-- **Profissional de saúde**: fluxos de cadastro/validação por tipo, e telas voltadas ao acompanhamento e vínculos.
+- **Autenticação**
+  - Login
+  - Cadastro (Paciente / Cuidador / Profissional)
+  - Etapas específicas para Profissional (área e registro)
 
-> Observação: algumas telas podem estar em versão básica/placeholder conforme evolução incremental do projeto.
+- **Home**
+  - Saudação + visão do dia
+  - Checklist de hoje (visual)
+  - Acesso rápido para:
+    - **Registrar Sinais Vitais**
+    - **Diário**
+    - **Lembretes**
+    - **Emergência e Triagem (FAST)**
 
----
-
-## ✅ Principais funcionalidades (versão atual)
-
-### Autenticação e Cadastro
-- Login
-- Cadastro de usuário
-- Seleção de perfil (Paciente/Cuidador/Profissional)
-- Seleção de área profissional (quando aplicável)
-- Finalização de cadastro (quando aplicável)
-
-### Home
-- Cards de acesso rápido
-- Atalho para **Registrar Sinais Vitais**
-- Atalho para **Diário**
-- Atalho para **Lembretes**
-- Botão de **Emergência**
-- **Menu inferior** (navegação)
-
-### Registrar Sinais Vitais
-- Registro de:
+- **Registro de Sinais Vitais**
   - Pressão arterial (sistólica/diastólica)
   - Frequência cardíaca
   - Saturação de O₂
   - Glicemia
-  - Observação/anotação opcional
-- Botão **Salvar**
-- Mantém **menu inferior** na navegação
+  - Botão **Salvar** (fluxo inicial / base funcional)
 
-### Diário de Saúde (versão básica)
-- Lista de itens/rotina (visual simples baseado na UI)
-- Sem filtros avançados e sem botão de relatório (nesta versão)
+- **Diário de Saúde**
+  - Tela básica de diário com checklist/itens do dia (versão inicial)
 
-### Lembretes (versão básica)
-- Tela inicial de lembretes (baseada na UI)
-- Fluxo simples para evolução incremental
+- **Lembretes**
+  - Tela básica para criar/visualizar lembretes (versão inicial)
 
-### Emergência e Triagem
-- Tela de triagem com foco em sinais FAST (baseado na UI)
-- Botão de confirmar/acionar (fluxo pode variar conforme integração)
+- **Emergência e Triagem**
+  - Orientação baseada no protocolo **FAST**
+  - Ação de confirmação/ligação (fluxo inicial)
 
----
-
-## 🧱 Arquitetura e qualidade (resumo)
-
-### Estilo arquitetural (macro)
-- **Cliente–Servidor**: App Android consome a API do backend.
-- **Arquitetura em camadas (Layers)**:
-  - **Apresentação** (UI Android / Controllers no backend)
-  - **Negócio** (UseCases/Services)
-  - **Dados** (Repositories/DAO + persistência)
-
-### Organização (micro / boas práticas)
-- **Backend**: separação por responsabilidades em pacotes (controllers, services, repositories, domain/dto, config).
-- **Frontend (Android)**: organização por `ui/*` (telas) e camadas de `data/*` quando aplicável.
-- Princípios aplicados:
-  - **Baixo acoplamento e alta coesão**
-  - Separação de responsabilidades por tela/módulo
-  - Evolução incremental (features em branches + PR)
-
-> Quando houver trade-offs (prazo vs. qualidade), as melhorias são registradas como **próximos passos** e/ou **issues**.
+- **Menu inferior**
+  - Navegação entre **Início**, **Sinais**, **Diário**, **Menu** (versão inicial)
 
 ---
 
-## 🧪 Evidências no repositório (para a disciplina)
+## Stack / Tecnologias
 
-Você pode apresentar evidências diretamente do GitHub:
+**Backend**
+- **Java 25 (LTS) + Spring Boot**
+  - Framework robusto com injeção de dependências e ecossistema maduro
 
-- **README**: este arquivo descreve visão geral, execução e arquitetura.
-- **Commits**: histórico com mensagens claras (ex.: “UI: home, vitals, diário…”).
-- **Branches / Pull Requests**: desenvolvimento por feature (ex.: `feat-ui-screens`) + revisão via PR.
-- **Issues**: registrar bugs, melhorias e tarefas pendentes (ex.: “persistir lembretes no backend”, “validação de campos em sinais vitais”).
-- **Testes / Pipeline (CI)**:
-  - Se houver GitHub Actions configurado, fica em **Actions**.
-  - Caso ainda não exista, é recomendado criar um workflow simples (build do backend + build do app Android).
+**Segurança**
+- **Spring Security + JWT**
+  - Autenticação stateless e escalável para APIs REST
+
+**Persistência**
+- **JPA/Hibernate + PostgreSQL**
+  - Mapeamento objeto-relacional com integridade de dados
+
+**API**
+- **API REST**
+  - Comunicação padronizada e independente de plataforma
+
+**Frontend Android**
+- **Android (MVVM)**
+  - Separação de responsabilidades e maior testabilidade
+
+**Versionamento**
+- **Git + GitHub**
+  - Controle de versão e colaboração via Pull Requests
 
 ---
 
-## ⚙️ Como executar o projeto (ambiente local)
+## Estrutura do repositório (alto nível)
 
-### Pré-requisitos gerais
-- **Git** (para clonar e contribuir)
-- **Java JDK** (para backend; versão conforme o projeto)
-- **Android Studio + Android SDK** (para o app)
-- Conexão de rede liberada (o app usa INTERNET)
+- `backend/` → API em Spring Boot (segurança, serviços, repositórios, migrations)
+- `frontend/` → App Android (UI, Activities/ViewModels, resources)
+- `docs/` → Documentação do projeto (manuais, anexos e artefatos)
 
 ---
 
-## 🔧 Backend (API)
+## Como executar (visão rápida)
 
-> O backend fica na pasta `/backend`.
+### 1) Backend (Spring Boot)
+Pré-requisitos:
+- Java (conforme definido no projeto)
+- Maven
+- PostgreSQL
 
-### Passos (geral)
-1. Abra um terminal na pasta:
-   ```bash
-   cd backend
+Passos (exemplo):
+1. Configure o banco (PostgreSQL) e as variáveis de ambiente (ou `application.properties`).
+2. Rode a aplicação:
+   - `mvn spring-boot:run`
+
+> Observação: scripts/migrations podem estar em `backend/src/main/resources/db/migration`.
+
+---
+
+### 2) Frontend (Android)
+Pré-requisitos:
+- Android Studio (SDK instalado)
+- Gradle (via Android Studio)
+
+Passos:
+1. Abra a pasta `frontend/` no Android Studio.
+2. Aguarde o Gradle sincronizar.
+3. Execute no emulador ou dispositivo físico.
+
+> Se aparecer erro de SDK, confira `frontend/local.properties` (`sdk.dir=...`) e/ou `ANDROID_HOME`.
+
+---
+
+## 🧩 Arquitetura (resumo de qualidade)
+
+- **Backend em camadas (Layers)**: controllers → services → repositories → banco  
+- **Cliente-Servidor**: app Android (cliente) consumindo API REST (servidor)
+- **Android com MVVM**: separação UI/Estado/Regra, favorecendo manutenção e testes
+- **Segurança stateless com JWT**: controle de acesso para endpoints protegidos
+- **Versionamento por branches + PR**: mudanças entram na `main` via revisão/merge
+
+---

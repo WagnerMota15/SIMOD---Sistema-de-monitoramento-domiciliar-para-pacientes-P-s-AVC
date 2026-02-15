@@ -4,17 +4,12 @@ public enum Kinship {
     // Constante (Para o Backend) -> Rótulo (Para o Usuário na tela)
     MÃE("Mãe"),
     PAI("Pai"),
-    IRMAO("Irmão"),
-    IRMA("Irmã"),
-    AVÔ("Avô"),
-    AVÓ("Avó"),
-    TIO("Tio"),
-    TIA("Tia"),
-    PRIMO("Primo"),
-    PRIMA("Prima"),
-    CONJUGE("Cônjuge"),
-    FILHO("Filho"),
-    FILHA("Filha"),
+    IRMÃO("Irmã(o)"),
+    AVÔ("Avô(ó)"),
+    TIO("Tio(a)"),
+    PRIMO("Primo(a)"),
+    CÔNJUGE("Cônjuge"),
+    FILHO("Filho(a)"),
     AMIGO("Amigo(a)"),
     OUTRO("Outro");
 

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.simodapp">
 
-    package="com.example.simodapp"> <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -15,20 +16,48 @@
         android:theme="@style/Theme.SIMODAPP"
         android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config"
-
         tools:targetApi="31">
+
+        <!-- LAUNCHER: abre no Login -->
         <activity
             android:name=".ui.auth.LoginActivity"
-             android:exported="true">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-            <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />
-            <activity android:name=".ui.auth.FinalRegisterActivity" android:exported="false"/>
 
-<!--        <activity android:name=".ui.main.PrincipalActivity" android:exported="false" />-->
+        <!-- Home (não é launcher) -->
+        <activity
+            android:name=".ui.home.HomeActivity"
+            android:exported="false" />
+
+        <!-- Activities de autenticação -->
+        <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />
+        <activity android:name=".ui.auth.FinalRegisterActivity" android:exported="false" />
+        <activity android:name=".ui.auth.AddressFamilyActivity" android:exported="false" />
+        <activity android:name=".ui.auth.UserTypesActivity" android:exported="false" />
+        <activity android:name=".ui.auth.ProfessionalTypesActivity" android:exported="false" />
+        <activity android:name=".ui.auth.FinalProfessionalActivity" android:exported="false" />
+
+        <!-- Outras activities do app -->
+        <activity android:name=".ui.vitals.VitalsActivity" android:exported="false" />
+        <activity android:name=".ui.emergency.EmergencyActivity" android:exported="false" />
+
+        <!-- Activities de links -->
+        <activity android:name=".ui.links.Activity_Patient_Detail" android:exported="false" />
+        <activity android:name=".ui.links.Activity_Pending_Links" android:exported="true" />
+        <activity android:name=".ui.links.Activity_Active_Links" android:exported="false" />
+        <activity android:name=".ui.links.Activity_Unlink_Adapter" android:exported="false" />
+        <activity android:name=".ui.links.bind" android:exported="false" />
+        <activity android:name=".ui.links.Links_Menu" android:exported="false" />
+
+        <activity android:name=".ui.reminders.RemindersActivity" android:exported="false" />
+        <activity android:name=".ui.common.PlaceholderActivity" android:exported="false" />
+        <activity android:name=".ui.diary.DiaryActivity" android:exported="false" />
+        <activity android:name=".ui.menu.MenuActivity" android:exported="false" />
+
     </application>
 
 </manifest>

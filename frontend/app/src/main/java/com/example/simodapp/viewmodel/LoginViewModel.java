@@ -1,43 +1,57 @@
 package com.example.simodapp.viewmodel;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.example.simodapp.data.repository.LoginCallback;
-import com.example.simodapp.data.repository.AuthRepository;
+import com.example.simodapp.data.dto.LoginRequest;
 import com.example.simodapp.data.dto.LoginResponse;
+import com.example.simodapp.data.repository.AuthRepository;
+import com.example.simodapp.domain.result.LoginCallback;
 
 public class LoginViewModel extends ViewModel {
 
-
     private final AuthRepository authRepository;
-    private final MutableLiveData<LoginResponse> loginResult = new MutableLiveData<>();
 
-    public LoginViewModel() {
-        authRepository = new AuthRepository();
+    private final MutableLiveData<String> token = new MutableLiveData<>();
+    private final MutableLiveData<String> error = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> loading = new MutableLiveData<>();
+
+    public LoginViewModel(AuthRepository authRepository) {
+        this.authRepository = authRepository;
     }
 
-    public LiveData<LoginResponse> getLoginResult(){
-        return loginResult;
+    public LiveData<String> getToken() {
+        return token;
     }
 
-    public void login(String login,String password){
+    public LiveData<String> getError() {
+        return error;
+    }
 
-        authRepository.login(login, password, new LoginCallback() {
+    public LiveData<Boolean> getLoading() {
+        return loading;
+    }
+
+    public void login(String login, String password) {
+
+        loading.setValue(true);
+        error.setValue(null);
+
+        LoginRequest request = new LoginRequest(login, password);
+
+        authRepository.login(request, new LoginCallback() {
             @Override
             public void onSucess(LoginResponse response) {
-                Log.d("LOGIN","Token: "+response.getToken());
+                loading.postValue(false);
+                token.postValue(response.getToken());
             }
 
             @Override
             public void onError(String message) {
-                Log.d("LOGIN",message);
+                loading.postValue(false);
+                error.postValue(message);
             }
         });
-
     }
-
 }

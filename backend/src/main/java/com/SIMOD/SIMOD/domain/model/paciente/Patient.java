@@ -7,11 +7,9 @@ import com.SIMOD.SIMOD.domain.model.endereço.Address;
 import com.SIMOD.SIMOD.domain.model.familiares.Family;
 import com.SIMOD.SIMOD.domain.model.historicoMedico.Historical;
 import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
-import com.SIMOD.SIMOD.domain.model.pacienteEndereco.PatientAddress;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.associacoes.PatientProfessional;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -51,15 +49,12 @@ public class Patient extends User {
     @OneToMany(mappedBy = "patient")
     private Set<Family> familyMembers = new HashSet<>();
 
+    @ManyToOne
+    @JoinColumn(name = "address_id")
+    private Address address;
+
     @OneToMany(mappedBy = "patient")
     private Set<Historical> medicalHistory = new HashSet<>();
-
-    @OneToMany(
-            mappedBy = "patient",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true
-    )
-    private Set<PatientAddress> addresses = new HashSet<>();
 
     public void adicionarVinculoCuidador(CaregiverPatient vinculo) {
         this.caregiverVinculos.add(vinculo);

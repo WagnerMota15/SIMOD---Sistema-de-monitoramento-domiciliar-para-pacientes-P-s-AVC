@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record AddressRequest(
         @NotNull String cep,
-        @NotNull String number,
-        String description,
-        boolean principal) {
-}
+        @NotNull String street,
+        @NotNull String neighborhood,
+        @NotNull String city,
+        @NotNull String state,
+        @NotNull String number
+) {}

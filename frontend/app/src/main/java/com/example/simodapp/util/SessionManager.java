@@ -5,18 +5,32 @@ import android.content.SharedPreferences;
 
 public class SessionManager {
 
-    private SharedPreferences prefs;
+    private static final String NAME = "session_manager";
+    private static final String TOKEN = "token";
+    private SharedPreferences preferences;
 
     public SessionManager(Context context) {
-        prefs = context.getSharedPreferences("SIMOD_SESSION", Context.MODE_PRIVATE);
+        preferences = context.getApplicationContext().getSharedPreferences(NAME, Context.MODE_PRIVATE);
     }
 
     public void saveToken(String token) {
-        prefs.edit().putString("TOKEN", token).apply();
+
+
+        preferences.edit().putString(TOKEN, token).apply();
     }
 
     public String getToken() {
-        return prefs.getString("TOKEN", null);
+
+        return preferences.getString(TOKEN, null);
     }
+
+    public boolean isLogged(){
+        return getToken()!=null;
+    }
+
+    public void clear(){
+        preferences.edit().clear().apply();
+    }
+
 }
 

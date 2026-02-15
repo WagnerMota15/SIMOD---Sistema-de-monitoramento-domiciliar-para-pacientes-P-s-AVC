@@ -14,6 +14,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByEmail(String email);
 
     @Modifying
-    @Query("update User u set u.fcmToken = null where u.fcmToken = :token")
+    @Query("update User usuario set usuario.fcmToken = null where usuario.fcmToken = :token")
     void limparToken(@Param("token") String token);
 }

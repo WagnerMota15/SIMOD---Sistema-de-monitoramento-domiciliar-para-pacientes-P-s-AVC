@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_home_gradient">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarEmergency"
+        android:layout_width="0dp"
+        android:layout_height="64dp"
+        android:background="@color/home_accent"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        app:navigationIcon="@drawable/baseline_arrow_back_24"
+        app:title="Emergência e Triagem"
+        app:titleTextColor="@android:color/white"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:padding="16dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/toolbarEmergency"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="22dp"
+                app:cardElevation="8dp"
+                app:cardBackgroundColor="@android:color/white"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="18dp"
+                    android:gravity="center_horizontal">
+
+                    <!-- Ícone circular (simples com emoji) -->
+                    <TextView
+                        android:layout_width="84dp"
+                        android:layout_height="84dp"
+                        android:background="@drawable/bg_circle_white"
+                        android:gravity="center"
+                        android:text="🚑"
+                        android:textSize="34sp"
+                        android:layout_marginBottom="14dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Suspeita de AVC?"
+                        android:textStyle="bold"
+                        android:textSize="28sp"
+                        android:textColor="@color/home_text_dark"
+                        android:layout_marginBottom="6dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="O paciente apresenta algum desses sintomas?"
+                        android:textSize="14sp"
+                        android:textColor="@color/home_text_mid"
+                        android:layout_marginBottom="14dp"/>
+
+                    <!-- Caixa com FAST -->
+                    <com.google.android.material.card.MaterialCardView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:cardCornerRadius="16dp"
+                        app:cardElevation="0dp"
+                        app:cardBackgroundColor="@color/home_card_inner">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            android:padding="10dp">
+
+                            <!-- F -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="34dp"
+                                    android:layout_height="34dp"
+                                    android:background="@drawable/bg_fast_badge"
+                                    android:backgroundTint="@color/fast_yellow"
+                                    android:gravity="center"
+                                    android:text="F"
+                                    android:textStyle="bold"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="16sp"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" 😟 "
+                                    android:textSize="18sp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginEnd="6dp"/>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Rosto"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/home_text_dark"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="O rosto está torto?"
+                                        android:textColor="@color/home_text_mid"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:alpha="0.25"
+                                android:background="@android:color/black"/>
+
+                            <!-- A -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="34dp"
+                                    android:layout_height="34dp"
+                                    android:background="@drawable/bg_fast_badge"
+                                    android:backgroundTint="@color/fast_yellow"
+                                    android:gravity="center"
+                                    android:text="A"
+                                    android:textStyle="bold"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="16sp"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" 💪 "
+                                    android:textSize="18sp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginEnd="6dp"/>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Braços"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/home_text_dark"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Algum braço está fraco?"
+                                        android:textColor="@color/home_text_mid"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:alpha="0.25"
+                                android:background="@android:color/black"/>
+
+                            <!-- S -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="34dp"
+                                    android:layout_height="34dp"
+                                    android:background="@drawable/bg_fast_badge"
+                                    android:backgroundTint="@color/fast_yellow"
+                                    android:gravity="center"
+                                    android:text="S"
+                                    android:textStyle="bold"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="16sp"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" 💬 "
+                                    android:textSize="18sp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginEnd="6dp"/>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Fala"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/home_text_dark"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="A fala está arrastada?"
+                                        android:textColor="@color/home_text_mid"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1dp"
+                                android:alpha="0.25"
+                                android:background="@android:color/black"/>
+
+                            <!-- T -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:gravity="center_vertical"
+                                android:padding="10dp">
+
+                                <TextView
+                                    android:layout_width="34dp"
+                                    android:layout_height="34dp"
+                                    android:background="@drawable/bg_fast_badge"
+                                    android:backgroundTint="@color/fast_red"
+                                    android:gravity="center"
+                                    android:text="T"
+                                    android:textStyle="bold"
+                                    android:textColor="@android:color/white"
+                                    android:textSize="16sp"/>
+
+                                <TextView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text=" ⏱️ "
+                                    android:textSize="18sp"
+                                    android:layout_marginStart="8dp"
+                                    android:layout_marginEnd="6dp"/>
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Tempo"
+                                        android:textStyle="bold"
+                                        android:textColor="@color/home_text_dark"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Agilidade é essencial! Ligue 192."
+                                        android:textColor="@color/home_text_mid"/>
+                                </LinearLayout>
+                            </LinearLayout>
+
+                        </LinearLayout>
+                    </com.google.android.material.card.MaterialCardView>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Botão grande -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCallSamu"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:text="CONFIRMAR E CHAMAR SAMU"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:backgroundTint="@color/home_red"
+                app:cornerRadius="16dp"
+                app:icon="@drawable/ic_emergency_24"
+                app:iconTint="@android:color/white"
+                app:iconGravity="textStart"
+                android:layout_marginBottom="12dp"/>
+
+            <!-- Cancelar -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCancelEmergency"
+                android:layout_width="220dp"
+                android:layout_height="46dp"
+                android:text="Cancelar"
+                android:textColor="@color/home_text_mid"
+                android:backgroundTint="#E9EEF3"
+                app:cornerRadius="14dp"
+                android:layout_marginBottom="14dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

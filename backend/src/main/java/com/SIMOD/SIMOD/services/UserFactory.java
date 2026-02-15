@@ -11,6 +11,7 @@ import com.SIMOD.SIMOD.domain.model.psicologo.Psychologist;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
 import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
 
+// Essa classe implementa o Factory Pattern. Cria a instância correta de User com base no role informado no cadastro.
 
 public class UserFactory {
 

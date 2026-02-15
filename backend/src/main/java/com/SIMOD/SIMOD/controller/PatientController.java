@@ -2,6 +2,7 @@ package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
+import com.SIMOD.SIMOD.dto.samu.SamuResponse;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.services.PatientService;
 import jakarta.validation.Valid;
@@ -133,6 +134,13 @@ public class PatientController {
         patientService.desfazerVinculoProfissional(authentication, professionalId);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/samu")
+    public ResponseEntity<SamuResponse> acionarSamu(Authentication authentication) {
+        SamuResponse response = patientService.alertarSamu(authentication);
+        return ResponseEntity.ok(response);
+    }
+
 
     private UUID getPatientId(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

@@ -9,5 +9,6 @@ import java.util.UUID;
 
 public interface ProfessionalRepository extends JpaRepository<Professional, UUID> {
     Optional<Professional> findByCpf(String cpf);
+
     Optional<User> findByIdUser(UUID userId);
 }

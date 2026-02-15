@@ -23,13 +23,11 @@ import java.util.UUID;
 
 public abstract class User {
 
-    public UUID getId() {
-        return idUser;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID idUser;
+    @Column(name = "fcm_token")
+    private String fcmToken;
     @CPF(message = "CPF inválido")
     private String cpf;
     private String nameComplete;

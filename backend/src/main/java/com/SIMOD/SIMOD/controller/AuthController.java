@@ -1,10 +1,8 @@
 package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.config.JwtUtil;
-import com.SIMOD.SIMOD.dto.auth.LoginRequest;
-import com.SIMOD.SIMOD.dto.auth.LoginResponse;
-import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
-import com.SIMOD.SIMOD.dto.auth.RegisterResponse;
+import com.SIMOD.SIMOD.config.UserDetailsImpl;
+import com.SIMOD.SIMOD.dto.auth.*;
 import com.SIMOD.SIMOD.dto.endereco.AddressRequest;
 import com.SIMOD.SIMOD.dto.familia.FamilyRequest;
 import com.SIMOD.SIMOD.services.AddressService;
@@ -45,33 +43,21 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-
-    //o método register recebe o JSON de register,e já "aplica" o @Valid
-    //Impede estados inválidos antes de chegar no AuthService
-    //a qual chama RegistrationRulesValidator.isValid()
-    //se houver erro o controller nem entra retorna 400 Bad Request
-    //Com mensagens específicas por campo,definidas nessa classe que implementa a interdace do Bean VAlidation
-    // serve para aplicar regras de validação COMPLEXAS que não podem ser resolvidas com @NotNull, @NotBlank, etc
     public ResponseEntity<RegisterResponse> register(@RequestBody @Valid RegisterRequest request) {
-
         UUID userId = authService.register(request);
 
-        // Autentica automaticamente após o registro do usuário
-        //lógica reaproveitada do login
+        // Autentica automaticamente após o registro do usuário ; lógica reaproveitada do login
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.cpf(),
                         request.password()
                 )
         );
-
         String jwt = jwtUtil.generateToken(authentication);
 
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new RegisterResponse(userId, jwt));
+                .status(HttpStatus.CREATED).body(new RegisterResponse(userId, jwt));
     }
-
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody @Valid LoginRequest request) {
@@ -84,6 +70,15 @@ public class AuthController {
             );
             // Se chegou aqui → credenciais corretas
             String jwt = jwtUtil.generateToken(authentication);
+            if (request.fcmToken() != null && !request.fcmToken().isBlank()) {
+                UserDetailsImpl userDetails =
+                        (UserDetailsImpl) authentication.getPrincipal();
+
+                authService.atualizarFcmToken(
+                        userDetails.getUser().getIdUser(),
+                        request.fcmToken()
+                );
+            }
             return ResponseEntity.ok(new LoginResponse(jwt));
 
         } catch (BadCredentialsException e) {
@@ -108,5 +103,17 @@ public class AuthController {
 
         familyService.createContacstFamily(id, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/atualizar-senha")
+    public ResponseEntity<Void> atualizarSenha(
+            @RequestBody UpdatePasswordByEmailRequest request) {
+        System.out.println("Entrei no controller");
+        authService.atualizarSenhaPorEmail(
+                request.email(),
+                request.novaSenha()
+        );
+
+        return ResponseEntity.noContent().build();
     }
 }

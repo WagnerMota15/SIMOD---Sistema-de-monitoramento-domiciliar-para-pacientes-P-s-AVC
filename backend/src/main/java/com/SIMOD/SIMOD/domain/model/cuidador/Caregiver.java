@@ -21,7 +21,7 @@ import java.util.Set;
 public class Caregiver extends User {
 
     @OneToMany(mappedBy = "caregiver", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<CaregiverPatient> patientVinculos;
+    private Set<CaregiverPatient> patientVinculos = new HashSet<>();
 
     public void adicionarVinculoPaciente(CaregiverPatient vinculo) {
         this.patientVinculos.add(vinculo);

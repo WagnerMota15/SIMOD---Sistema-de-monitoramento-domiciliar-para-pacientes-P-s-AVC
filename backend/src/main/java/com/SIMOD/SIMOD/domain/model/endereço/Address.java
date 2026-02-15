@@ -2,37 +2,21 @@ package com.SIMOD.SIMOD.domain.model.endereço;
 
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(
-        name = "address",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        columnNames = {
-                                "cep",
-                                "public_space",
-                                "number",
-                                "neighborhood",
-                                "city",
-                                "state"
-                        }
-                )
-        }
-)
+@Table(name = "address")
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Address {
-
     @Id
     @GeneratedValue
     private UUID id;
@@ -55,5 +39,4 @@ public class Address {
         this.state = state;
         this.number = number;
     }
-
 }

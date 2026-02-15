@@ -10,6 +10,13 @@ import org.springframework.stereotype.Component;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+/*
+Gera tokens JWT a partir de um usuário autenticado
+Extrai informações do token, como o nome do usuário
+Verifica se o token é válido para um determinado usuário
+Controla o tempo de expiração do token
+*/
+
 @Component
 public class JwtUtil {
 

@@ -15,6 +15,7 @@ import com.SIMOD.SIMOD.dto.plansTreatment.DietRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.DietResponse;
 import com.SIMOD.SIMOD.dto.plansTreatment.MedicinesResponse;
 import com.SIMOD.SIMOD.repositories.*;
+import com.SIMOD.SIMOD.services.firebase.NotificationFacadeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,7 +36,8 @@ public class DietService {
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final CaregiverPatientRepository caregiverPatientRepository;
     private final DietRepository dietRepository;
-    private final NotificationsService notificationsService;
+    private final NotificationFacadeService notificationFacadeService;
+
 
     @Transactional
     public Diet prescreverDieta(Authentication authentication, UUID patientId, DietRequest request){
@@ -68,19 +70,20 @@ public class DietService {
                 "Nova dieta prescrita",
                 "O nutricionista " + professional.getNameComplete() +
                         " prescreveu uma nova dieta para você.",
-                "DIETA_PRESCRITA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(patient.getIdUser(), notifPaciente);
+        notificationFacadeService.notify(patient.getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(patient,
                 "Nova dieta prescrita para o paciente",
                 "O nutricionista " + professional.getNameComplete() +
                         " prescreveu uma dieta para o paciente " + patient.getNameComplete(),
-                "DIETA_PRESCRITA"
+                TipoNotificacao.INFO
         );
 
         return savedDiet;
     }
+
 
     @Transactional
     public DietResponse editarDieta(Authentication authentication, UUID dietId, DietRequest request) {
@@ -111,19 +114,20 @@ public class DietService {
                 "Dieta editada",
                 "O nutricionista " + professional.getNameComplete() +
                         " editou uma dieta.",
-                "DIETA_EDITADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(diet.getPatient().getIdUser(), notifPaciente);
+        notificationFacadeService.notify(diet.getPatient().getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(diet.getPatient(),
                 "Dieta editada para o paciente",
                 "O nutricionista " + professional.getNameComplete() +
                         " editou uma dieta do paciente " + diet.getPatient().getNameComplete(),
-                "DIETA_EDITADA"
+                TipoNotificacao.INFO
         );
 
         return toResponse(updated);
     }
+
 
     @Transactional
     public void inativarDieta(Authentication authentication, UUID dietId) {
@@ -151,17 +155,18 @@ public class DietService {
                 "Dieta inativada",
                 "O nutricionista " + professional.getNameComplete() +
                         " inativada uma dieta.",
-                "DIETA_INATIVADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(diet.getPatient().getIdUser(), notifPaciente);
+        notificationFacadeService.notify(diet.getPatient().getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(diet.getPatient(),
                 "Dieta inativada para o paciente",
                 "O nutricionista " + professional.getNameComplete() +
                         " inativada uma dieta do paciente " + diet.getPatient().getNameComplete(),
-                "DIETA_INATIVADA"
+                TipoNotificacao.INFO
         );
     }
+
 
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietas(Authentication authentication, Pageable pageable) {
@@ -204,6 +209,7 @@ public class DietService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietasAtivas(Authentication authentication, Pageable pageable) {
@@ -248,6 +254,7 @@ public class DietService {
         };
     }
 
+
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietasInativas(Authentication authentication, Pageable pageable) {
         User user = getUsuarioLogado(authentication);
@@ -290,6 +297,7 @@ public class DietService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<DietResponse> listarDietasPorPaciente(Authentication authentication, UUID patientId, Pageable pageable) {
@@ -382,12 +390,12 @@ public class DietService {
     }
 
 
-
     // Auxiliares
     private User getUsuarioLogado(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
         return userDetails.getUser();
     }
+
 
     private Professional getProfessionalLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
@@ -397,6 +405,7 @@ public class DietService {
                 );
     }
 
+
     private Patient getPacienteLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
         return patientRepository.findByIdUser(user.getIdUser())
@@ -404,6 +413,7 @@ public class DietService {
                         new EntityNotFoundException("Paciente não encontrado")
                 );
     }
+
 
     private Caregiver getCuidadorLogado(Authentication authentication) {
         User user = getUsuarioLogado(authentication);
@@ -413,16 +423,18 @@ public class DietService {
                 );
     }
 
-    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, String tipo) {
+
+    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
         for (CaregiverPatient vinculo : vinculos) {
             Caregiver caregiver = vinculo.getCaregiver();
             if (caregiver != null && caregiver.getIdUser() != null) {
                 NotificationsRequest notif = new NotificationsRequest(titulo, mensagem, tipo);
-                notificationsService.criarNotificacao(caregiver.getIdUser(), notif);
+                notificationFacadeService.notify(caregiver.getIdUser(), notif);
             }
         }
     }
+
 
     private DietResponse toResponse(Diet diet) {
         return new DietResponse(

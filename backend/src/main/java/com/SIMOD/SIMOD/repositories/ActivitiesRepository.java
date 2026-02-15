@@ -2,6 +2,7 @@ package com.SIMOD.SIMOD.repositories;
 
 import com.SIMOD.SIMOD.domain.enums.Status;
 import com.SIMOD.SIMOD.domain.model.atividades.Activities;
+import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -11,11 +12,15 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ActivitiesRepository extends JpaRepository<Activities, UUID> {
+    List<Activities> findByPatientIdUserAndStatus(UUID patientId, Status status);
+
+    // Page não retorna tudo de vez, retorna resultados paginados o que ajuda quando é algo escalável
     Page<Activities> findByPatientIdUserOrderByCreatedAtDesc(
             UUID patientUserId,
             Pageable pageable
     );
 
+    // OrderByCreatedAtDesc => ordenação por data de criação
     Page<Activities> findByPatientIdUserAndStatusOrderByCreatedAtDesc(
             UUID patientUserId,
             Status status,

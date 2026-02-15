@@ -13,7 +13,10 @@ import java.util.UUID;
 
 public interface PatientProfessionalRepository extends JpaRepository<PatientProfessional, PatientProfessionalId> {
     boolean existsByPatientAndProfessionalAndStatus(Patient patient, Professional professional, VinculoStatus status);
+
     Optional<PatientProfessional> findByPatientAndProfessional(Patient patient, Professional professional);
+
     List<PatientProfessional> findByPatientAndStatus(Patient patient, VinculoStatus status);
+
     List<PatientProfessional> findByProfessionalAndStatus(Professional professional, VinculoStatus status);
 }

@@ -7,6 +7,7 @@ import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsResponse;
 import com.SIMOD.SIMOD.repositories.NotificationsRepository;
 import com.SIMOD.SIMOD.repositories.UserRepository;
+import com.SIMOD.SIMOD.services.firebase.FcmService;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +24,15 @@ import java.util.UUID;
 public class NotificationsService {
 
     private final NotificationsRepository notificationRepository;
+    private final FcmService fcmService;
+    private final UserRepository userRepository;
+
 
     @Transactional
     public void criarNotificacao(UUID userDestination, NotificationsRequest request) {
+        User user = userRepository.findById(userDestination)
+                .orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado"));
+
         Notifications notificacao = Notifications.builder()
                 .userId(userDestination)
                 .title(request.titulo())
@@ -36,7 +43,16 @@ public class NotificationsService {
                 .build();
 
         notificationRepository.save(notificacao);
+
+        if (user.getFcmToken() != null && deveEnviarPush(request.tipo())) {
+            fcmService.send(
+                    user.getFcmToken(),
+                    request.titulo(),
+                    request.mensagem()
+            );
+        }
     }
+
 
     @Transactional(readOnly = true)
     public Page<NotificationsResponse> listarNotificacoes(Pageable pageable) {
@@ -47,6 +63,7 @@ public class NotificationsService {
                 .map(this::toResponse);
     }
 
+
     @Transactional(readOnly = true)
     public Page<NotificationsResponse> listarNaoLidas(Pageable pageable) {
         UUID usuarioLogadoId = getUsuarioLogadoId();
@@ -55,6 +72,7 @@ public class NotificationsService {
                 .findByUserIdAndReadFalseOrderByCreatedAtDesc(usuarioLogadoId, pageable)
                 .map(this::toResponse);
     }
+
 
     @Transactional
     public void marcarComoLida(UUID notificacaoId) {
@@ -73,17 +91,20 @@ public class NotificationsService {
         notificationRepository.save(notificacao);
     }
 
+
     @Transactional
     public void marcarTodasComoLidas() {
         UUID usuarioLogadoId = getUsuarioLogadoId();
         notificationRepository.marcarTodasComoLidas(usuarioLogadoId);
     }
 
+
     @Transactional(readOnly = true)
     public long contarNaoLidas() {
         UUID usuarioLogadoId = getUsuarioLogadoId();
         return notificationRepository.countByUserIdAndReadFalse(usuarioLogadoId);
     }
+
 
     @Transactional
     public void apagarNotificacao(UUID notificacaoId) {
@@ -101,6 +122,7 @@ public class NotificationsService {
         notificationRepository.delete(notificacao);
     }
 
+
     // Auxiliares
     private UUID getUsuarioLogadoId() {
         var auth = org.springframework.security.core.context.SecurityContextHolder
@@ -111,6 +133,7 @@ public class NotificationsService {
         return userDetails.getUser().getIdUser();
     }
 
+
     private NotificationsResponse toResponse(Notifications n) {
         return new NotificationsResponse(
                 n.getId(),
@@ -120,5 +143,13 @@ public class NotificationsService {
                 n.isRead(),
                 n.getCreatedAt()
         );
+    }
+
+
+    private boolean deveEnviarPush(TipoNotificacao tipo) {
+        return switch (tipo) {
+            case ALERTA, INFO, URGENTE -> true;
+            case SISTEMA -> false;
+        };
     }
 }

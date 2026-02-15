@@ -1,14 +1,10 @@
 package com.SIMOD.SIMOD.controller;
 
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
-import com.SIMOD.SIMOD.domain.model.mensagens.Alert;
-import com.SIMOD.SIMOD.domain.model.mensagens.Reminders;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
-import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.Messages.NotificationsResponse;
 import com.SIMOD.SIMOD.dto.Messages.ReminderRequest;
 import com.SIMOD.SIMOD.dto.Messages.ReminderResponse;
-import com.SIMOD.SIMOD.services.AlertService;
 import com.SIMOD.SIMOD.services.NotificationsService;
 import com.SIMOD.SIMOD.services.RemindersService;
 import jakarta.validation.Valid;
@@ -30,7 +26,6 @@ public class MessagesController {
 
     private final RemindersService remindersService;
     private final NotificationsService notificationsService;
-    private final AlertService alertService;
 
     // ----- Reminders ------
     @PostMapping("/lembretes/criar-lembrete")
@@ -106,27 +101,7 @@ public class MessagesController {
         return ResponseEntity.noContent().build();
     }
 
-
-    // ----- Alerts ------
-    @GetMapping("/alertas")
-    public ResponseEntity<List<Alert>> listarAlertas(Authentication authentication) {
-        User usuario = getUsuario(authentication);
-        return ResponseEntity.ok(
-                alertService.listarAlertasPaciente(usuario.getIdUser())
-        );
-    }
-
-    @PutMapping("/alertas/{alertId}/resolver")
-    public ResponseEntity<Void> resolverAlerta(
-            @PathVariable UUID alertId,
-            Authentication authentication
-    ) {
-        User usuario = getUsuario(authentication);
-        alertService.resolverAlerta(usuario.getIdUser(), alertId);
-        return ResponseEntity.noContent().build();
-    }
-
-
+    
     // Auxiliar
     private User getUsuario(Authentication authentication) {
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();

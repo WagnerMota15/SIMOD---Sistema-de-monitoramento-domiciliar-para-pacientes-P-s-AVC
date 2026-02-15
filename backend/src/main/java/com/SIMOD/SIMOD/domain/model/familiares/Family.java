@@ -15,33 +15,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Family {
-
-    public Family(String name, String telephone, Kinship kinship) {
-        this.name = name;
-        this.telephone = telephone;
-        this.kinship = kinship;
-    }
-
-    public UUID getIdFamily() {
-        return idFamily;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getTelephone() {
-        return telephone;
-    }
-
-    public Kinship getKinship() {
-        return kinship;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
     @Id
     @GeneratedValue
     private UUID idFamily;
@@ -54,6 +27,4 @@ public class Family {
     @ManyToOne
     @JoinColumn(name = "patient_id")
     private Patient patient;
-
-
 }

@@ -13,6 +13,7 @@ import com.SIMOD.SIMOD.dto.Messages.NotificationsRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.MedicinesRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.MedicinesResponse;
 import com.SIMOD.SIMOD.repositories.*;
+import com.SIMOD.SIMOD.services.firebase.NotificationFacadeService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ public class MedicineService {
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final CaregiverPatientRepository caregiverPatientRepository;
     private final MedicinesRepository medicinesRepository;
-    private final NotificationsService notificationsService;
+    private final NotificationFacadeService  notificationFacadeService;
 
 
     @Transactional
@@ -69,19 +70,20 @@ public class MedicineService {
                 "Nova medicamento prescrito",
                 "O medico " + professional.getNameComplete() +
                         " prescreveu um novo medicamento para você.",
-                "MEDICAMENTO_PRESCRITO"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(patient.getIdUser(), notifPaciente);
+        notificationFacadeService.notify(patient.getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(patient,
                 "Novo medicamento prescrito para o paciente",
                 "O medico " + professional.getNameComplete() +
                         " prescreveu um medicamento para o paciente " + patient.getNameComplete(),
-                "MEDICAMENTO_PRESCRITO"
+                TipoNotificacao.INFO
         );
 
         return savedMedicine;
     }
+
 
     @Transactional
     public MedicinesResponse editarMedicamento(Authentication authentication, UUID dietId, MedicinesRequest request) {
@@ -113,19 +115,20 @@ public class MedicineService {
                 "Medicamento editado",
                 "O medico " + professional.getNameComplete() +
                         " editou um medicamento.",
-                "MEDICAMENTO_EDITADO"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(medicine.getPatient().getIdUser(), notifPaciente);
+        notificationFacadeService.notify(medicine.getPatient().getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(medicine.getPatient(),
                 "Medicamento editado para o paciente",
                 "O medicamento " + professional.getNameComplete() +
                         " editou um medicamento do paciente " + medicine.getPatient().getNameComplete(),
-                "MEDICAMENTO_EDITADO"
+                TipoNotificacao.INFO
         );
 
         return toResponse(updated);
     }
+
 
     @Transactional
     public void inativarMedicamento(Authentication authentication, UUID medicineId) {
@@ -153,17 +156,18 @@ public class MedicineService {
                 "Medicamento inativado",
                 "O medico " + professional.getNameComplete() +
                         " inativou um medicamento.",
-                "MEDICAMENTO_INATIVADO"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(medicine.getPatient().getIdUser(), notifPaciente);
+        notificationFacadeService.notify(medicine.getPatient().getIdUser(), notifPaciente);
 
         notificarTodosCuidadores(medicine.getPatient(),
                 "Medicamento inativado para o paciente",
                 "O medico " + professional.getNameComplete() +
                         " inativou um medicamento do paciente " + medicine.getPatient().getNameComplete(),
-                "MEDICAMENTO_INATIVADO"
+                TipoNotificacao.INFO
         );
     }
+
 
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentos(Authentication authentication, Pageable pageable) {
@@ -206,6 +210,7 @@ public class MedicineService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentosAtivos(Authentication authentication, Pageable pageable) {
@@ -250,6 +255,7 @@ public class MedicineService {
         };
     }
 
+
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentosInativos(Authentication authentication, Pageable pageable) {
         User user = getUsuarioLogado(authentication);
@@ -292,6 +298,7 @@ public class MedicineService {
             default -> throw new IllegalStateException("Perfil não autorizado");
         };
     }
+
 
     @Transactional(readOnly = true)
     public Page<MedicinesResponse> listarMedicamentosPorPaciente(Authentication authentication, UUID patientId, Pageable pageable) {
@@ -414,16 +421,18 @@ public class MedicineService {
                 );
     }
 
-    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, String tipo) {
+
+    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
         for (CaregiverPatient vinculo : vinculos) {
             Caregiver caregiver = vinculo.getCaregiver();
             if (caregiver != null && caregiver.getIdUser() != null) {
                 NotificationsRequest notif = new NotificationsRequest(titulo, mensagem, tipo);
-                notificationsService.criarNotificacao(caregiver.getIdUser(), notif);
+                notificationFacadeService.notify(caregiver.getIdUser(), notif);
             }
         }
     }
+
 
     private MedicinesResponse toResponse(Medicines medicines) {
         return new MedicinesResponse(

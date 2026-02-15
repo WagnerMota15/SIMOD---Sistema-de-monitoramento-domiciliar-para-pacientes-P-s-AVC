@@ -26,7 +26,9 @@ public class Notifications {
 
     private String message;
 
-    private String type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type")
+    private TipoNotificacao type;
 
     private boolean read = false;
 

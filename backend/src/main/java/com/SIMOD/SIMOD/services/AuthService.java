@@ -1,80 +1,73 @@
 package com.SIMOD.SIMOD.services;
 
-import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
-import com.SIMOD.SIMOD.domain.model.paciente.Patient;
-import com.SIMOD.SIMOD.domain.model.profissional.Professional;
 import com.SIMOD.SIMOD.domain.model.usuario.User;
+import com.SIMOD.SIMOD.domain.model.usuario.UserDevices;
 import com.SIMOD.SIMOD.dto.auth.RegisterRequest;
-import com.SIMOD.SIMOD.repositories.CaregiverRepository;
-import com.SIMOD.SIMOD.repositories.PatientRepository;
-import com.SIMOD.SIMOD.repositories.ProfessionalRepository;
+import com.SIMOD.SIMOD.repositories.UserDevicesRepository;
 import com.SIMOD.SIMOD.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
-
-// Camada de serviço responsável pelos casos de uso de autenticação e registro.
-// Contém lógica de aplicação e orquestra repositórios, mantendo entidades desacopladas da infraestrutura.
 public class AuthService {
-
-    private final PatientRepository patientRepository;
-    private final CaregiverRepository caregiverRepository;
-    private final ProfessionalRepository professionalRepository;  // ou repo mais específico se tiver
-
-    // Componente responsável por hash seguro de senhas (BCrypt)
-    // Evita armazenamento de senha em texto plano (requisito de segurança)
+    @Autowired
+    private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final UserDevicesRepository userDevicesRepository;
 
-    @Transactional
-    public UUID register(RegisterRequest request) {
 
-        // Cria a entidade correta (Patient, Caregiver ou Professional)
-        // com base no papel informado no request
-        // Factory centraliza a regra de criação e evita lógica condicional espalhada
+    public UUID register(RegisterRequest request){
+
         User user = UserFactory.create(request);
 
-        // Aplica hash na senha antes de persistir no bd
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
-        System.out.println("Iniciando registro para role: " + request.role());
-        System.out.println("Usuário criado: " + user.getClass().getSimpleName() + " - " + user.getEmail());
+        userRepository.save(user);
+        return user.getIdUser();
 
-        // Seleciona o fluxo de persistência de acordo com o papel do usuário(role) e utilizando o switch
-        //evitando extensos if/else
-        UUID generatedId = switch (request.role()) {
-            case PACIENTE -> {
-                Patient patient = (Patient) user;
+    }
 
-                //aqui o usuário então é persistido no banco,chamando o método .save
-                //gerada em execução pelo JPA repo(patientRepository),que gera a interface concreta e contendo esse método
-                Patient saved = patientRepository.save(patient);
-                System.out.println("Paciente salvo - ID gerado: " + saved.getId());
 
-                //o yield foi utilizado para retornar o valor do case(UUID),melhor decisão para esse trecho de código
-                yield saved.getId();
-            }
-            case CUIDADOR -> {
-                Caregiver caregiver = (Caregiver) user;
-                Caregiver saved = caregiverRepository.save(caregiver);
-                System.out.println("Cuidador salvo - ID gerado: " + saved.getId());
-                yield saved.getId();
-            }
-            case MEDICO, FONOAUDIOLOGO, PSICOLOGO, NUTRICIONISTA, FISIOTERAPEUTA -> {
-                Professional professional = (Professional) user;
-                Professional saved = professionalRepository.save(professional);
-                System.out.println("Profissional salvo - ID gerado: " + saved.getId());
-                yield saved.getId();
-            }
-            default -> throw new IllegalArgumentException("Role não suportado: " + request.role());
-        };
+    @Transactional
+    public void atualizarSenhaPorEmail(String email, String novaSenha) {
 
-        System.out.println("Registro concluído - ID retornado: " + generatedId);
-        return generatedId;
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        if (passwordEncoder.matches(novaSenha, user.getPassword())) {
+            throw new RuntimeException("A nova senha não pode ser igual à senha atual");
+        }
+
+        // Pode futuramente colocar um verifação via email para segurança
+        user.setPassword(passwordEncoder.encode(novaSenha));
+        userRepository.save(user);
+    }
+
+
+    @Transactional
+    public void atualizarFcmToken(UUID userId, String fcmToken) {
+
+        Optional<UserDevices> existing =
+                userDevicesRepository.findByFcmToken(fcmToken);
+
+        UserDevices device = existing.orElseGet(UserDevices::new);
+
+        device.setUserId(userId);
+        device.setFcmToken(fcmToken);
+        device.setLastLogin(LocalDateTime.now());
+
+        if (device.getCreatedAt() == null) {
+            device.setCreatedAt(LocalDateTime.now());
+        }
+
+        userDevicesRepository.save(device);
     }
 }

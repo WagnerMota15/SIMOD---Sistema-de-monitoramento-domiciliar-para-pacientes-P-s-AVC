@@ -8,5 +8,5 @@ import java.util.UUID;
 
 public interface FamilyRepository extends JpaRepository<Family, UUID> {
 
-    List<Family> findByPatientId(UUID patientId);
+    List<Family> findByPatientIdUser(UUID patientId);
 }

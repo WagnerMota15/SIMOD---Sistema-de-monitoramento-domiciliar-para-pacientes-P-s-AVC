@@ -3,7 +3,11 @@ package com.SIMOD.SIMOD.domain.model.mensagens;
 import com.SIMOD.SIMOD.domain.enums.IntervaloRecorrencia;
 import com.SIMOD.SIMOD.domain.enums.TipoLembrete;
 import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
+import com.SIMOD.SIMOD.domain.model.atividades.Activities;
+import com.SIMOD.SIMOD.domain.model.dieta.Diet;
+import com.SIMOD.SIMOD.domain.model.medicamentos.Medicines;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
+import com.SIMOD.SIMOD.domain.model.sessoes.Sessions;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,6 +50,9 @@ public class Reminders {
     @Column(name = "interval_type")
     private IntervaloRecorrencia intervalType;
 
+    @Column(name = "interval_hours")
+    private Integer intervalHours;
+
     private boolean confirmed;
 
     @Column(name = "confirmed_at")
@@ -59,6 +66,22 @@ public class Reminders {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "medicine_id")
+    private Medicines medicine;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diet_id")
+    private Diet diet;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "activity_id")
+    private Activities activity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
+    private Sessions session;
 
     public void confirm() {
         this.confirmed = true;

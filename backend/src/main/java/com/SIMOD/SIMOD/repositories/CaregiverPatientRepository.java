@@ -13,7 +13,10 @@ import java.util.UUID;
 
 public interface CaregiverPatientRepository extends JpaRepository<CaregiverPatient, CaregiverPatientId> {
     boolean existsByCaregiverAndPatientAndStatus(Caregiver caregiver, Patient patient, VinculoStatus status);
+
     Optional<CaregiverPatient> findByCaregiverAndPatient(Caregiver caregiver, Patient patient);
+
     List<CaregiverPatient> findByPatientAndStatus(Patient patient, VinculoStatus status);
+
     List<CaregiverPatient> findByCaregiverAndStatus(Caregiver caregiver, VinculoStatus status);
 }

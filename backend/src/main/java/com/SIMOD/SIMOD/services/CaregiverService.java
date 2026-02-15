@@ -1,10 +1,7 @@
 package com.SIMOD.SIMOD.services;
 
 import com.SIMOD.SIMOD.config.UserDetailsImpl;
-import com.SIMOD.SIMOD.domain.enums.RemetenteVinculo;
-import com.SIMOD.SIMOD.domain.enums.Role;
-import com.SIMOD.SIMOD.domain.enums.SessionsStatus;
-import com.SIMOD.SIMOD.domain.enums.VinculoStatus;
+import com.SIMOD.SIMOD.domain.enums.*;
 import com.SIMOD.SIMOD.domain.model.associacoes.CaregiverPatient;
 import com.SIMOD.SIMOD.domain.model.cuidador.Caregiver;
 import com.SIMOD.SIMOD.domain.model.paciente.Patient;
@@ -17,6 +14,7 @@ import com.SIMOD.SIMOD.dto.plansTreatment.SessionsRequest;
 import com.SIMOD.SIMOD.dto.plansTreatment.SessionsResponse;
 import com.SIMOD.SIMOD.dto.vinculo.SolicitarVinculoRequest;
 import com.SIMOD.SIMOD.repositories.*;
+import com.SIMOD.SIMOD.services.firebase.NotificationFacadeService;
 import io.micrometer.common.lang.Nullable;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
@@ -41,7 +39,7 @@ public class CaregiverService {
     private final ProfessionalRepository professionalRepository;
     private final PatientProfessionalRepository patientProfessionalRepository;
     private final SessionsRepository sessionsRepository;
-    private final NotificationsService notificationsService;
+    private final NotificationFacadeService notificationFacadeService;
 
     public Caregiver criarCuidador(CaregiverRequest dado) {
         Caregiver novoCuidador = new Caregiver();
@@ -56,7 +54,6 @@ public class CaregiverService {
 
 
     // ----- SISTEMA DE SESSÃO -----
-
     @Transactional
     public Sessions marcarSessaoParaPaciente(Authentication authentication, UUID patientId, UUID professionalId, SessionsRequest request) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -92,20 +89,21 @@ public class CaregiverService {
                 "O cuidador " + caregiver.getNameComplete() +
                         " marcou uma sessão para o paciente " + patient.getNameComplete() +
                         " em " + request.dateTime() + ". Verifique e confirme.",
-                "SESSAO_AGENDADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(professional.getIdUser(), notifProfissional);
+        notificationFacadeService.notify(professional.getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(patient,
                 "Sessão marcada para o paciente",
                 "O cuidador " + caregiver.getNameComplete() +
                         " marcou uma sessão com o profissional " + professional.getNameComplete() +
                         " em " + request.dateTime() + ".",
-                "SESSAO_AGENDADA"
+                TipoNotificacao.INFO
         );
 
         return saved;
     }
+
 
     @Transactional
     public void desmarcarSessao(Authentication authentication, UUID sessaoId) {
@@ -139,18 +137,19 @@ public class CaregiverService {
                 "Sessão desmarcada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " desmarcou a sessão agendada para " + session.getDateTime() + ".",
-                "SESSAO_DESMARCADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         // Notificação para TODOS OS CUIDADORES vinculados
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente desmarcada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " desmarcou a sessão agendada para " + session.getDateTime() + ".",
-                "SESSAO_DESMARCADA"
+                TipoNotificacao.INFO
         );
     }
+
 
     @Transactional
     public Sessions confirmarSessao(Authentication authentication, UUID sessaoId) {
@@ -181,20 +180,21 @@ public class CaregiverService {
                 "O cuidador " + caregiver.getNameComplete() +
                         " confirmou a sessão do paciente " + session.getPatient().getNameComplete() +
                         " em " + session.getDateTime() + ".",
-                "SESSAO_CONFIRMADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente confirmada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " confirmou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " em " + session.getDateTime() + ".",
-                "SESSAO_CONFIRMADA"
+                TipoNotificacao.INFO
         );
 
         return session;
     }
+
 
     @Transactional
     public Sessions rejeitarSessao(Authentication authentication, UUID sessaoId, String motivo) {
@@ -225,20 +225,21 @@ public class CaregiverService {
                 "Sessão rejeitada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " rejeitou a sessão marcada para " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_REJEITADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente rejeitada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " rejeitou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " marcada para " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_REJEITADA"
+                TipoNotificacao.INFO
         );
 
         return session;
     }
+
 
     @Transactional
     public Sessions cancelarSessao(Authentication authentication, UUID sessaoId, String motivo) {
@@ -269,19 +270,20 @@ public class CaregiverService {
                 "Sessão cancelada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " cancelou a sessão de " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_CANCELADA"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente cancelada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " cancelou a sessão de " + session.getDateTime() + ". Motivo: " + motivo,
-                "SESSAO_CANCELADA"
+                TipoNotificacao.INFO
         );
 
         return session;
     }
+
 
     @Transactional
     public Sessions reagendarSessao(Authentication authentication, UUID sessaoId, LocalDateTime novaDataHora, SessionsRequest request) {
@@ -316,20 +318,21 @@ public class CaregiverService {
                 "O cuidador " + caregiver.getNameComplete() +
                         " reagendou a sessão do paciente " + session.getPatient().getNameComplete() +
                         " para " + novaDataHora + ". Verifique e confirme.",
-                "SESSAO_REAGENDADA_POR_CUIDADOR"
+                TipoNotificacao.INFO
         );
-        notificationsService.criarNotificacao(session.getProfessional().getIdUser(), notifProfissional);
+        notificationFacadeService.notify(session.getProfessional().getIdUser(), notifProfissional);
 
         notificarTodosCuidadores(session.getPatient(),
                 "Sessão do paciente reagendada",
                 "O cuidador " + caregiver.getNameComplete() +
                         " reagendou a sessão com o profissional " + session.getProfessional().getNameComplete() +
                         " para " + novaDataHora + ".",
-                "SESSAO_REAGENDADA"
+                TipoNotificacao.INFO
         );
 
         return session;
     }
+
 
     @Transactional(readOnly = true)
     public Page<SessionsResponse> listarTodasSessoesDoPaciente(
@@ -357,6 +360,7 @@ public class CaregiverService {
 
     }
 
+
     @Transactional(readOnly = true)
     public Page<SessionsResponse> listarSessoesAnterioresDoPaciente(
             Authentication authentication,
@@ -380,8 +384,6 @@ public class CaregiverService {
 
         return new PageImpl<>(anteriores.stream().map(this::mapearParaResponse).toList(), pageable, page.getTotalElements());
     }
-
-
 
 
     // ----- SISTEMA DE VÍNCULO -----
@@ -413,11 +415,12 @@ public class CaregiverService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Nova solicitação de vínculo",
                 "O cuidador " + caregiver.getNameComplete() + " gostaria de cuidar de você.",
-                "VINCULO_SOLICITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(patient.getIdUser(), notificationRequest);
+        notificationFacadeService.notify(patient.getIdUser(), notificationRequest);
     }
+
 
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarPacientesAtivos(Authentication authentication) {
@@ -436,6 +439,7 @@ public class CaregiverService {
                 .collect(Collectors.toList());
     }
 
+
     @Transactional(readOnly = true)
     public List<SolicitarVinculoRequest.VinculoResponse> listarSolicitacoesPendentesPacientes(Authentication authentication) {
         Caregiver caregiver = getCaregiverLogado(authentication);
@@ -452,6 +456,7 @@ public class CaregiverService {
                 ))
                 .collect(Collectors.toList());
     }
+
 
     @Transactional
     public void aceitarSolicitacaoPaciente(Authentication authentication, UUID patientId) {
@@ -479,11 +484,12 @@ public class CaregiverService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Aceitação de vínculo",
                 "O cuidador " + caregiver.getNameComplete() + " aceitou sua solicitação",
-                "VINCULO_ACEITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(patientId, notificationRequest);
+        notificationFacadeService.notify(patientId, notificationRequest);
     }
+
 
     @Transactional
     public void rejeitarSolicitacaoPaciente(Authentication authentication, UUID patientId, String motivo) {
@@ -505,11 +511,12 @@ public class CaregiverService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Rejeitação de vínculo",
                 "O cuidador " + caregiver.getNameComplete() + " rejeitou sua solicitação",
-                "VINCULO_REJEITADO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(patientId, notificationRequest);
+        notificationFacadeService.notify(patientId, notificationRequest);
     }
+
 
     @Transactional
     public void desfazerVinculoPaciente(Authentication authentication, UUID patientId) {
@@ -532,10 +539,10 @@ public class CaregiverService {
         NotificationsRequest notificationRequest = new NotificationsRequest(
                 "Desfez o vínculo",
                 "O cuidador " + caregiver.getNameComplete() + " desfez o vínculo com você",
-                "VINCULO_DESFEITO"
+                TipoNotificacao.INFO
         );
 
-        notificationsService.criarNotificacao(patientId, notificationRequest);
+        notificationFacadeService.notify(patientId, notificationRequest);
     }
 
 
@@ -550,6 +557,7 @@ public class CaregiverService {
                 );
     }
 
+
     private void validarVinculoAtivoComPaciente(Caregiver caregiver, Patient patient) {
         if (!caregiverPatientRepository.existsByCaregiverAndPatientAndStatus(
                 caregiver, patient, VinculoStatus.ACEITO)) {
@@ -557,16 +565,18 @@ public class CaregiverService {
         }
     }
 
-    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, String tipo) {
+
+    private void notificarTodosCuidadores(Patient patient, String titulo, String mensagem, TipoNotificacao tipo) {
         List<CaregiverPatient> vinculos = caregiverPatientRepository.findByPatientAndStatus(patient, VinculoStatus.ACEITO);
         for (CaregiverPatient vinculo : vinculos) {
             Caregiver caregiver = vinculo.getCaregiver();
             if (caregiver != null && caregiver.getIdUser() != null) {
                 NotificationsRequest notif = new NotificationsRequest(titulo, mensagem, tipo);
-                notificationsService.criarNotificacao(caregiver.getIdUser(), notif);
+                notificationFacadeService.notify(caregiver.getIdUser(), notif);
             }
         }
     }
+
 
     private SessionsResponse mapearParaResponse(Sessions s) {
         return new SessionsResponse(
